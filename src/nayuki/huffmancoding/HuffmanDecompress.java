@@ -24,7 +24,7 @@ public final class HuffmanDecompress {
 		File inputFile = new File(args[0]);
 		File outputFile = new File(args[1]);
 		
-		BitInputStream in = new BitInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
+		BitInputStream in = new ByteBitInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
 		OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
 		try {
 			CanonicalCode canonCode = readCode(in);
