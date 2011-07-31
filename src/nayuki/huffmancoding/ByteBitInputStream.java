@@ -14,7 +14,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	private int nextBits;  // Either in the range 0x00 to 0xFF, or -1 if the end of stream is reached
 	
-	private int numBitsRemaining;  // Always between 0 and 7, inclusive
+	private int bitPosition;  // Always between 1 and 8, inclusive
 	
 	private boolean isEndOfStream;
 	
@@ -24,7 +24,7 @@ public final class ByteBitInputStream implements BitInputStream {
 		if (in == null)
 			throw new NullPointerException("Argument is null");
 		input = in;
-		numBitsRemaining = 0;
+		bitPosition = 8;
 		isEndOfStream = false;
 	}
 	
@@ -34,16 +34,17 @@ public final class ByteBitInputStream implements BitInputStream {
 	public int read() throws IOException {
 		if (isEndOfStream)
 			return -1;
-		if (numBitsRemaining == 0) {
+		if (bitPosition == 8) {
 			nextBits = input.read();
 			if (nextBits == -1) {
 				isEndOfStream = true;
 				return -1;
 			}
-			numBitsRemaining = 8;
+			bitPosition = 0;
 		}
-		numBitsRemaining--;
-		return (nextBits >>> numBitsRemaining) & 1;
+		int result = (nextBits >>> bitPosition) & 1;
+		bitPosition++;
+		return result;
 	}
 	
 	
@@ -54,6 +55,19 @@ public final class ByteBitInputStream implements BitInputStream {
 			return result;
 		else
 			throw new EOFException("End of stream reached");
+	}
+	
+	
+	// Returns the current bit position, which is between 0 and 7 inclusive. The number of bits remaining in the current byte is 8 minus this number.
+	public int getBitPosition() {
+		return bitPosition % 8;
+	}
+	
+	
+	// Discards the remainder of the current byte and reads the next byte from the stream.
+	public int readByte() throws IOException {
+		bitPosition = 8;
+		return input.read();
 	}
 	
 	
