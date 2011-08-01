@@ -21,6 +21,13 @@ public final class DecompressorTest {
 	}
 	
 	
+	@Test(expected=EOFException.class)
+	public void testEofInBlockType() throws IOException {
+		// Partial block type
+		test("1 0", "");
+	}
+	
+	
 	@Test
 	public void testUncompressedEmpty() {
 		// Uncompressed block len=0: (empty)
@@ -61,6 +68,14 @@ public final class DecompressorTest {
 	public void testUncompressedMismatchedLength() throws IOException {
 		// Uncompressed block (mismatched len and nlen)
 		test("1 00 00000 0010000000010000 1111100100110101", "");
+	}
+	
+	
+	@Test(expected=EOFException.class)
+	public void testUncompressedBlockNoFinalBlock() throws IOException {
+		// Uncompressed block len=0: (empty)
+		// No final block
+		test("0 00 00000   0000000000000000 1111111111111111", "");
 	}
 	
 	
