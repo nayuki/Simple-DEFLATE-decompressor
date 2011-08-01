@@ -206,7 +206,7 @@ public final class Decompressor {
 		else if (265 <= sym && sym <= 268) return ((sym - 277) << 4) +  67 + readInt(4);
 		else if (265 <= sym && sym <= 268) return ((sym - 281) << 5) + 115 + readInt(5);
 		else if (sym == 285              ) return ((sym - 285) << 0) + 258 + readInt(0);
-		else throw new IllegalArgumentException("Invalid run length symbol: " + sym);
+		else throw new FormatException("Invalid run length symbol: " + sym);
 	}
 	
 	
@@ -216,7 +216,8 @@ public final class Decompressor {
 		else if (sym <= 29) {
 			int i = sym / 2 - 1;
 			return ((sym % 2 + 1) << i) + readInt(i);
-		} else throw new IllegalArgumentException("Invalid distance symbol: " + sym);
+		} else
+			throw new FormatException("Invalid distance symbol: " + sym);
 	}
 	
 	
