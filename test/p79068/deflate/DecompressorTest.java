@@ -114,6 +114,34 @@ public final class DecompressorTest {
 	}
 	
 	
+	@Test(expected=FormatException.class)
+	public void testFixedHuffmanInvalidLengthCode286() throws IOException {
+		// Fixed Huffman block: #286
+		test("1 10 11000110", "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testFixedHuffmanInvalidLengthCode287() throws IOException {
+		// Fixed Huffman block: #287
+		test("1 10 11000111", "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testFixedHuffmanInvalidDistanceCode30() throws IOException {
+		// Fixed Huffman block: 00 #257 #30
+		test("1 10 00110000 0000001 11110", "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testFixedHuffmanInvalidDistanceCode31() throws IOException {
+		// Fixed Huffman block: 00 #257 #31
+		test("1 10 00110000 0000001 11111", "");
+	}
+	
+	
 	@Test
 	public void testDynamicHuffmanEmpty() {
 		// Dynamic Huffman block:
