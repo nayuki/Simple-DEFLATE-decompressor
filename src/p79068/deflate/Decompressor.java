@@ -16,6 +16,14 @@ import nayuki.huffmancoding.Node;
 
 public final class Decompressor {
 	
+	public static byte[] decompress(BitInputStream in) throws IOException {
+		Decompressor decomp = new Decompressor(in);
+		return decomp.output.toByteArray();
+	}
+	
+	
+	
+	
 	private static CodeTree fixedLiteralLengthCode;
 	private static CodeTree fixedDistanceCode;
 	
@@ -30,12 +38,6 @@ public final class Decompressor {
 		int[] distcodelens = new int[32];
 		Arrays.fill(distcodelens, 5);
 		fixedDistanceCode = new CanonicalCode(distcodelens).toCodeTree();
-	}
-	
-	
-	public static byte[] decompress(BitInputStream in) throws IOException {
-		Decompressor decomp = new Decompressor(in);
-		return decomp.output.toByteArray();
 	}
 	
 	
@@ -68,7 +70,7 @@ public final class Decompressor {
 					throw new UnsupportedOperationException("Not implemented yet");
 				}
 				decompressHuffmanBlock(litLenCode, distCode);
-					
+			
 			} else if (btype == 3)
 				throw new RuntimeException("Invalid block type");
 			else
