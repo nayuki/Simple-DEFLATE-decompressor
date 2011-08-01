@@ -1,12 +1,20 @@
-package nayuki.huffmancoding;
+package p79068.deflate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
 
+import nayuki.huffmancoding.BitInputStream;
+import nayuki.huffmancoding.CanonicalCode;
+import nayuki.huffmancoding.CircularDictionary;
+import nayuki.huffmancoding.CodeTree;
+import nayuki.huffmancoding.InternalNode;
+import nayuki.huffmancoding.Leaf;
+import nayuki.huffmancoding.Node;
 
-public final class Inflater {
+
+public final class Decompressor {
 	
 	private static CodeTree fixedLiteralLengthCode;
 	private static CodeTree fixedDistanceCode;
@@ -26,8 +34,8 @@ public final class Inflater {
 	
 	
 	public static byte[] decompress(BitInputStream in) throws IOException {
-		Inflater inflater = new Inflater(in);
-		return inflater.output.toByteArray();
+		Decompressor decomp = new Decompressor(in);
+		return decomp.output.toByteArray();
 	}
 	
 	
@@ -40,7 +48,7 @@ public final class Inflater {
 	
 	
 	
-	private Inflater(BitInputStream in) throws IOException {
+	private Decompressor(BitInputStream in) throws IOException {
 		input = in;
 		output = new ByteArrayOutputStream();
 		dictionary = new CircularDictionary();
@@ -159,6 +167,6 @@ public final class Inflater {
 	
 	
 	
-	private Inflater() {}
+	private Decompressor() {}
 	
 }
