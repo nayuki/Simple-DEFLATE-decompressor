@@ -24,6 +24,12 @@ public final class DecompressorTest {
 	}
 	
 	
+	@Test
+	public void testUncompressedTwoBlocks() {
+		test("0 00 00000   0100000000000000 1011111111111111   10100000 00101000   1 00 00000   1000000000000000 0111111111111111   11000100", "05 14 23");
+	}
+	
+	
 	
 	private static void test(String input, String output) {
 		input = input.replace(" ", "");
