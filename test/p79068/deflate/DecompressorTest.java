@@ -7,11 +7,19 @@ import java.io.EOFException;
 import java.io.IOException;
 
 import nayuki.huffmancoding.BitInputStream;
+import nayuki.huffmancoding.FormatException;
 
 import org.junit.Test;
 
 
 public final class DecompressorTest {
+	
+	@Test(expected=FormatException.class)
+	public void testReservedBlockType() throws IOException {
+		// Reserved block type
+		test("1 11 00000", "");
+	}
+	
 	
 	@Test
 	public void testUncompressedEmpty() {
@@ -46,6 +54,13 @@ public final class DecompressorTest {
 	public void testUncompressedEofInLength() throws IOException {
 		// Uncompressed block (partial length)
 		test("1 00 00000 0000000000", "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testUncompressedMismatchedLength() throws IOException {
+		// Uncompressed block (mismatched len and nlen)
+		test("1 00 00000 0010000000010000 1111100100110101", "");
 	}
 	
 	
