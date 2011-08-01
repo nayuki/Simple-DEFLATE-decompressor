@@ -201,10 +201,10 @@ public final class Decompressor {
 	private int decodeRunLength(int sym) throws IOException {
 		if      (257 <= sym && sym <= 264) return ((sym - 257) << 0) +   3 + readInt(0);
 		else if (265 <= sym && sym <= 268) return ((sym - 265) << 1) +  11 + readInt(1);
-		else if (265 <= sym && sym <= 268) return ((sym - 269) << 2) +  19 + readInt(2);
-		else if (265 <= sym && sym <= 268) return ((sym - 273) << 3) +  35 + readInt(3);
-		else if (265 <= sym && sym <= 268) return ((sym - 277) << 4) +  67 + readInt(4);
-		else if (265 <= sym && sym <= 268) return ((sym - 281) << 5) + 115 + readInt(5);
+		else if (269 <= sym && sym <= 272) return ((sym - 269) << 2) +  19 + readInt(2);
+		else if (273 <= sym && sym <= 276) return ((sym - 273) << 3) +  35 + readInt(3);
+		else if (277 <= sym && sym <= 280) return ((sym - 277) << 4) +  67 + readInt(4);
+		else if (281 <= sym && sym <= 284) return ((sym - 281) << 5) + 131 + readInt(5);
 		else if (sym == 285              ) return ((sym - 285) << 0) + 258 + readInt(0);
 		else throw new FormatException("Invalid run length symbol: " + sym);
 	}
