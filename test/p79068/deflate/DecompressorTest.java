@@ -43,8 +43,20 @@ public final class DecompressorTest {
 	
 	
 	@Test
-	public void testFixedHuffmanRun() {
-		test("1 10 00110001 0000001 00000 0000000", "01 01 01 01");
+	public void testFixedHuffmanNonOverlappingRun() {
+		test("1 10 00110000 00110001 00110010 0000001 00010 0000000", "00 01 02 00 01 02");
+	}
+	
+	
+	@Test
+	public void testFixedHuffmanOverlappingRun0() {
+		test("1 10 00110001 0000010 00000 0000000", "01 01 01 01 01");
+	}
+	
+	
+	@Test
+	public void testFixedHuffmanOverlappingRun1() {
+		test("1 10 10111110 10111111 0000011 00001 0000000", "8E 8F 8E 8F 8E 8F 8E");
 	}
 	
 	
