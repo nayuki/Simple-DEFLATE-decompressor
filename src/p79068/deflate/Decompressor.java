@@ -83,9 +83,11 @@ public final class Decompressor {
 	
 	
 	private void decompressUncompressedBlock() throws IOException {
+		while (input.getBitPosition() != 0)
+			input.readNoEof();
 		int len = readInt(16);
 		int nlen = readInt(16);
-		if (~len != nlen)
+		if ((~len & 0xFFFF) != nlen)
 			throw new RuntimeException("Invalid length in uncompressed block");
 		for (int i = 0; i < len; i++) {
 			int temp = input.readByte();
