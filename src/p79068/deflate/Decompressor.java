@@ -23,7 +23,6 @@ public final class Decompressor {
 	
 	
 	
-	
 	private static CodeTree fixedLiteralLengthCode;
 	private static CodeTree fixedDistanceCode;
 	
