@@ -31,8 +31,20 @@ public final class DecompressorTest {
 	
 	
 	@Test
+	public void testFixedHuffmanEmpty() {
+		test("1 10 0000000", "");
+	}
+	
+	
+	@Test
 	public void testFixedHuffmanLiterals() {
 		test("1 10 00110000 10110000 10111111 110010000 111000000 111111111 0000000", "00 80 8F 90 C0 FF");
+	}
+	
+	
+	@Test
+	public void testFixedHuffmanRun() {
+		test("1 10 00110001 0000001 00000 0000000", "01 01 01 01");
 	}
 	
 	
