@@ -26,7 +26,7 @@ public final class CircularDictionary {
 	
 	
 	public void copy(int dist, int len, OutputStream out) throws IOException {
-		if (len < 0 || dist < 1 || dist >= data.length)
+		if (len < 0 || dist < 1 || dist > data.length)
 			throw new IllegalArgumentException();
 		int readIndex = (index - dist + data.length) % data.length;
 		for (int i = 0; i < len; i++) {
