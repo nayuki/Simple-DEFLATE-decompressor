@@ -86,7 +86,7 @@ public final class Decompressor {
 			input.readNoEof();
 		int len = readInt(16);
 		int nlen = readInt(16);
-		if ((~len & 0xFFFF) != nlen)
+		if ((len ^ 0xFFFF) != nlen)
 			throw new RuntimeException("Invalid length in uncompressed block");
 		for (int i = 0; i < len; i++) {
 			int temp = input.readByte();
