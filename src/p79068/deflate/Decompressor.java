@@ -9,6 +9,7 @@ import nayuki.huffmancoding.BitInputStream;
 import nayuki.huffmancoding.CanonicalCode;
 import nayuki.huffmancoding.CircularDictionary;
 import nayuki.huffmancoding.CodeTree;
+import nayuki.huffmancoding.FormatException;
 import nayuki.huffmancoding.InternalNode;
 import nayuki.huffmancoding.Leaf;
 import nayuki.huffmancoding.Node;
@@ -73,7 +74,7 @@ public final class Decompressor {
 				decompressHuffmanBlock(litLenCode, distCode);
 			
 			} else if (btype == 3)
-				throw new RuntimeException("Invalid block type");
+				throw new FormatException("Invalid block type");
 			else
 				throw new AssertionError();
 			
@@ -89,7 +90,7 @@ public final class Decompressor {
 		int len = readInt(16);
 		int nlen = readInt(16);
 		if ((len ^ 0xFFFF) != nlen)
-			throw new RuntimeException("Invalid length in uncompressed block");
+			throw new FormatException("Invalid length in uncompressed block");
 		for (int i = 0; i < len; i++) {
 			int temp = input.readByte();
 			if (temp == -1)
@@ -153,7 +154,7 @@ public final class Decompressor {
 				} else {
 					if (sym == 16) {
 						if (runVal == -1)
-							throw new RuntimeException("No code length value to copy");
+							throw new FormatException("No code length value to copy");
 						runLen = readInt(2) + 3;
 					} else if (sym == 17) {
 						runVal = 0;
@@ -168,7 +169,7 @@ public final class Decompressor {
 			}
 		}
 		if (runLen > 0)
-			throw new RuntimeException("Run exceeds number of codes");
+			throw new FormatException("Run exceeds number of codes");
 		
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
 		CodeTree litLenCode = new CanonicalCode(litLenCodeLen).toCodeTree();
