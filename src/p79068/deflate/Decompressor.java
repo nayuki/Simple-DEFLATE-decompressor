@@ -66,7 +66,9 @@ public final class Decompressor {
 					litLenCode = fixedLiteralLengthCode;
 					distCode = fixedDistanceCode;
 				} else {
-					throw new UnsupportedOperationException("Not implemented yet");
+					CodeTree[] temp = decodeHuffmanCodes(in);
+					litLenCode = temp[0];
+					distCode = temp[1];
 				}
 				decompressHuffmanBlock(litLenCode, distCode);
 			
@@ -114,6 +116,65 @@ public final class Decompressor {
 				dictionary.copy(dist, len, output);
 			}
 		}
+	}
+	
+	
+	private CodeTree[] decodeHuffmanCodes(BitInputStream in) throws IOException {
+		int numLitLenCodes = readInt(5) + 257;
+		int numDistCodes = readInt(5) + 1;
+		
+		int numCodeLenCodes = readInt(4) + 4;
+		int[] codeLenCodeLen = new int[19];
+		codeLenCodeLen[16] = readInt(3);
+		codeLenCodeLen[17] = readInt(3);
+		codeLenCodeLen[18] = readInt(3);
+		codeLenCodeLen[ 0] = readInt(3);
+		for (int i = 0; i < numCodeLenCodes - 4; i++) {
+			if (i % 2 == 0)
+				codeLenCodeLen[8 + i / 2] = readInt(3);
+			else
+				codeLenCodeLen[7 - i / 2] = readInt(3);
+		}
+		CodeTree codeLenCode = new CanonicalCode(codeLenCodeLen).toCodeTree();
+		
+		int[] codeLens = new int[numLitLenCodes + numDistCodes];
+		int runVal = -1;
+		int runLen = 0;
+		for (int i = 0; i < codeLens.length; i++) {
+			if (runLen > 0) {
+				codeLens[i] = runVal;
+				runLen--;
+				
+			} else {
+				int sym = decodeSymbol(codeLenCode);
+				if (sym < 16) {
+					codeLens[i] = sym;
+					runVal = sym;
+				} else {
+					if (sym == 16) {
+						if (runVal == -1)
+							throw new RuntimeException("No code length value to copy");
+						runLen = readInt(2) + 3;
+					} else if (sym == 17) {
+						runVal = 0;
+						runLen = readInt(3) + 3;
+					} else if (sym == 18) {
+						runVal = 0;
+						runLen = readInt(7) + 11;
+					} else
+						throw new AssertionError();
+					i--;
+				}
+			}
+		}
+		if (runLen > 0)
+			throw new RuntimeException("Run exceeds number of codes");
+		
+		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
+		CodeTree litLenCode = new CanonicalCode(litLenCodeLen).toCodeTree();
+		int[] distCodeLen = Arrays.copyOfRange(codeLens, numLitLenCodes, codeLens.length);
+		CodeTree distCode = new CanonicalCode(distCodeLen).toCodeTree();
+		return new CodeTree[]{litLenCode, distCode};
 	}
 	
 	
