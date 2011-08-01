@@ -215,7 +215,7 @@ public final class Decompressor {
 			return sym + 1;
 		else if (sym <= 29) {
 			int i = sym / 2 - 1;
-			return ((sym % 2 + 1) << i) + readInt(i);
+			return ((sym % 2 + 2) << i) + 1 + readInt(i);
 		} else
 			throw new FormatException("Invalid distance symbol: " + sym);
 	}
