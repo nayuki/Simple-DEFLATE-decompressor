@@ -114,6 +114,24 @@ public final class DecompressorTest {
 	}
 	
 	
+	@Test
+	public void testDynamicHuffmanEmpty() {
+		// Dynamic Huffman block:
+		//   numCodeLen=19
+		//     codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:0, 17:0, 18:1
+		//   numLitLen=257, numDist=2
+		//     litLenCodeLen = 0:1, 1:0, ..., 255:0, 256:1
+		//     distCodeLen = 0:1, 1:1
+		//   Data: End
+		String blockHeader = "1 01";
+		String codeCounts = "00000 10000 1111";
+		String codeLenCodeLens = "000 000 100 000 000 000 000 000 000 000 000 000 000 000 000 000 000 100 000";
+		String codeLens = "0 11111111 10101011 0 0 0";
+		String data = "1";
+		testNoException(blockHeader + codeCounts + codeLenCodeLens + codeLens + data, "");
+	}
+	
+	
 	
 	private static void test(String input, String output) throws IOException {
 		input = input.replace(" ", "");
