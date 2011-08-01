@@ -14,7 +14,7 @@ final class StringBitInputStream implements BitInputStream {
 	
 	
 	public StringBitInputStream(String str) {
-		if (!string.matches("[01]*"))
+		if (!str.matches("[01]*"))
 			throw new IllegalArgumentException();
 		string = str;
 		index = 0;
