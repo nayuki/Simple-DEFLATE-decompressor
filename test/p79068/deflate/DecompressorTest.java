@@ -30,6 +30,12 @@ public final class DecompressorTest {
 	}
 	
 	
+	@Test
+	public void testFixedHuffmanLiterals() {
+		test("1 10 00110000 10110000 10111111 110010000 111000000 111111111 0000000", "00 80 8F 90 C0 FF");
+	}
+	
+	
 	
 	private static void test(String input, String output) {
 		input = input.replace(" ", "");
