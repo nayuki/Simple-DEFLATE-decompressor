@@ -22,7 +22,7 @@ final class StringBitInputStream implements BitInputStream {
 	
 	
 	
-	public int read() throws IOException {
+	public int read() {
 		if (index == string.length())
 			return -1;
 		else {
