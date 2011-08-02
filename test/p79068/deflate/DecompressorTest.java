@@ -160,6 +160,34 @@ public final class DecompressorTest {
 	}
 	
 	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanCodeLengthRepeatAtStart() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=257, numDist=1, numCodeLen=18
+		//   codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:1, 17:0, 18:0
+		//   Literal/length/distance code lengths: #16+00
+		String blockHeader = "1 01";
+		String codeCounts = "00000 00000 0111";
+		String codeLenCodeLens = "100 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 100";
+		String codeLens = "1";
+		test(blockHeader + codeCounts + codeLenCodeLens + codeLens, "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanTooManyCodeLengthItems() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=257, numDist=1, numCodeLen=18
+		//   codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:0, 17:0, 18:1
+		//   Literal/length/distance code lengths: 1 1 #18+1111111 #18+1101100
+		String blockHeader = "1 01";
+		String codeCounts = "00000 00000 0111";
+		String codeLenCodeLens = "000 000 100 000 000 000 000 000 000 000 000 000 000 000 000 000 000 100";
+		String codeLens = "0 0 11111111 10011011";
+		test(blockHeader + codeCounts + codeLenCodeLens + codeLens, "");
+	}
+	
+	
 	
 	private static void test(String input, String output) throws IOException {
 		input = input.replace(" ", "");
