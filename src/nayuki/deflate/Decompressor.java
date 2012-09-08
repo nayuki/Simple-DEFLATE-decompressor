@@ -1,18 +1,9 @@
-package p79068.deflate;
+package nayuki.deflate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
-
-import nayuki.huffmancoding.BitInputStream;
-import nayuki.huffmancoding.CanonicalCode;
-import nayuki.huffmancoding.CircularDictionary;
-import nayuki.huffmancoding.CodeTree;
-import nayuki.huffmancoding.FormatException;
-import nayuki.huffmancoding.InternalNode;
-import nayuki.huffmancoding.Leaf;
-import nayuki.huffmancoding.Node;
 
 
 public final class Decompressor {

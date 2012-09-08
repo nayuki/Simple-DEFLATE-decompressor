@@ -1,13 +1,10 @@
-package p79068.deflate;
+package nayuki.deflate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.EOFException;
 import java.io.IOException;
-
-import nayuki.huffmancoding.BitInputStream;
-import nayuki.huffmancoding.FormatException;
 
 import org.junit.Test;
 

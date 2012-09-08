@@ -1,4 +1,4 @@
-package nayuki.huffmancoding;
+package nayuki.deflate;
 
 
 @SuppressWarnings("serial")

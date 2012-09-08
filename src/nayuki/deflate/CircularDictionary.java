@@ -1,4 +1,4 @@
-package nayuki.huffmancoding;
+package nayuki.deflate;
 
 import java.io.IOException;
 import java.io.OutputStream;

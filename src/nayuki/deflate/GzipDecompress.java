@@ -1,4 +1,4 @@
-package p79068.deflate;
+package nayuki.deflate;
 
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -6,8 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import nayuki.huffmancoding.BitInputStream;
-import nayuki.huffmancoding.ByteBitInputStream;
 import p79068.hash.Crc;
 import p79068.util.DateTime;
 

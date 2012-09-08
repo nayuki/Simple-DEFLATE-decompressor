@@ -1,9 +1,7 @@
-package p79068.deflate;
+package nayuki.deflate;
 
 import java.io.EOFException;
 import java.io.IOException;
-
-import nayuki.huffmancoding.BitInputStream;
 
 
 final class StringBitInputStream implements BitInputStream {
