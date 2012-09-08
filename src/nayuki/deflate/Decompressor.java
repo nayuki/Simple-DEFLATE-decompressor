@@ -35,15 +35,15 @@ public final class Decompressor {
 		// Process the stream of blocks
 		while (true) {
 			// Block header
-			int bfinal = in.readNoEof();
-			int btype = readInt(2);
+			boolean isFinal = in.readNoEof() == 1;  // bfinal
+			int type = readInt(2);                  // btype
 			
 			// Decompress by type
-			if (btype == 0)
+			if (type == 0)
 				decompressUncompressedBlock();
-			else if (btype == 1 || btype == 2) {
+			else if (type == 1 || type == 2) {
 				CodeTree litLenCode, distCode;
-				if (btype == 1) {
+				if (type == 1) {
 					litLenCode = fixedLiteralLengthCode;
 					distCode = fixedDistanceCode;
 				} else {
@@ -53,12 +53,12 @@ public final class Decompressor {
 				}
 				decompressHuffmanBlock(litLenCode, distCode);
 				
-			} else if (btype == 3)
+			} else if (type == 3)
 				throw new FormatException("Invalid block type");
 			else
 				throw new AssertionError();
 			
-			if (bfinal == 1)
+			if (isFinal)
 				break;
 		}
 	}
@@ -85,10 +85,10 @@ public final class Decompressor {
 	
 	// For handling dynamic Huffman codes (btype = 2)
 	private CodeTree[] decodeHuffmanCodes(BitInputStream in) throws IOException {
-		int numLitLenCodes = readInt(5) + 257;
-		int numDistCodes = readInt(5) + 1;
+		int numLitLenCodes = readInt(5) + 257;  // hlit  + 257
+		int numDistCodes = readInt(5) + 1;      // hdist +   1
 		
-		int numCodeLenCodes = readInt(4) + 4;
+		int numCodeLenCodes = readInt(4) + 4;   // hclen +   4
 		int[] codeLenCodeLen = new int[19];
 		codeLenCodeLen[16] = readInt(3);
 		codeLenCodeLen[17] = readInt(3);
