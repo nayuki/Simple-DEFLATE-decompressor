@@ -1,7 +1,6 @@
 package nayuki.deflate;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -26,24 +25,24 @@ public final class DecompressorTest {
 	
 	
 	@Test
-	public void testUncompressedEmpty() {
+	public void testUncompressedEmpty() throws IOException {
 		// Uncompressed block len=0: (empty)
-		testNoException("1 00 00000   0000000000000000 1111111111111111", "");
+		test("1 00 00000   0000000000000000 1111111111111111", "");
 	}
 	
 	
 	@Test
-	public void testUncompressedThreeBytes() {
+	public void testUncompressedThreeBytes() throws IOException {
 		// Uncompressed block len=3: 05 14 23
-		testNoException("1 00 00000   1100000000000000 0011111111111111   10100000 00101000 11000100", "05 14 23");
+		test("1 00 00000   1100000000000000 0011111111111111   10100000 00101000 11000100", "05 14 23");
 	}
 	
 	
 	@Test
-	public void testUncompressedTwoBlocks() {
+	public void testUncompressedTwoBlocks() throws IOException {
 		// Uncompressed block len=1: 05
 		// Uncompressed block len=2: 14 23
-		testNoException("0 00 00000   0100000000000000 1011111111111111   10100000 00101000   1 00 00000   1000000000000000 0111111111111111   11000100", "05 14 23");
+		test("0 00 00000   0100000000000000 1011111111111111   10100000 00101000   1 00 00000   1000000000000000 0111111111111111   11000100", "05 14 23");
 	}
 	
 	
@@ -77,37 +76,37 @@ public final class DecompressorTest {
 	
 	
 	@Test
-	public void testFixedHuffmanEmpty() {
+	public void testFixedHuffmanEmpty() throws IOException {
 		// Fixed Huffman block: End
-		testNoException("1 10 0000000", "");
+		test("1 10 0000000", "");
 	}
 	
 	
 	@Test
-	public void testFixedHuffmanLiterals() {
+	public void testFixedHuffmanLiterals() throws IOException {
 		// Fixed Huffman block: 00 80 8F 90 C0 FF End
-		testNoException("1 10 00110000 10110000 10111111 110010000 111000000 111111111 0000000", "00 80 8F 90 C0 FF");
+		test("1 10 00110000 10110000 10111111 110010000 111000000 111111111 0000000", "00 80 8F 90 C0 FF");
 	}
 	
 	
 	@Test
-	public void testFixedHuffmanNonOverlappingRun() {
+	public void testFixedHuffmanNonOverlappingRun() throws IOException {
 		// Fixed Huffman block: 00 01 02 (3,3) End
-		testNoException("1 10 00110000 00110001 00110010 0000001 00010 0000000", "00 01 02 00 01 02");
+		test("1 10 00110000 00110001 00110010 0000001 00010 0000000", "00 01 02 00 01 02");
 	}
 	
 	
 	@Test
-	public void testFixedHuffmanOverlappingRun0() {
+	public void testFixedHuffmanOverlappingRun0() throws IOException {
 		// Fixed Huffman block: 01 (1,4) End
-		testNoException("1 10 00110001 0000010 00000 0000000", "01 01 01 01 01");
+		test("1 10 00110001 0000010 00000 0000000", "01 01 01 01 01");
 	}
 	
 	
 	@Test
-	public void testFixedHuffmanOverlappingRun1() {
+	public void testFixedHuffmanOverlappingRun1() throws IOException {
 		// Fixed Huffman block: 8E 8F (2,5) End
-		testNoException("1 10 10111110 10111111 0000011 00001 0000000", "8E 8F 8E 8F 8E 8F 8E");
+		test("1 10 10111110 10111111 0000011 00001 0000000", "8E 8F 8E 8F 8E 8F 8E");
 	}
 	
 	
@@ -140,7 +139,7 @@ public final class DecompressorTest {
 	
 	
 	@Test
-	public void testDynamicHuffmanEmpty() {
+	public void testDynamicHuffmanEmpty() throws IOException {
 		// Dynamic Huffman block:
 		//   numCodeLen=19
 		//     codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:0, 17:0, 18:1
@@ -153,12 +152,12 @@ public final class DecompressorTest {
 		String codeLenCodeLens = "000 000 100 000 000 000 000 000 000 000 000 000 000 000 000 000 000 100 000";
 		String codeLens = "0 11111111 10101011 0 0 0";
 		String data = "1";
-		testNoException(blockHeader + codeCounts + codeLenCodeLens + codeLens + data, "");
+		test(blockHeader + codeCounts + codeLenCodeLens + codeLens + data, "");
 	}
 	
 	
 	@Test
-	public void testDynamicHuffmanEmptyNoDistanceCode() {
+	public void testDynamicHuffmanEmptyNoDistanceCode() throws IOException {
 		// Dynamic Huffman block:
 		//   numCodeLen=19
 		//     codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:0, 17:0, 18:1
@@ -171,7 +170,7 @@ public final class DecompressorTest {
 		String codeLenCodeLens = "000 000 100 010 000 000 000 000 000 000 000 000 000 000 000 000 000 010 000";
 		String codeLens = "01111111 00101011 11 11 10";
 		String data = "1";
-		testNoException(blockHeader + codeCounts + codeLenCodeLens + codeLens + data, "");
+		test(blockHeader + codeCounts + codeLenCodeLens + codeLens + data, "");
 	}
 	
 	
@@ -216,15 +215,6 @@ public final class DecompressorTest {
 		assertEquals(output.length() / 2, out.length);
 		for (int i = 0; i < out.length; i++)
 			assertEquals(Integer.parseInt(output.substring(i * 2, (i + 1) * 2), 16), out[i] & 0xFF);
-	}
-	
-	
-	private static void testNoException(String input, String output) {
-		try {
-			test(input, output);
-		} catch (IOException e) {
-			fail("I/O exception");
-		}
 	}
 	
 }
