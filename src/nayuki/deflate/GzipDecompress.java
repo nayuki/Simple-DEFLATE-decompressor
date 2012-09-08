@@ -1,6 +1,9 @@
 package nayuki.deflate;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,12 +16,28 @@ import p79068.util.DateTime;
 public class GzipDecompress {
 	
 	public static void main(String[] args) throws IOException {
-		BitInputStream in = new ByteBitInputStream(new FileInputStream(args[0]));
+		// Check arguments
+		if (args.length != 2) {
+			System.err.println("Usage: java GzipDecompress InputFile OutputFile");
+			System.exit(1);
+		}
+		File inFile = new File(args[0]);
+		if (!inFile.exists()) {
+			System.err.println("Input file does not exist: " + inFile);
+			System.exit(1);
+		}
+		if (inFile.isDirectory()) {
+			System.err.println("Input file is a directory: " + inFile);
+			System.exit(1);
+		}
+		
+		// Start reading
+		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(inFile), 16 * 1024));
 		byte[] b;
 		
 		// Header
 		b = new byte[10];
-		readFully(in, b);
+		in.readFully(b);
 		if (b[0] != 0x1F || b[1] != (byte)0x8B)
 			throw new RuntimeException("Invalid GZIP magic number");
 		if (b[2] != 8)
@@ -38,8 +57,8 @@ public class GzipDecompress {
 		
 		// Extra flags
 		switch (b[8] & 0xFF) {
-			case 2:  System.out.println("Extra flags: Maximum compression");  break;
-			case 4:  System.out.println("Extra flags: Fastest compression");  break;
+			case 2:   System.out.println("Extra flags: Maximum compression");  break;
+			case 4:   System.out.println("Extra flags: Fastest compression");  break;
 			default:  System.out.println("Extra flags: Unknown");  break;
 		}
 		
@@ -73,9 +92,9 @@ public class GzipDecompress {
 		if ((flags & 0x04) != 0) {
 			System.out.println("Flag: Extra");
 			b = new byte[2];
-			readFully(in, b);
+			in.readFully(b);
 			int len = (b[0] & 0xFF) | (b[1] & 0xFF) << 8;
-			readFully(in, new byte[len]);
+			in.readFully(new byte[len]);  // Skip extra data
 		}
 		
 		// File name flag
@@ -85,7 +104,7 @@ public class GzipDecompress {
 				int temp = in.readByte();
 				if (temp == -1)
 					throw new EOFException();
-				else if (temp == 0)
+				else if (temp == 0)  // Null-terminated string
 					break;
 				else
 					sb.append((char)temp);
@@ -96,7 +115,7 @@ public class GzipDecompress {
 		// Header CRC flag
 		if ((flags & 0x02) != 0) {
 			b = new byte[2];
-			readFully(in, b);
+			in.readFully(b);
 			System.out.printf("Header CRC-16: %04X%n", (b[0] & 0xFF) | (b[1] & 0xFF) << 8);
 		}
 		
@@ -107,7 +126,7 @@ public class GzipDecompress {
 				int temp = in.readByte();
 				if (temp == -1)
 					throw new EOFException();
-				else if (temp == 0)
+				else if (temp == 0)  // Null-terminated string
 					break;
 				else
 					sb.append((char)temp);
@@ -116,13 +135,13 @@ public class GzipDecompress {
 		}
 		
 		// Decompress
-		byte[] decomp = Decompressor.decompress(in);
+		byte[] decomp = Decompressor.decompress(new ByteBitInputStream(in));
 		
 		// Footer
 		b = new byte[4];
-		readFully(in, b);
+		in.readFully(b);
 		int crc = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | (b[3] & 0xFF) << 24;
-		readFully(in, b);
+		in.readFully(b);
 		int size = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | (b[3] & 0xFF) << 24;
 		in.close();
 		
@@ -136,16 +155,6 @@ public class GzipDecompress {
 		OutputStream out = new FileOutputStream(args[1]);
 		out.write(decomp);
 		out.close();
-	}
-	
-	
-	private static void readFully(BitInputStream in, byte[] b) throws IOException {
-		for (int i = 0; i < b.length; i++) {
-			int temp = in.readByte();
-			if (temp == -1)
-				throw new EOFException();
-			b[i] = (byte)temp;
-		}
 	}
 	
 	
