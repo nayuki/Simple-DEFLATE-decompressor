@@ -44,7 +44,7 @@ public final class Decompressor {
 	private Decompressor(BitInputStream in) throws IOException {
 		input = in;
 		output = new ByteArrayOutputStream();
-		dictionary = new CircularDictionary();
+		dictionary = new CircularDictionary(32 * 1024);
 		
 		while (true) {
 			int bfinal = in.readNoEof();
