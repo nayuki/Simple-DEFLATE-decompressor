@@ -33,7 +33,7 @@ import java.util.List;
  *          / \
  *         C   D
  */
-public final class CodeTree {
+final class CodeTree {
 	
 	public final InternalNode root;  // Not null
 	
@@ -113,4 +113,46 @@ public final class CodeTree {
 		}
 	}
 	
+}
+
+
+
+/**
+ * A node in a code tree. This class has two and only two subclasses: InternalNode, Leaf.
+ */
+abstract class Node {
+	
+	public Node() {}
+}
+
+
+/**
+ * An internal node in a code tree. It has two nodes as children. Immutable.
+ */
+final class InternalNode extends Node {
+	
+	public final Node leftChild;  // Not null	
+	public final Node rightChild;  // Not null
+	
+	public InternalNode(Node leftChild, Node rightChild) {
+		if (leftChild == null || rightChild == null)
+			throw new NullPointerException("Argument is null");
+		this.leftChild = leftChild;
+		this.rightChild = rightChild;
+	}
+}
+
+
+/**
+ * A leaf node in a code tree. It has a symbol value. Immutable.
+ */
+final class Leaf extends Node {
+	
+	public final int symbol;
+	
+	public Leaf(int symbol) {
+		if (symbol < 0)
+			throw new IllegalArgumentException("Illegal symbol value");
+		this.symbol = symbol;
+	}
 }

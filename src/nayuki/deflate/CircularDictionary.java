@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 
-public final class CircularDictionary {
+final class CircularDictionary {
 	
 	private byte[] data;
 	
