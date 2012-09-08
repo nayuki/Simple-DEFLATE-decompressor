@@ -159,15 +159,15 @@ public final class DecompressorTest {
 	@Test
 	public void testDynamicHuffmanEmptyNoDistanceCode() throws IOException {
 		// Dynamic Huffman block:
-		//   numCodeLen=19
-		//     codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:0, 17:0, 18:1
+		//   numCodeLen=18
+		//     codeLenCodeLen = 0:2, 1:2, 2:0, ..., 15:0, 16:0, 17:0, 18:1
 		//   numLitLen=257, numDist=1
-		//     litLenCodeLen = 0:1, 1:0, ..., 255:0, 256:1
+		//     litLenCodeLen = 0:0, ..., 254:0, 255:1, 256:1
 		//     distCodeLen = 0:0
 		//   Data: End
 		String blockHeader = "1 01";
-		String codeCounts = "00000 00000 1111";
-		String codeLenCodeLens = "000 000 100 010 000 000 000 000 000 000 000 000 000 000 000 000 000 010 000";
+		String codeCounts = "00000 00000 0111";
+		String codeLenCodeLens = "000 000 100 010 000 000 000 000 000 000 000 000 000 000 000 000 000 010";
 		String codeLens = "01111111 00101011 11 11 10";
 		String data = "1";
 		test(blockHeader + codeCounts + codeLenCodeLens + codeLens + data, "");
