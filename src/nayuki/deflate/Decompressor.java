@@ -138,8 +138,14 @@ public final class Decompressor {
 		// Create code trees
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
 		CodeTree litLenCode = new CanonicalCode(litLenCodeLen).toCodeTree();
+		
 		int[] distCodeLen = Arrays.copyOfRange(codeLens, numLitLenCodes, codeLens.length);
-		CodeTree distCode = new CanonicalCode(distCodeLen).toCodeTree();
+		CodeTree distCode;
+		if (distCodeLen.length == 1 && distCodeLen[0] == 0)
+			distCode = null;  // Empty distance code; the block shall be all literal symbols
+		else
+			distCode = new CanonicalCode(distCodeLen).toCodeTree();
+		
 		return new CodeTree[]{litLenCode, distCode};
 	}
 	
@@ -169,6 +175,9 @@ public final class Decompressor {
 	
 	
 	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode) throws IOException {
+		if (litLenCode == null)
+			throw new NullPointerException();
+		
 		while (true) {
 			int sym = decodeSymbol(litLenCode);
 			if (sym == 256)  // End of block
@@ -179,6 +188,8 @@ public final class Decompressor {
 				dictionary.append(sym);
 			} else {  // Length and distance for copying
 				int len = decodeRunLength(sym);
+				if (distCode == null)
+					throw new FormatException("Length symbol encountered with empty distance code");
 				int distSym = decodeSymbol(distCode);
 				int dist = decodeDistance(distSym);
 				dictionary.copy(dist, len, output);
