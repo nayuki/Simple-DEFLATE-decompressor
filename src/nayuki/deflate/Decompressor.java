@@ -63,7 +63,7 @@ public final class Decompressor {
 					distCode = temp[1];
 				}
 				decompressHuffmanBlock(litLenCode, distCode);
-			
+				
 			} else if (btype == 3)
 				throw new FormatException("Invalid block type");
 			else
