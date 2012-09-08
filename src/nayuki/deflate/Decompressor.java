@@ -8,6 +8,8 @@ import java.util.Arrays;
 
 public final class Decompressor {
 	
+	/* Public method */
+	
 	public static byte[] decompress(BitInputStream in) throws IOException {
 		Decompressor decomp = new Decompressor(in);
 		return decomp.output.toByteArray();
@@ -15,23 +17,7 @@ public final class Decompressor {
 	
 	
 	
-	private static CodeTree fixedLiteralLengthCode;
-	private static CodeTree fixedDistanceCode;
-	
-	static {
-		int[] llcodelens = new int[288];
-		Arrays.fill(llcodelens,   0, 144, 8);
-		Arrays.fill(llcodelens, 144, 256, 9);
-		Arrays.fill(llcodelens, 256, 280, 7);
-		Arrays.fill(llcodelens, 280, 288, 8);
-		fixedLiteralLengthCode = new CanonicalCode(llcodelens).toCodeTree();
-		
-		int[] distcodelens = new int[32];
-		Arrays.fill(distcodelens, 5);
-		fixedDistanceCode = new CanonicalCode(distcodelens).toCodeTree();
-	}
-	
-	
+	/* Private members */
 	
 	private BitInputStream input;
 	
@@ -46,10 +32,13 @@ public final class Decompressor {
 		output = new ByteArrayOutputStream();
 		dictionary = new CircularDictionary(32 * 1024);
 		
+		// Process the stream of blocks
 		while (true) {
+			// Block header
 			int bfinal = in.readNoEof();
 			int btype = readInt(2);
 			
+			// Decompress by type
 			if (btype == 0)
 				decompressUncompressedBlock();
 			else if (btype == 1 || btype == 2) {
@@ -75,42 +64,26 @@ public final class Decompressor {
 	}
 	
 	
-	private void decompressUncompressedBlock() throws IOException {
-		while (input.getBitPosition() != 0)
-			input.readNoEof();
-		int len = readInt(16);
-		int nlen = readInt(16);
-		if ((len ^ 0xFFFF) != nlen)
-			throw new FormatException("Invalid length in uncompressed block");
-		for (int i = 0; i < len; i++) {
-			int temp = input.readByte();
-			if (temp == -1)
-				throw new EOFException();
-			output.write(temp);
-			dictionary.append(temp);
-		}
+	// For handling static Huffman codes (btype = 1)
+	
+	private static CodeTree fixedLiteralLengthCode;
+	private static CodeTree fixedDistanceCode;
+	
+	static {
+		int[] llcodelens = new int[288];
+		Arrays.fill(llcodelens,   0, 144, 8);
+		Arrays.fill(llcodelens, 144, 256, 9);
+		Arrays.fill(llcodelens, 256, 280, 7);
+		Arrays.fill(llcodelens, 280, 288, 8);
+		fixedLiteralLengthCode = new CanonicalCode(llcodelens).toCodeTree();
+		
+		int[] distcodelens = new int[32];
+		Arrays.fill(distcodelens, 5);
+		fixedDistanceCode = new CanonicalCode(distcodelens).toCodeTree();
 	}
 	
 	
-	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode) throws IOException {
-		while (true) {
-			int sym = decodeSymbol(litLenCode);
-			if (sym == 256)  // End of block
-				break;
-			
-			if (sym < 256) {  // Literal
-				output.write(sym);
-				dictionary.append(sym);
-			} else {
-				int len = decodeRunLength(sym);
-				int distSym = decodeSymbol(distCode);
-				int dist = decodeDistance(distSym);
-				dictionary.copy(dist, len, output);
-			}
-		}
-	}
-	
-	
+	// For handling dynamic Huffman codes (btype = 2)
 	private CodeTree[] decodeHuffmanCodes(BitInputStream in) throws IOException {
 		int numLitLenCodes = readInt(5) + 257;
 		int numDistCodes = readInt(5) + 1;
@@ -162,6 +135,7 @@ public final class Decompressor {
 		if (runLen > 0)
 			throw new FormatException("Run exceeds number of codes");
 		
+		// Create code trees
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
 		CodeTree litLenCode = new CanonicalCode(litLenCodeLen).toCodeTree();
 		int[] distCodeLen = Arrays.copyOfRange(codeLens, numLitLenCodes, codeLens.length);
@@ -169,6 +143,51 @@ public final class Decompressor {
 		return new CodeTree[]{litLenCode, distCode};
 	}
 	
+	
+	/* Block decompression methods */
+	
+	private void decompressUncompressedBlock() throws IOException {
+		// Discard bits to align to byte boundary
+		while (input.getBitPosition() != 0)
+			input.readNoEof();
+		
+		// Read length
+		int len  = readInt(16);
+		int nlen = readInt(16);
+		if ((len ^ 0xFFFF) != nlen)
+			throw new FormatException("Invalid length in uncompressed block");
+		
+		// Copy bytes
+		for (int i = 0; i < len; i++) {
+			int temp = input.readByte();
+			if (temp == -1)
+				throw new EOFException();
+			output.write(temp);
+			dictionary.append(temp);
+		}
+	}
+	
+	
+	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode) throws IOException {
+		while (true) {
+			int sym = decodeSymbol(litLenCode);
+			if (sym == 256)  // End of block
+				break;
+			
+			if (sym < 256) {  // Literal byte
+				output.write(sym);
+				dictionary.append(sym);
+			} else {  // Length and distance for copying
+				int len = decodeRunLength(sym);
+				int distSym = decodeSymbol(distCode);
+				int dist = decodeDistance(distSym);
+				dictionary.copy(dist, len, output);
+			}
+		}
+	}
+	
+	
+	/* Symbol decoding methods */
 	
 	private int decodeSymbol(CodeTree code) throws IOException {
 		InternalNode currentNode = code.root;
@@ -213,6 +232,8 @@ public final class Decompressor {
 	}
 	
 	
+	/* Utility method */
+	
 	private int readInt(int numBits) throws IOException {
 		if (numBits < 0 || numBits >= 32)
 			throw new IllegalArgumentException();
@@ -222,9 +243,5 @@ public final class Decompressor {
 			result |= input.readNoEof() << i;
 		return result;
 	}
-	
-	
-	
-	private Decompressor() {}
 	
 }
