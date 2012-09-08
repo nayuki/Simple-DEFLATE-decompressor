@@ -1,6 +1,6 @@
 package nayuki.deflate;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -203,18 +203,21 @@ public final class DecompressorTest {
 	
 	
 	
-	private static void test(String input, String output) throws IOException {
-		input = input.replace(" ", "");
-		output = output.replace(" ", "");
-		if (output.length() % 2 != 0)
+	// 'input' is a string of 0's and 1's (with optional spaces) representing the input bit sequence.
+	// 'refOutput' is a string of pairs of hexadecimal digits (with optional spaces) representing
+	// the expected decompressed output byte sequence.
+	private static void test(String input, String refOutput) throws IOException {
+		refOutput = refOutput.replace(" ", "");
+		if (refOutput.length() % 2 != 0)
 			throw new IllegalArgumentException();
+		byte[] refOut = new byte[refOutput.length() / 2];
+		for (int i = 0; i < refOut.length; i++)
+			refOut[i] = (byte)Integer.parseInt(refOutput.substring(i * 2, (i + 1) * 2), 16);
 		
+		input = input.replace(" ", "");
 		BitInputStream in = new StringBitInputStream(input);
-		byte[] out = Decompressor.decompress(in);
-		
-		assertEquals(output.length() / 2, out.length);
-		for (int i = 0; i < out.length; i++)
-			assertEquals(Integer.parseInt(output.substring(i * 2, (i + 1) * 2), 16), out[i] & 0xFF);
+		byte[] actualOut = Decompressor.decompress(in);
+		assertArrayEquals(refOut, actualOut);
 	}
 	
 }
