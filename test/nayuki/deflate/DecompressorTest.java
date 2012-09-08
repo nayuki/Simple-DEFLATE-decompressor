@@ -10,6 +10,8 @@ import org.junit.Test;
 
 public final class DecompressorTest {
 	
+	/* Test cases */
+	
 	@Test(expected=FormatException.class)
 	public void testReservedBlockType() throws IOException {
 		// Reserved block type
@@ -202,6 +204,8 @@ public final class DecompressorTest {
 	}
 	
 	
+	
+	/* Utility method */
 	
 	// 'input' is a string of 0's and 1's (with optional spaces) representing the input bit sequence.
 	// 'refOutput' is a string of pairs of hexadecimal digits (with optional spaces) representing
