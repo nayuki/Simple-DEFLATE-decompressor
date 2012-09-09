@@ -1,6 +1,6 @@
 package nayuki.deflate;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.EOFException;
 import java.io.IOException;
