@@ -225,7 +225,7 @@ public final class Decompressor {
 		else if (sym <= 264)
 			return sym - 254;
 		else if (sym <= 284) {
-			int i = (sym - 261) / 4;
+			int i = (sym - 261) / 4;  // Number of extra bits to read
 			return (((sym - 265) % 4 + 4) << i) + 3 + readInt(i);
 		} else  // sym == 285
 			return 258;
@@ -236,7 +236,7 @@ public final class Decompressor {
 		if (sym <= 3)
 			return sym + 1;
 		else if (sym <= 29) {
-			int i = sym / 2 - 1;
+			int i = sym / 2 - 1;  // Number of extra bits to read
 			return ((sym % 2 + 2) << i) + 1 + readInt(i);
 		} else
 			throw new FormatException("Invalid distance symbol: " + sym);
