@@ -8,9 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import p79068.hash.Crc;
-import p79068.util.DateTime;
+import java.util.Date;
+import java.util.zip.CRC32;
 
 
 public class GzipDecompress {
@@ -51,7 +50,7 @@ public class GzipDecompress {
 		// Modification time
 		int mtime = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
 		if (mtime != 0)
-			System.out.println("Last modified: " + new DateTime(1970, 1, 1).add(mtime * 1000000L));
+			System.out.println("Last modified: " + new Date(mtime * 1000L));
 		else
 			System.out.println("Last modified: N/A");
 		
@@ -158,9 +157,10 @@ public class GzipDecompress {
 	}
 	
 	
-	private static int getCrc32(byte[] decomp) {
-		byte[] b = Crc.CRC32_FUNCTION.getHash(decomp).toBytes();
-		return (b[0] & 0xFF) << 24 | (b[1] & 0xFF) << 16 | (b[2] & 0xFF) << 8 | (b[3] & 0xFF);
+	private static int getCrc32(byte[] data) {
+		CRC32 crc = new CRC32();
+		crc.update(data);
+		return (int)crc.getValue();
 	}
 	
 }

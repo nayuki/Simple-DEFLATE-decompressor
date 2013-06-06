@@ -3,8 +3,6 @@ package nayuki.deflate;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import p79068.math.IntegerMath;
-
 
 final class CircularDictionary {
 	
@@ -20,7 +18,7 @@ final class CircularDictionary {
 		data = new byte[size];
 		index = 0;
 		
-		if (IntegerMath.isPowerOf2(size))
+		if (size > 0 && (size & (size - 1)) == 0)  // Test if size is a power of 2
 			mask = size - 1;
 		else
 			mask = 0;
