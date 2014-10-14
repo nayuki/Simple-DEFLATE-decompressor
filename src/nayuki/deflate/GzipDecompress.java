@@ -1,6 +1,7 @@
 package nayuki.deflate;
 
 import java.io.BufferedInputStream;
+import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -96,17 +97,8 @@ public class GzipDecompress {
 		}
 		
 		// File name flag
-		if ((flags & 0x08) != 0) {
-			StringBuilder sb = new StringBuilder();
-			while (true) {
-				byte temp = in.readByte();
-				if (temp == 0)  // Null-terminated string
-					break;
-				else
-					sb.append((char)(temp & 0xFF));
-			}
-			System.out.println("File name: " + sb.toString());
-		}
+		if ((flags & 0x08) != 0)
+			System.out.println("File name: " + readNullTerminatedString(in));
 		
 		// Header CRC flag
 		if ((flags & 0x02) != 0) {
@@ -116,17 +108,8 @@ public class GzipDecompress {
 		}
 		
 		// Comment flag
-		if ((flags & 0x10) != 0) {
-			StringBuilder sb = new StringBuilder();
-			while (true) {
-				byte temp = in.readByte();
-				if (temp == 0)  // Null-terminated string
-					break;
-				else
-					sb.append((char)(temp & 0xFF));
-			}
-			System.out.println("Comment: " + sb.toString());
-		}
+		if ((flags & 0x10) != 0)
+			System.out.println("Comment: " + readNullTerminatedString(in));
 		
 		// Decompress
 		byte[] decomp = Decompressor.decompress(new ByteBitInputStream(in));
@@ -149,6 +132,19 @@ public class GzipDecompress {
 		OutputStream out = new FileOutputStream(args[1]);
 		out.write(decomp);
 		out.close();
+	}
+	
+	
+	private static String readNullTerminatedString(DataInput in) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		while (true) {
+			byte c = in.readByte();
+			if (c == 0)
+				break;
+			else
+				sb.append((char)(c & 0xFF));
+		}
+		return sb.toString();
 	}
 	
 	
