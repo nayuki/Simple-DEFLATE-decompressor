@@ -115,11 +115,10 @@ public class GzipDecompress {
 		byte[] decomp = Decompressor.decompress(new ByteBitInputStream(in));
 		
 		// Footer
-		b = new byte[4];
+		b = new byte[8];
 		in.readFully(b);
-		int crc = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | (b[3] & 0xFF) << 24;
-		in.readFully(b);
-		int size = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | (b[3] & 0xFF) << 24;
+		int crc  = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | (b[3] & 0xFF) << 24;
+		int size = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
 		in.close();
 		
 		// Check
