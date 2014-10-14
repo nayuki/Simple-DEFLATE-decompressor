@@ -32,99 +32,102 @@ public class GzipDecompress {
 		
 		// Start reading
 		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(inFile), 16 * 1024));
-		
-		// Header
-		int flags;
-		{
-			byte[] b = new byte[10];
-			in.readFully(b);
-			if (b[0] != 0x1F || b[1] != (byte)0x8B)
-				throw new RuntimeException("Invalid GZIP magic number");
-			if (b[2] != 8)
-				throw new RuntimeException("Unsupported compression method: " + (b[2] & 0xFF));
-			flags = b[3] & 0xFF;
-			
-			// Reserved flags
-			if ((flags & 0xE0) != 0)
-				throw new RuntimeException("Reserved flags are set");
-			
-			// Modification time
-			int mtime = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
-			if (mtime != 0)
-				System.out.println("Last modified: " + new Date(mtime * 1000L));
-			else
-				System.out.println("Last modified: N/A");
-			
-			// Extra flags
-			switch (b[8] & 0xFF) {
-				case 2:   System.out.println("Extra flags: Maximum compression");  break;
-				case 4:   System.out.println("Extra flags: Fastest compression");  break;
-				default:  System.out.println("Extra flags: Unknown");  break;
-			}
-			
-			// Operating system
-			String os;
-			switch (b[9] & 0xFF) {
-				case   0:  os = "FAT";             break;
-				case   1:  os = "Amiga";           break;
-				case   2:  os = "VMS";             break;
-				case   3:  os = "Unix";            break;
-				case   4:  os = "VM/CMS";          break;
-				case   5:  os = "Atari TOS";       break;
-				case   6:  os = "HPFS";            break;
-				case   7:  os = "Macintosh";       break;
-				case   8:  os = "Z-System";        break;
-				case   9:  os = "CP/M";            break;
-				case  10:  os = "TOPS-20";         break;
-				case  11:  os = "NTFS";            break;
-				case  12:  os = "QDOS";            break;
-				case  13:  os = "Acorn RISCOS";    break;
-				case 255:  os = "Unknown";         break;
-				default :  os = "Really unknown";  break;
-			}
-			System.out.println("Operating system: " + os);
-		}
-		
-		// Text flag
-		if ((flags & 0x01) != 0)
-			System.out.println("Flag: Text");
-		
-		// Extra flag
-		if ((flags & 0x04) != 0) {
-			System.out.println("Flag: Extra");
-			byte[] b = new byte[2];
-			in.readFully(b);
-			int len = (b[0] & 0xFF) | (b[1] & 0xFF) << 8;
-			in.readFully(new byte[len]);  // Skip extra data
-		}
-		
-		// File name flag
-		if ((flags & 0x08) != 0)
-			System.out.println("File name: " + readNullTerminatedString(in));
-		
-		// Header CRC flag
-		if ((flags & 0x02) != 0) {
-			byte[] b = new byte[2];
-			in.readFully(b);
-			System.out.printf("Header CRC-16: %04X%n", (b[0] & 0xFF) | (b[1] & 0xFF) << 8);
-		}
-		
-		// Comment flag
-		if ((flags & 0x10) != 0)
-			System.out.println("Comment: " + readNullTerminatedString(in));
-		
-		// Decompress
-		byte[] decomp = Decompressor.decompress(new ByteBitInputStream(in));
-		
-		// Footer
+		byte[] decomp;
 		int crc, size;
-		{
-			byte[] b = new byte[8];
-			in.readFully(b);
-			crc  = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | (b[3] & 0xFF) << 24;
-			size = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
+		try {
+			// Header
+			int flags;
+			{
+				byte[] b = new byte[10];
+				in.readFully(b);
+				if (b[0] != 0x1F || b[1] != (byte)0x8B)
+					throw new RuntimeException("Invalid GZIP magic number");
+				if (b[2] != 8)
+					throw new RuntimeException("Unsupported compression method: " + (b[2] & 0xFF));
+				flags = b[3] & 0xFF;
+				
+				// Reserved flags
+				if ((flags & 0xE0) != 0)
+					throw new RuntimeException("Reserved flags are set");
+				
+				// Modification time
+				int mtime = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
+				if (mtime != 0)
+					System.out.println("Last modified: " + new Date(mtime * 1000L));
+				else
+					System.out.println("Last modified: N/A");
+				
+				// Extra flags
+				switch (b[8] & 0xFF) {
+					case 2:   System.out.println("Extra flags: Maximum compression");  break;
+					case 4:   System.out.println("Extra flags: Fastest compression");  break;
+					default:  System.out.println("Extra flags: Unknown");  break;
+				}
+				
+				// Operating system
+				String os;
+				switch (b[9] & 0xFF) {
+					case   0:  os = "FAT";             break;
+					case   1:  os = "Amiga";           break;
+					case   2:  os = "VMS";             break;
+					case   3:  os = "Unix";            break;
+					case   4:  os = "VM/CMS";          break;
+					case   5:  os = "Atari TOS";       break;
+					case   6:  os = "HPFS";            break;
+					case   7:  os = "Macintosh";       break;
+					case   8:  os = "Z-System";        break;
+					case   9:  os = "CP/M";            break;
+					case  10:  os = "TOPS-20";         break;
+					case  11:  os = "NTFS";            break;
+					case  12:  os = "QDOS";            break;
+					case  13:  os = "Acorn RISCOS";    break;
+					case 255:  os = "Unknown";         break;
+					default :  os = "Really unknown";  break;
+				}
+				System.out.println("Operating system: " + os);
+			}
+			
+			// Text flag
+			if ((flags & 0x01) != 0)
+				System.out.println("Flag: Text");
+			
+			// Extra flag
+			if ((flags & 0x04) != 0) {
+				System.out.println("Flag: Extra");
+				byte[] b = new byte[2];
+				in.readFully(b);
+				int len = (b[0] & 0xFF) | (b[1] & 0xFF) << 8;
+				in.readFully(new byte[len]);  // Skip extra data
+			}
+			
+			// File name flag
+			if ((flags & 0x08) != 0)
+				System.out.println("File name: " + readNullTerminatedString(in));
+			
+			// Header CRC flag
+			if ((flags & 0x02) != 0) {
+				byte[] b = new byte[2];
+				in.readFully(b);
+				System.out.printf("Header CRC-16: %04X%n", (b[0] & 0xFF) | (b[1] & 0xFF) << 8);
+			}
+			
+			// Comment flag
+			if ((flags & 0x10) != 0)
+				System.out.println("Comment: " + readNullTerminatedString(in));
+			
+			// Decompress
+			decomp = Decompressor.decompress(new ByteBitInputStream(in));
+			
+			// Footer
+			{
+				byte[] b = new byte[8];
+				in.readFully(b);
+				crc  = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | (b[3] & 0xFF) << 24;
+				size = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
+			}
+		} finally {
+			in.close();
 		}
-		in.close();
 		
 		// Check
 		if (size != decomp.length)
@@ -134,8 +137,11 @@ public class GzipDecompress {
 		
 		// Write decompressed data to output file
 		OutputStream out = new FileOutputStream(args[1]);
-		out.write(decomp);
-		out.close();
+		try {
+			out.write(decomp);
+		} finally {
+			out.close();
+		}
 	}
 	
 	
