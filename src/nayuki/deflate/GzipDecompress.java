@@ -2,7 +2,6 @@ package nayuki.deflate;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -100,13 +99,11 @@ public class GzipDecompress {
 		if ((flags & 0x08) != 0) {
 			StringBuilder sb = new StringBuilder();
 			while (true) {
-				int temp = in.readByte();
-				if (temp == -1)
-					throw new EOFException();
-				else if (temp == 0)  // Null-terminated string
+				byte temp = in.readByte();
+				if (temp == 0)  // Null-terminated string
 					break;
 				else
-					sb.append((char)temp);
+					sb.append((char)(temp & 0xFF));
 			}
 			System.out.println("File name: " + sb.toString());
 		}
@@ -122,13 +119,11 @@ public class GzipDecompress {
 		if ((flags & 0x10) != 0) {
 			StringBuilder sb = new StringBuilder();
 			while (true) {
-				int temp = in.readByte();
-				if (temp == -1)
-					throw new EOFException();
-				else if (temp == 0)  // Null-terminated string
+				byte temp = in.readByte();
+				if (temp == 0)  // Null-terminated string
 					break;
 				else
-					sb.append((char)temp);
+					sb.append((char)(temp & 0xFF));
 			}
 			System.out.println("Comment: " + sb.toString());
 		}
