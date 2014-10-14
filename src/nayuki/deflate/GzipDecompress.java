@@ -87,11 +87,9 @@ public class GzipDecompress {
 				System.out.println("Operating system: " + os);
 			}
 			
-			// Text flag
+			// Handle assorted flags
 			if ((flags & 0x01) != 0)
 				System.out.println("Flag: Text");
-			
-			// Extra flag
 			if ((flags & 0x04) != 0) {
 				System.out.println("Flag: Extra");
 				byte[] b = new byte[2];
@@ -99,19 +97,13 @@ public class GzipDecompress {
 				int len = (b[0] & 0xFF) | (b[1] & 0xFF) << 8;
 				in.readFully(new byte[len]);  // Skip extra data
 			}
-			
-			// File name flag
 			if ((flags & 0x08) != 0)
 				System.out.println("File name: " + readNullTerminatedString(in));
-			
-			// Header CRC flag
 			if ((flags & 0x02) != 0) {
 				byte[] b = new byte[2];
 				in.readFully(b);
 				System.out.printf("Header CRC-16: %04X%n", (b[0] & 0xFF) | (b[1] & 0xFF) << 8);
 			}
-			
-			// Comment flag
 			if ((flags & 0x10) != 0)
 				System.out.println("Comment: " + readNullTerminatedString(in));
 			
