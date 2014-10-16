@@ -154,6 +154,23 @@ public final class Decompressor {
 		if (distCodeLen.length == 1 && distCodeLen[0] == 0)
 			distCode = null;  // Empty distance code; the block shall be all literal symbols
 		else {
+			// Get statistics for upcoming logic
+			int oneCount = 0;
+			int otherPositiveCount = 0;
+			for (int x : distCodeLen) {
+				if (x == 1)
+					oneCount++;
+				else if (x > 1)
+					otherPositiveCount++;
+			}
+			
+			// Handle the case where only one distance code is defined
+			if (oneCount == 1 && otherPositiveCount == 0) {
+				// Add a dummy invalid code to make the Huffman tree complete
+				distCodeLen = Arrays.copyOf(distCodeLen, 32);
+				distCodeLen[31] = 1;
+			}
+			
 			try {
 				distCode = new CanonicalCode(distCodeLen).toCodeTree();
 			} catch (IllegalStateException e) {
