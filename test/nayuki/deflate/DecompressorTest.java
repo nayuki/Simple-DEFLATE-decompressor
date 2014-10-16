@@ -12,6 +12,13 @@ public final class DecompressorTest {
 	
 	/* Test cases */
 	
+	@Test(expected=EOFException.class)
+	public void testEofStartOfBlock() throws IOException {
+		// No blocks
+		test("", "");
+	}
+	
+	
 	@Test(expected=FormatException.class)
 	public void testReservedBlockType() throws IOException {
 		// Reserved block type
@@ -70,10 +77,25 @@ public final class DecompressorTest {
 	
 	
 	@Test(expected=EOFException.class)
+	public void testUncompressedEofInData() throws IOException {
+		// Uncompressed block len=6: 55 EE (End)
+		test("1 00 11111 0110000000000000 1001111111111111 10101010 01110111", "");
+	}
+	
+	
+	@Test(expected=EOFException.class)
 	public void testUncompressedBlockNoFinalBlock() throws IOException {
 		// Uncompressed block len=0: (empty)
 		// No final block
 		test("0 00 00000   0000000000000000 1111111111111111", "");
+	}
+	
+	
+	@Test
+	public void testUncompressedBlockNoDiscardBits() throws IOException {
+		// Fixed Huffman block: 90 A1 FF End
+		// Uncompressed block len=2: AB CD
+		test("0 10 110010000 110100001 111111111 0000000  1 00 0100000000000000 1011111111111111 11010101 10110011", "90 A1 FF AB CD");
 	}
 	
 	
@@ -140,6 +162,27 @@ public final class DecompressorTest {
 	}
 	
 	
+	@Test(expected=EOFException.class)
+	public void testFixedHuffmanEofInHuffmanSymbol() throws IOException {
+		// Fixed Huffman block: (partial symbol)
+		test("1 10 00000", "");
+	}
+	
+	
+	@Test(expected=EOFException.class)
+	public void testFixedHuffmanEofInRunExtensionBits() throws IOException {
+		// Fixed Huffman block: 00 #269+1(partial)
+		test("1 10 00110000 0001101 1", "");
+	}
+	
+	
+	@Test(expected=EOFException.class)
+	public void testFixedHuffmanEofInDistanceExtensionBits() throws IOException {
+		// Fixed Huffman block: 00 #285 #0 #257 #8+00(partial)
+		test("1 10 00110000 11000101 00000 0000001 01000 00", "");
+	}
+	
+	
 	@Test
 	public void testDynamicHuffmanEmpty() throws IOException {
 		// Dynamic Huffman block:
@@ -201,6 +244,101 @@ public final class DecompressorTest {
 		String codeLenCodeLens = "000 000 100 000 000 000 000 000 000 000 000 000 000 000 000 000 000 100";
 		String codeLens = "0 0 11111111 10011011";
 		test(blockHeader + codeCounts + codeLenCodeLens + codeLens, "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanOverfullCode0() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=257, numDist=1, numCodeLen=4
+		//   codeLenCodeLen = 0:1, 1:1, 2:1, 3:0
+		String blockHeader = "1 01";
+		String codeCounts = "00000 00000 0000";
+		String codeLenCodeLens = "100 100 100 000";
+		String padding = "0000000000000000000";
+		test(blockHeader + codeCounts + codeLenCodeLens + padding, "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanOverfullCode1() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=257, numDist=1, numCodeLen=4
+		//   codeLenCodeLen = 0:1, 1:1, 2:1, 3:1
+		String blockHeader = "1 01";
+		String codeCounts = "00000 00000 0000";
+		String codeLenCodeLens = "100 100 100 100";
+		String padding = "0000000000000000000";
+		test(blockHeader + codeCounts + codeLenCodeLens + padding, "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanUnpairedCode() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=257, numDist=1, numCodeLen=4
+		//   codeLenCodeLen = 0:1, 1:2, 2:3, 3:0
+		String blockHeader = "1 01";
+		String codeCounts = "00000 00000 0000";
+		String codeLenCodeLens = "100 010 110 000";
+		String padding = "0000000000000000000";
+		test(blockHeader + codeCounts + codeLenCodeLens + padding, "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanEmptyCode() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=257, numDist=1, numCodeLen=4
+		//   codeLenCodeLen = 0:0, 1:0, 2:0, 3:0
+		String blockHeader = "1 01";
+		String codeCounts = "00000 00000 0000";
+		String codeLenCodeLens = "000 000 000 000";
+		String padding = "0000000000000000000";
+		test(blockHeader + codeCounts + codeLenCodeLens + padding, "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanUnderfullCode0() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=257, numDist=1, numCodeLen=4
+		//   codeLenCodeLen = 0:0, 1:0, 2:1, 3:0
+		String blockHeader = "1 01";
+		String codeCounts = "00000 00000 0000";
+		String codeLenCodeLens = "000 000 100 000";
+		String padding = "0000000000000000000";
+		test(blockHeader + codeCounts + codeLenCodeLens + padding, "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanUnderfullCode1() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=257, numDist=1, numCodeLen=4
+		//   codeLenCodeLen = 0:2, 1:1, 2:0, 3:0
+		String blockHeader = "1 01";
+		String codeCounts = "00000 00000 0000";
+		String codeLenCodeLens = "010 100 000 000";
+		String padding = "0000000000000000000";
+		test(blockHeader + codeCounts + codeLenCodeLens + padding, "");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanUseOfNullDistanceCode() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=258, numDist=1, numCodeLen=18
+		//   codeLenCodeLen = 0:2, 1:2, 2:2, ..., 15:0, 16:0, 17:0, 18:2
+		//   Literal/length/distance code lengths: 2 #18+1111111 #18+1101100 1 2 0
+		//   Data: 00 #257
+		String blockHeader = "1 01";
+		String codeCounts = "10000 00000 0111";
+		String codeLenCodeLens = "000 000 010 010 000 000 000 000 000 000 000 000 000 000 000 010 000 010";
+		String codeLens = "10 111111111 110101011 01 10 00";
+		String data = "10 11";
+		String padding = "0000000000000000";
+		test(blockHeader + codeCounts + codeLenCodeLens + codeLens + data + padding, "");
 	}
 	
 	
