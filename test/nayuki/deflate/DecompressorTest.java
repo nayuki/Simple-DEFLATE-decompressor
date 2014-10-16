@@ -325,12 +325,44 @@ public final class DecompressorTest {
 	}
 	
 	
+	@Test
+	public void testDynamicHuffmanOneDistanceCode() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=258, numDist=1, numCodeLen=18
+		//   codeLenCodeLen = 0:2, 1:2, 2:2, ..., 15:0, 16:0, 17:0, 18:2
+		//   Literal/length/distance code lengths: 0 2 #18+1111111 #18+1101001 1 2 1
+		//   Data: 01 #257 #0 #256
+		String blockHeader = "1 01";
+		String codeCounts = "10000 00000 0111";
+		String codeLenCodeLens = "000 000 010 010 000 000 000 000 000 000 000 000 000 000 000 010 000 010";
+		String codeLens = "00 10 111111111 111001011 01 10 01";
+		String data = "10 11 0 0";
+		test(blockHeader + codeCounts + codeLenCodeLens + codeLens + data, "01 01 01 01");
+	}
+	
+	
+	@Test(expected=FormatException.class)
+	public void testDynamicHuffmanOneDistanceCodeInvalid() throws IOException {
+		// Dynamic Huffman block:
+		//   numLitLen=258, numDist=1, numCodeLen=18
+		//   codeLenCodeLen = 0:2, 1:2, 2:2, ..., 15:0, 16:0, 17:0, 18:2
+		//   Literal/length/distance code lengths: 0 2 #18+1111111 #18+1101001 1 2 1
+		//   Data: 01 #257 #31 #256
+		String blockHeader = "1 01";
+		String codeCounts = "10000 00000 0111";
+		String codeLenCodeLens = "000 000 010 010 000 000 000 000 000 000 000 000 000 000 000 010 000 010";
+		String codeLens = "00 10 111111111 111001011 01 10 01";
+		String data = "10 11 1 0";
+		test(blockHeader + codeCounts + codeLenCodeLens + codeLens + data, "01 01 01 01");
+	}
+	
+	
 	@Test(expected=FormatException.class)
 	public void testDynamicHuffmanUseOfNullDistanceCode() throws IOException {
 		// Dynamic Huffman block:
 		//   numLitLen=258, numDist=1, numCodeLen=18
 		//   codeLenCodeLen = 0:2, 1:2, 2:2, ..., 15:0, 16:0, 17:0, 18:2
-		//   Literal/length/distance code lengths: 2 #18+1111111 #18+1101100 1 2 0
+		//   Literal/length/distance code lengths: 2 #18+1111111 #18+1101010 1 2 0
 		//   Data: 00 #257
 		String blockHeader = "1 01";
 		String codeCounts = "10000 00000 0111";
