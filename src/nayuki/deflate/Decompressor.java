@@ -100,7 +100,12 @@ public final class Decompressor {
 			else
 				codeLenCodeLen[7 - i / 2] = readInt(3);
 		}
-		CodeTree codeLenCode = new CanonicalCode(codeLenCodeLen).toCodeTree();
+		CodeTree codeLenCode;
+		try {
+			codeLenCode = new CanonicalCode(codeLenCodeLen).toCodeTree();
+		} catch (IllegalStateException e) {
+			throw new FormatException(e.getMessage());
+		}
 		
 		int[] codeLens = new int[numLitLenCodes + numDistCodes];
 		int runVal = -1;
@@ -137,14 +142,24 @@ public final class Decompressor {
 		
 		// Create code trees
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
-		CodeTree litLenCode = new CanonicalCode(litLenCodeLen).toCodeTree();
+		CodeTree litLenCode;
+		try {
+			litLenCode = new CanonicalCode(litLenCodeLen).toCodeTree();
+		} catch (IllegalStateException e) {
+			throw new FormatException(e.getMessage());
+		}
 		
 		int[] distCodeLen = Arrays.copyOfRange(codeLens, numLitLenCodes, codeLens.length);
 		CodeTree distCode;
 		if (distCodeLen.length == 1 && distCodeLen[0] == 0)
 			distCode = null;  // Empty distance code; the block shall be all literal symbols
-		else
-			distCode = new CanonicalCode(distCodeLen).toCodeTree();
+		else {
+			try {
+				distCode = new CanonicalCode(distCodeLen).toCodeTree();
+			} catch (IllegalStateException e) {
+				throw new FormatException(e.getMessage());
+			}
+		}
 		
 		return new CodeTree[]{litLenCode, distCode};
 	}
