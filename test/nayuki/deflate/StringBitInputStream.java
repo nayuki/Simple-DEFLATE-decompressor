@@ -21,7 +21,7 @@ final class StringBitInputStream implements BitInputStream {
 	
 	
 	public int read() {
-		if (index == string.length())
+		if (index >= string.length())
 			return -1;
 		else {
 			int result = string.charAt(index) - '0';
@@ -53,8 +53,9 @@ final class StringBitInputStream implements BitInputStream {
 	
 	@Override
 	public int readByte() throws IOException {
-		while (index % 8 != 0)
-			readNoEof();
+		index = (index + 7) / 8 * 8;
+		if (string.length() - index < 8)
+			return -1;
 		
 		int result = 0;
 		for (int i = 0; i < 8; i++)
