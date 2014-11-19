@@ -8,7 +8,7 @@ The code optimized for clear logic and low complexity, not for speed/memory.
 Description
 -----------
 
-An overview is given here: [http://nayuki.eigenstate.org/page/simple-deflate-implementation](http://nayuki.eigenstate.org/page/simple-deflate-implementation)
+An overview is given here: [http://www.nayuki.io/page/simple-deflate-implementation](http://www.nayuki.io/page/simple-deflate-implementation)
 
 
 License
@@ -16,7 +16,7 @@ License
 
 (MIT License)
 
-Copyright © 2012 Nayuki Minase
+Copyright © 2014 Project Nayuki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
