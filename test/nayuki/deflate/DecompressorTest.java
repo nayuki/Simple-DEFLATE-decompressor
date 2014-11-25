@@ -1,11 +1,9 @@
 package nayuki.deflate;
 
 import static org.junit.Assert.assertArrayEquals;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
-
 import org.junit.Test;
 
 
