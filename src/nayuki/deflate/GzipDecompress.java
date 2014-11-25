@@ -67,7 +67,7 @@ public class GzipDecompress {
 					switch (b[8] & 0xFF) {
 						case 2:   System.out.println("Extra flags: Maximum compression");  break;
 						case 4:   System.out.println("Extra flags: Fastest compression");  break;
-						default:  System.out.println("Extra flags: Unknown");  break;
+						default:  System.out.println("Extra flags: Unknown (" + (b[8] & 0xFF) + ")");  break;
 					}
 					
 					// Operating system
@@ -138,7 +138,8 @@ public class GzipDecompress {
 				return String.format("CRC-32 mismatch: expected=%08X, actual=%08X", crc, getCrc32(decomp));
 			
 			// Write decompressed data to output file
-			OutputStream out = new FileOutputStream(args[1]);
+			File outFile = new File(args[1]);
+			OutputStream out = new FileOutputStream(outFile);
 			try {
 				out.write(decomp);
 			} finally {
