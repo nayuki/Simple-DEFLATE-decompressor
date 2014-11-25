@@ -56,7 +56,7 @@ public class GzipDecompress {
 						return "Reserved flags are set";
 					
 					// Modification time
-					int mtime = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
+					int mtime = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | b[7] << 24;
 					if (mtime != 0)
 						System.out.println("Last modified: " + new Date(mtime * 1000L));
 					else
@@ -123,8 +123,8 @@ public class GzipDecompress {
 				{
 					byte[] b = new byte[8];
 					in.readFully(b);
-					crc  = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | (b[3] & 0xFF) << 24;
-					size = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | (b[7] & 0xFF) << 24;
+					crc  = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | b[3] << 24;
+					size = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | b[7] << 24;
 				}
 			} finally {
 				in.close();
