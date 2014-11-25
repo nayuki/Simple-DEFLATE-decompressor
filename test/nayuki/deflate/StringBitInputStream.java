@@ -6,25 +6,26 @@ import java.io.IOException;
 
 final class StringBitInputStream implements BitInputStream {
 	
-	private String string;
+	private final String data;
 	
 	private int index;
+	
 	
 	
 	public StringBitInputStream(String str) {
 		if (!str.matches("[01]*"))
 			throw new IllegalArgumentException();
-		string = str;
+		data = str;
 		index = 0;
 	}
 	
 	
 	
 	public int read() {
-		if (index >= string.length())
+		if (index >= data.length())
 			return -1;
 		else {
-			int result = string.charAt(index) - '0';
+			int result = data.charAt(index) - '0';
 			index++;
 			return result;
 		}
@@ -41,20 +42,18 @@ final class StringBitInputStream implements BitInputStream {
 	
 	
 	public void close() {
-		index = string.length();
+		index = data.length();
 	}
 	
 	
-	@Override
 	public int getBitPosition() {
 		return index % 8;
 	}
 	
 	
-	@Override
 	public int readByte() throws IOException {
 		index = (index + 7) / 8 * 8;
-		if (string.length() - index < 8)
+		if (data.length() - index < 8)
 			return -1;
 		
 		int result = 0;
