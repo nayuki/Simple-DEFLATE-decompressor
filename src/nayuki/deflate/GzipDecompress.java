@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.zip.CRC32;
+import java.util.zip.DataFormatException;
 
 
 public class GzipDecompress {
@@ -115,7 +116,7 @@ public class GzipDecompress {
 				// Decompress
 				try {
 					decomp = Decompressor.decompress(new ByteBitInputStream(in));
-				} catch (FormatException e) {
+				} catch (DataFormatException e) {
 					return "Invalid or corrupt compressed data: " + e.getMessage();
 				}
 				

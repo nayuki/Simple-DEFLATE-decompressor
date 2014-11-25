@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.zip.DataFormatException;
 
 import org.junit.Test;
 
@@ -13,42 +14,42 @@ public final class DecompressorTest {
 	/* Test cases */
 	
 	@Test(expected=EOFException.class)
-	public void testEofStartOfBlock() throws IOException {
+	public void testEofStartOfBlock() throws IOException, DataFormatException {
 		// No blocks
 		test("", "");
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testReservedBlockType() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testReservedBlockType() throws IOException, DataFormatException {
 		// Reserved block type
 		test("1 11 00000", "");
 	}
 	
 	
 	@Test(expected=EOFException.class)
-	public void testEofInBlockType() throws IOException {
+	public void testEofInBlockType() throws IOException, DataFormatException {
 		// Partial block type
 		test("1 0", "");
 	}
 	
 	
 	@Test
-	public void testUncompressedEmpty() throws IOException {
+	public void testUncompressedEmpty() throws IOException, DataFormatException {
 		// Uncompressed block len=0: (empty)
 		test("1 00 00000   0000000000000000 1111111111111111", "");
 	}
 	
 	
 	@Test
-	public void testUncompressedThreeBytes() throws IOException {
+	public void testUncompressedThreeBytes() throws IOException, DataFormatException {
 		// Uncompressed block len=3: 05 14 23
 		test("1 00 00000   1100000000000000 0011111111111111   10100000 00101000 11000100", "05 14 23");
 	}
 	
 	
 	@Test
-	public void testUncompressedTwoBlocks() throws IOException {
+	public void testUncompressedTwoBlocks() throws IOException, DataFormatException {
 		// Uncompressed block len=1: 05
 		// Uncompressed block len=2: 14 23
 		test("0 00 00000   0100000000000000 1011111111111111   10100000 00101000   1 00 00000   1000000000000000 0111111111111111   11000100", "05 14 23");
@@ -56,35 +57,35 @@ public final class DecompressorTest {
 	
 	
 	@Test(expected=EOFException.class)
-	public void testUncompressedEofBeforeLength() throws IOException {
+	public void testUncompressedEofBeforeLength() throws IOException, DataFormatException {
 		// Uncompressed block (partial padding) (no length)
 		test("1 00 000", "");
 	}
 	
 	
 	@Test(expected=EOFException.class)
-	public void testUncompressedEofInLength() throws IOException {
+	public void testUncompressedEofInLength() throws IOException, DataFormatException {
 		// Uncompressed block (partial length)
 		test("1 00 00000 0000000000", "");
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testUncompressedMismatchedLength() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testUncompressedMismatchedLength() throws IOException, DataFormatException {
 		// Uncompressed block (mismatched len and nlen)
 		test("1 00 00000 0010000000010000 1111100100110101", "");
 	}
 	
 	
 	@Test(expected=EOFException.class)
-	public void testUncompressedEofInData() throws IOException {
+	public void testUncompressedEofInData() throws IOException, DataFormatException {
 		// Uncompressed block len=6: 55 EE (End)
 		test("1 00 11111 0110000000000000 1001111111111111 10101010 01110111", "");
 	}
 	
 	
 	@Test(expected=EOFException.class)
-	public void testUncompressedBlockNoFinalBlock() throws IOException {
+	public void testUncompressedBlockNoFinalBlock() throws IOException, DataFormatException {
 		// Uncompressed block len=0: (empty)
 		// No final block
 		test("0 00 00000   0000000000000000 1111111111111111", "");
@@ -92,7 +93,7 @@ public final class DecompressorTest {
 	
 	
 	@Test
-	public void testUncompressedBlockNoDiscardBits() throws IOException {
+	public void testUncompressedBlockNoDiscardBits() throws IOException, DataFormatException {
 		// Fixed Huffman block: 90 A1 FF End
 		// Uncompressed block len=2: AB CD
 		test("0 10 110010000 110100001 111111111 0000000  1 00 0100000000000000 1011111111111111 11010101 10110011", "90 A1 FF AB CD");
@@ -100,91 +101,91 @@ public final class DecompressorTest {
 	
 	
 	@Test
-	public void testFixedHuffmanEmpty() throws IOException {
+	public void testFixedHuffmanEmpty() throws IOException, DataFormatException {
 		// Fixed Huffman block: End
 		test("1 10 0000000", "");
 	}
 	
 	
 	@Test
-	public void testFixedHuffmanLiterals() throws IOException {
+	public void testFixedHuffmanLiterals() throws IOException, DataFormatException {
 		// Fixed Huffman block: 00 80 8F 90 C0 FF End
 		test("1 10 00110000 10110000 10111111 110010000 111000000 111111111 0000000", "00 80 8F 90 C0 FF");
 	}
 	
 	
 	@Test
-	public void testFixedHuffmanNonOverlappingRun() throws IOException {
+	public void testFixedHuffmanNonOverlappingRun() throws IOException, DataFormatException {
 		// Fixed Huffman block: 00 01 02 (3,3) End
 		test("1 10 00110000 00110001 00110010 0000001 00010 0000000", "00 01 02 00 01 02");
 	}
 	
 	
 	@Test
-	public void testFixedHuffmanOverlappingRun0() throws IOException {
+	public void testFixedHuffmanOverlappingRun0() throws IOException, DataFormatException {
 		// Fixed Huffman block: 01 (1,4) End
 		test("1 10 00110001 0000010 00000 0000000", "01 01 01 01 01");
 	}
 	
 	
 	@Test
-	public void testFixedHuffmanOverlappingRun1() throws IOException {
+	public void testFixedHuffmanOverlappingRun1() throws IOException, DataFormatException {
 		// Fixed Huffman block: 8E 8F (2,5) End
 		test("1 10 10111110 10111111 0000011 00001 0000000", "8E 8F 8E 8F 8E 8F 8E");
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testFixedHuffmanInvalidLengthCode286() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testFixedHuffmanInvalidLengthCode286() throws IOException, DataFormatException {
 		// Fixed Huffman block: #286
 		test("1 10 11000110", "");
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testFixedHuffmanInvalidLengthCode287() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testFixedHuffmanInvalidLengthCode287() throws IOException, DataFormatException {
 		// Fixed Huffman block: #287
 		test("1 10 11000111", "");
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testFixedHuffmanInvalidDistanceCode30() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testFixedHuffmanInvalidDistanceCode30() throws IOException, DataFormatException {
 		// Fixed Huffman block: 00 #257 #30
 		test("1 10 00110000 0000001 11110", "");
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testFixedHuffmanInvalidDistanceCode31() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testFixedHuffmanInvalidDistanceCode31() throws IOException, DataFormatException {
 		// Fixed Huffman block: 00 #257 #31
 		test("1 10 00110000 0000001 11111", "");
 	}
 	
 	
 	@Test(expected=EOFException.class)
-	public void testFixedHuffmanEofInHuffmanSymbol() throws IOException {
+	public void testFixedHuffmanEofInHuffmanSymbol() throws IOException, DataFormatException {
 		// Fixed Huffman block: (partial symbol)
 		test("1 10 00000", "");
 	}
 	
 	
 	@Test(expected=EOFException.class)
-	public void testFixedHuffmanEofInRunExtensionBits() throws IOException {
+	public void testFixedHuffmanEofInRunExtensionBits() throws IOException, DataFormatException {
 		// Fixed Huffman block: 00 #269+1(partial)
 		test("1 10 00110000 0001101 1", "");
 	}
 	
 	
 	@Test(expected=EOFException.class)
-	public void testFixedHuffmanEofInDistanceExtensionBits() throws IOException {
+	public void testFixedHuffmanEofInDistanceExtensionBits() throws IOException, DataFormatException {
 		// Fixed Huffman block: 00 #285 #0 #257 #8+00(partial)
 		test("1 10 00110000 11000101 00000 0000001 01000 00", "");
 	}
 	
 	
 	@Test
-	public void testDynamicHuffmanEmpty() throws IOException {
+	public void testDynamicHuffmanEmpty() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numCodeLen=19
 		//     codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:0, 17:0, 18:1
@@ -202,7 +203,7 @@ public final class DecompressorTest {
 	
 	
 	@Test
-	public void testDynamicHuffmanEmptyNoDistanceCode() throws IOException {
+	public void testDynamicHuffmanEmptyNoDistanceCode() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numCodeLen=18
 		//     codeLenCodeLen = 0:2, 1:2, 2:0, ..., 15:0, 16:0, 17:0, 18:1
@@ -219,8 +220,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanCodeLengthRepeatAtStart() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanCodeLengthRepeatAtStart() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=257, numDist=1, numCodeLen=18
 		//   codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:1, 17:0, 18:0
@@ -233,8 +234,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanTooManyCodeLengthItems() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanTooManyCodeLengthItems() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=257, numDist=1, numCodeLen=18
 		//   codeLenCodeLen = 0:0, 1:1, 2:0, ..., 15:0, 16:0, 17:0, 18:1
@@ -247,8 +248,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanOverfullCode0() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanOverfullCode0() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=257, numDist=1, numCodeLen=4
 		//   codeLenCodeLen = 0:1, 1:1, 2:1, 3:0
@@ -260,8 +261,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanOverfullCode1() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanOverfullCode1() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=257, numDist=1, numCodeLen=4
 		//   codeLenCodeLen = 0:1, 1:1, 2:1, 3:1
@@ -273,8 +274,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanUnpairedCode() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanUnpairedCode() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=257, numDist=1, numCodeLen=4
 		//   codeLenCodeLen = 0:1, 1:2, 2:3, 3:0
@@ -286,8 +287,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanEmptyCode() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanEmptyCode() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=257, numDist=1, numCodeLen=4
 		//   codeLenCodeLen = 0:0, 1:0, 2:0, 3:0
@@ -299,8 +300,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanUnderfullCode0() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanUnderfullCode0() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=257, numDist=1, numCodeLen=4
 		//   codeLenCodeLen = 0:0, 1:0, 2:1, 3:0
@@ -312,8 +313,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanUnderfullCode1() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanUnderfullCode1() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=257, numDist=1, numCodeLen=4
 		//   codeLenCodeLen = 0:2, 1:1, 2:0, 3:0
@@ -326,7 +327,7 @@ public final class DecompressorTest {
 	
 	
 	@Test
-	public void testDynamicHuffmanOneDistanceCode() throws IOException {
+	public void testDynamicHuffmanOneDistanceCode() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=258, numDist=1, numCodeLen=18
 		//   codeLenCodeLen = 0:2, 1:2, 2:2, ..., 15:0, 16:0, 17:0, 18:2
@@ -341,8 +342,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanOneDistanceCodeInvalid() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanOneDistanceCodeInvalid() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=258, numDist=1, numCodeLen=18
 		//   codeLenCodeLen = 0:2, 1:2, 2:2, ..., 15:0, 16:0, 17:0, 18:2
@@ -357,8 +358,8 @@ public final class DecompressorTest {
 	}
 	
 	
-	@Test(expected=FormatException.class)
-	public void testDynamicHuffmanUseOfNullDistanceCode() throws IOException {
+	@Test(expected=DataFormatException.class)
+	public void testDynamicHuffmanUseOfNullDistanceCode() throws IOException, DataFormatException {
 		// Dynamic Huffman block:
 		//   numLitLen=258, numDist=1, numCodeLen=18
 		//   codeLenCodeLen = 0:2, 1:2, 2:2, ..., 15:0, 16:0, 17:0, 18:2
@@ -380,7 +381,7 @@ public final class DecompressorTest {
 	// 'input' is a string of 0's and 1's (with optional spaces) representing the input bit sequence.
 	// 'refOutput' is a string of pairs of hexadecimal digits (with optional spaces) representing
 	// the expected decompressed output byte sequence.
-	private static void test(String input, String refOutput) throws IOException {
+	private static void test(String input, String refOutput) throws IOException, DataFormatException {
 		refOutput = refOutput.replace(" ", "");
 		if (refOutput.length() % 2 != 0)
 			throw new IllegalArgumentException();

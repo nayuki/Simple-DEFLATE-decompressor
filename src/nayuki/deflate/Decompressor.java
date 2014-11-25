@@ -4,13 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.zip.DataFormatException;
 
 
 public final class Decompressor {
 	
 	/* Public method */
 	
-	public static byte[] decompress(BitInputStream in) throws IOException {
+	public static byte[] decompress(BitInputStream in) throws IOException, DataFormatException {
 		Decompressor decomp = new Decompressor(in);
 		return decomp.output.toByteArray();
 	}
@@ -27,7 +28,7 @@ public final class Decompressor {
 	
 	
 	
-	private Decompressor(BitInputStream in) throws IOException {
+	private Decompressor(BitInputStream in) throws IOException, DataFormatException {
 		input = in;
 		output = new ByteArrayOutputStream();
 		dictionary = new CircularDictionary(32 * 1024);
@@ -54,7 +55,7 @@ public final class Decompressor {
 				decompressHuffmanBlock(litLenCode, distCode);
 				
 			} else if (type == 3)
-				throw new FormatException("Invalid block type");
+				throw new DataFormatException("Invalid block type");
 			else
 				throw new AssertionError();
 			
@@ -84,7 +85,7 @@ public final class Decompressor {
 	
 	
 	// For handling dynamic Huffman codes (btype = 2)
-	private CodeTree[] decodeHuffmanCodes(BitInputStream in) throws IOException {
+	private CodeTree[] decodeHuffmanCodes(BitInputStream in) throws IOException, DataFormatException {
 		int numLitLenCodes = readInt(5) + 257;  // hlit  + 257
 		int numDistCodes = readInt(5) + 1;      // hdist +   1
 		
@@ -104,7 +105,7 @@ public final class Decompressor {
 		try {
 			codeLenCode = new CanonicalCode(codeLenCodeLen).toCodeTree();
 		} catch (IllegalStateException e) {
-			throw new FormatException(e.getMessage());
+			throw new DataFormatException(e.getMessage());
 		}
 		
 		int[] codeLens = new int[numLitLenCodes + numDistCodes];
@@ -123,7 +124,7 @@ public final class Decompressor {
 				} else {
 					if (sym == 16) {
 						if (runVal == -1)
-							throw new FormatException("No code length value to copy");
+							throw new DataFormatException("No code length value to copy");
 						runLen = readInt(2) + 3;
 					} else if (sym == 17) {
 						runVal = 0;
@@ -138,7 +139,7 @@ public final class Decompressor {
 			}
 		}
 		if (runLen > 0)
-			throw new FormatException("Run exceeds number of codes");
+			throw new DataFormatException("Run exceeds number of codes");
 		
 		// Create code trees
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
@@ -146,7 +147,7 @@ public final class Decompressor {
 		try {
 			litLenCode = new CanonicalCode(litLenCodeLen).toCodeTree();
 		} catch (IllegalStateException e) {
-			throw new FormatException(e.getMessage());
+			throw new DataFormatException(e.getMessage());
 		}
 		
 		int[] distCodeLen = Arrays.copyOfRange(codeLens, numLitLenCodes, codeLens.length);
@@ -174,7 +175,7 @@ public final class Decompressor {
 			try {
 				distCode = new CanonicalCode(distCodeLen).toCodeTree();
 			} catch (IllegalStateException e) {
-				throw new FormatException(e.getMessage());
+				throw new DataFormatException(e.getMessage());
 			}
 		}
 		
@@ -184,7 +185,7 @@ public final class Decompressor {
 	
 	/* Block decompression methods */
 	
-	private void decompressUncompressedBlock() throws IOException {
+	private void decompressUncompressedBlock() throws IOException, DataFormatException {
 		// Discard bits to align to byte boundary
 		while (input.getBitPosition() != 0)
 			input.readNoEof();
@@ -193,7 +194,7 @@ public final class Decompressor {
 		int len  = readInt(16);
 		int nlen = readInt(16);
 		if ((len ^ 0xFFFF) != nlen)
-			throw new FormatException("Invalid length in uncompressed block");
+			throw new DataFormatException("Invalid length in uncompressed block");
 		
 		// Copy bytes
 		for (int i = 0; i < len; i++) {
@@ -206,7 +207,7 @@ public final class Decompressor {
 	}
 	
 	
-	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode) throws IOException {
+	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode) throws IOException, DataFormatException {
 		if (litLenCode == null)
 			throw new NullPointerException();
 		
@@ -221,7 +222,7 @@ public final class Decompressor {
 			} else {  // Length and distance for copying
 				int len = decodeRunLength(sym);
 				if (distCode == null)
-					throw new FormatException("Length symbol encountered with empty distance code");
+					throw new DataFormatException("Length symbol encountered with empty distance code");
 				int distSym = decodeSymbol(distCode);
 				int dist = decodeDistance(distSym);
 				dictionary.copy(dist, len, output);
@@ -251,9 +252,9 @@ public final class Decompressor {
 	}
 	
 	
-	private int decodeRunLength(int sym) throws IOException {
+	private int decodeRunLength(int sym) throws IOException, DataFormatException {
 		if (sym < 257 || sym > 285)
-			throw new FormatException("Invalid run length symbol: " + sym);
+			throw new DataFormatException("Invalid run length symbol: " + sym);
 		else if (sym <= 264)
 			return sym - 254;
 		else if (sym <= 284) {
@@ -264,14 +265,14 @@ public final class Decompressor {
 	}
 	
 	
-	private int decodeDistance(int sym) throws IOException {
+	private int decodeDistance(int sym) throws IOException, DataFormatException {
 		if (sym <= 3)
 			return sym + 1;
 		else if (sym <= 29) {
 			int i = sym / 2 - 1;  // Number of extra bits to read
 			return ((sym % 2 + 2) << i) + 1 + readInt(i);
 		} else
-			throw new FormatException("Invalid distance symbol: " + sym);
+			throw new DataFormatException("Invalid distance symbol: " + sym);
 	}
 	
 	
