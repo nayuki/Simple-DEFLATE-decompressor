@@ -8,7 +8,7 @@ The code optimized for clear logic and low complexity, not for speed/memory.
 Description
 -----------
 
-An overview is given here: [http://www.nayuki.io/page/simple-deflate-implementation](http://www.nayuki.io/page/simple-deflate-implementation)
+An overview is given here: [https://www.nayuki.io/page/simple-deflate-implementation](https://www.nayuki.io/page/simple-deflate-implementation)
 
 
 License
