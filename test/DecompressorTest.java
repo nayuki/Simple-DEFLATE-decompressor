@@ -391,15 +391,14 @@ public final class DecompressorTest {
 		refOutput = refOutput.replace(" ", "");
 		if (refOutput.length() % 2 != 0)
 			throw new IllegalArgumentException();
-		byte[] refOut = new byte[refOutput.length() / 2];
-		for (int i = 0; i < refOut.length; i++)
-			refOut[i] = (byte)Integer.parseInt(refOutput.substring(i * 2, (i + 1) * 2), 16);
+		byte[] refBytes = new byte[refOutput.length() / 2];
+		for (int i = 0; i < refBytes.length; i++)
+			refBytes[i] = (byte)Integer.parseInt(refOutput.substring(i * 2, (i + 1) * 2), 16);
 		
 		// Decompress and compare the data
-		input = input.replace(" ", "");
-		BitInputStream in = new StringBitInputStream(input);
+		BitInputStream in = new StringBitInputStream(input.replace(" ", ""));
 		byte[] actualOut = Decompressor.decompress(in);
-		assertArrayEquals(refOut, actualOut);
+		assertArrayEquals(refBytes, actualOut);
 	}
 	
 }
