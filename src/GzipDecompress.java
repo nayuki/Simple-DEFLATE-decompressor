@@ -1,5 +1,3 @@
-package nayuki.deflate;
-
 import java.io.BufferedInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
