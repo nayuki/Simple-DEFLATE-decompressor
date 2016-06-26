@@ -13,6 +13,8 @@ final class StringBitInputStream implements BitInputStream {
 	public StringBitInputStream(String str) {
 		if (!str.matches("[01]*"))
 			throw new IllegalArgumentException();
+		while (str.length() % 8 != 0)
+			str += "0";  // Pad with '0' bits until a byte boundary
 		data = str;
 		index = 0;
 	}
