@@ -39,7 +39,7 @@ import java.util.List;
  */
 final class CanonicalCode {
 	
-	private int[] codeLengths;
+	private final int[] codeLengths;
 	
 	
 	
