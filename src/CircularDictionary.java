@@ -20,6 +20,8 @@ final class CircularDictionary {
 	 * @param size the size, which must be positive
 	 */
 	public CircularDictionary(int size) {
+		if (size < 1)
+			throw new IllegalArgumentException("Size must be positive");
 		data = new byte[size];
 		index = 0;
 		
@@ -59,6 +61,8 @@ final class CircularDictionary {
 	 * @throws IOException if an I/O exception occurs
 	 */
 	public void copy(int dist, int len, OutputStream out) throws IOException {
+		if (out == null)
+			throw new NullPointerException();
 		if (len < 0 || dist < 1 || dist > data.length)
 			throw new IllegalArgumentException();
 		
