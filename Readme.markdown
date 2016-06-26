@@ -1,14 +1,14 @@
-Simple DEFLATE (Java)
-=====================
+Simple DEFLATE decompressor
+===========================
 
-This project is a reference implementation of the DEFLATE compression format in Java.
-The code optimized for clear logic and low complexity, not for speed/memory.
+This project is a clear implementation of an inflater for the DEFLATE compression format,
+suitable as a reference for educational purposes. It is provided in Java, and is open source.
 
+The code can be used for study, and as a solid basis for modification and extension.
+Consequently, the codebase optimizes for readability and avoids fancy logic,
+and does not target the best speed/memory/performance.
 
-Description
------------
-
-An overview is given here: [https://www.nayuki.io/page/simple-deflate-implementation](https://www.nayuki.io/page/simple-deflate-implementation)
+Home page with detailed description: [https://www.nayuki.io/page/simple-deflate-decompressor](https://www.nayuki.io/page/simple-deflate-decompressor)
 
 
 License
@@ -16,7 +16,7 @@ License
 
 (MIT License)
 
-Copyright © 2014 Project Nayuki
+Copyright © 2016 Project Nayuki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
