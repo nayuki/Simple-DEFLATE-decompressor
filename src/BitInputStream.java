@@ -1,25 +1,49 @@
 import java.io.IOException;
 
 
+/**
+ * A stream of bits that can be read.
+ */
 public interface BitInputStream {
 	
-	// Reads a bit from the stream. Returns 0 or 1 if a bit is available, or -1 if the end of stream is reached. The end of stream always occurs on a byte boundary.
+	/**
+	 * Reads a bit from this stream. Returns 0 or 1 if a bit is available, or -1 if
+	 * the end of stream is reached. The end of stream always occurs on a byte boundary.
+	 * @return the next bit of 0 or 1, or -1 for the end of stream
+	 * @throws IOException if an I/O exception occurred
+	 */
 	public int read() throws IOException;
 	
 	
-	// Reads a bit from the stream. Returns 0 or 1 if a bit is available, or throws an EOFException if the end of stream is reached.
+	/**
+	 * Reads a bit from this stream. Returns 0 or 1 if a bit is available, or throws an {@code EOFException}
+	 * if the end of stream is reached. The end of stream always occurs on a byte boundary.
+	 * @return the next bit of 0 or 1
+	 * @throws IOException if an I/O exception occurred
+	 * @throws EOFException if the end of stream is reached
+	 */
 	public int readNoEof() throws IOException;
 	
 	
-	// Closes this stream and the underlying InputStream.
+	/**
+	 * Closes this stream and the underlying input stream.
+	 * @throws IOException if an I/O exception occurred
+	 */
 	public void close() throws IOException;
 	
 	
-	// Returns the current bit position, which is between 0 and 7 inclusive. The number of bits remaining in the current byte is 8 minus this number.
+	/**
+	 * Returns the current bit position, which ascends from 0 to 7 as bits are read.
+	 * The number of bits remaining in the current byte is 8 minus this number.
+	 * @return the current bit position, which is between 0 and 7
+	 */
 	public int getBitPosition();
 	
 	
-	// Discards the remainder of the current byte and reads the next byte from the stream.
+	/**
+	 * Discards the remainder of the current byte (if any) and reads the next whole byte from the stream.
+	 * @return the next byte from the stream
+	 */
 	public int readByte() throws IOException;
 	
 }

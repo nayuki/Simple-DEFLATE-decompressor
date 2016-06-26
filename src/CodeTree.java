@@ -3,57 +3,73 @@ import java.util.List;
 
 
 /**
- * A binary tree where each leaf codes a symbol, for representing Huffman codes. Immutable.
- */
-/*
- * There are two main uses of a CodeTree:
- * - Read the 'root' field and walk through the tree to extract the desired information.
- * - Call getCode() to get the code for a symbol, provided that the symbol has a code.
- * 
- * The path to a leaf node determines the leaf's symbol's code. Starting from the root, going to the left child represents a 0, and going to the right child represents a 1.
- * Constraints:
- * - The tree must be complete, i.e. every leaf must have a symbol.
- * - No symbol occurs in two leaves.
- * - But not every symbol needs to be in the tree.
- * - The root must not be a leaf node.
- * Example:
- *   Huffman codes:
- *     0: Symbol A
- *     10: Symbol B
- *     110: Symbol C
- *     111: Symbol D
- *   Code tree:
- *       .
- *      / \
- *     A   .
- *        / \
- *       B   .
- *          / \
- *         C   D
+ * A binary tree that represents a mapping between symbols and binary strings.
+ * The data structure is immutable. There are two main uses of a code tree:
+ * <ul>
+ *   <li>Read the root field and walk through the tree to extract the desired information.</li>
+ *   <li>Call getCode() to get the binary code for a particular encodable symbol.</li>
+ * </ul>
+ * <p>The path to a leaf node determines the leaf's symbol's code. Starting from the root, going
+ * to the left child represents a 0, and going to the right child represents a 1. Constraints:</p>
+ * <ul>
+ *   <li>The root must be an internal node, and the tree is finite.</li>
+ *   <li>No symbol value is found in more than one leaf.</li>
+ *   <li>Not every possible symbol value needs to be in the tree.</li>
+ * </ul>
+ * <p>Illustrated example:</p>
+ * <pre>  Huffman codes:
+ *    0: Symbol A
+ *    10: Symbol B
+ *    110: Symbol C
+ *    111: Symbol D
+ *  
+ *  Code tree:
+ *      .
+ *     / \
+ *    A   .
+ *       / \
+ *      B   .
+ *         / \
+ *        C   D</pre>
+ * @see CanonicalCode
  */
 final class CodeTree {
 	
-	public final InternalNode root;  // Not null
+	/**
+	 * The root node of this code tree (not {@code null}).
+	 */
+	public final InternalNode root;
 	
 	// Stores the code for each symbol, or null if the symbol has no code.
-	// For example, if symbol 5 has code 10011, then codes.get(5) is the list [1, 0, 0, 1, 1].
+	// For example, if symbol 5 has code 10011, then codes.get(5) is the list [1,0,0,1,1].
 	private List<List<Integer>> codes;
 	
 	
 	
-	// Every symbol in the tree 'root' must be strictly less than 'symbolLimit'.
+	/**
+	 * Constructs a code tree from the specified tree of nodes and specified symbol limit.
+	 * Each symbol in the tree must have value strictly less than the symbol limit.
+	 * @param root the root of the tree
+	 * @param symbolLimit the symbol limit
+	 * @throws NullPointerException if tree root is {@code null}
+	 * @throws IllegalArgumentException if the symbol limit is less than 2, any symbol in the tree has
+	 * a value greater or equal to the symbol limit, or a symbol value appears more than once in the tree
+	 */
 	public CodeTree(InternalNode root, int symbolLimit) {
 		if (root == null)
-			throw new NullPointerException("Argument is null");
-		this.root = root;
+			throw new NullPointerException();
+		if (symbolLimit < 2)
+			throw new IllegalArgumentException("At least 2 symbols needed");
 		
+		this.root = root;
 		codes = new ArrayList<List<Integer>>();  // Initially all null
 		for (int i = 0; i < symbolLimit; i++)
 			codes.add(null);
-		buildCodeList(root, new ArrayList<Integer>());  // Fills 'codes' with appropriate data
+		buildCodeList(root, new ArrayList<Integer>());  // Fill 'codes' with appropriate data
 	}
 	
 	
+	// Recursive helper function for the constructor
 	private void buildCodeList(Node node, List<Integer> prefix) {
 		if (node instanceof InternalNode) {
 			InternalNode internalNode = (InternalNode)node;
@@ -81,7 +97,11 @@ final class CodeTree {
 	
 	
 	
-	// Returns a string showing all the codes in this tree. The format is subject to change. Useful for debugging.
+	/**
+	 * Returns a string representation of this code tree,
+	 * useful for debugging only, and the format is subject to change.
+	 * @return a string representation of this code tree
+	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		toString("", root, sb);
@@ -89,6 +109,7 @@ final class CodeTree {
 	}
 	
 	
+	// Recursive helper function for toString()
 	private static void toString(String prefix, Node node, StringBuilder sb) {
 		if (node instanceof InternalNode) {
 			InternalNode internalNode = (InternalNode)node;
@@ -106,7 +127,7 @@ final class CodeTree {
 
 
 /**
- * A node in a code tree. This class has two and only two subclasses: InternalNode, Leaf.
+ * A node in a code tree. This class has exactly two subclasses: InternalNode, Leaf.
  */
 abstract class Node {
 	
@@ -122,11 +143,11 @@ final class InternalNode extends Node {
 	public final Node leftChild;  // Not null	
 	public final Node rightChild;  // Not null
 	
-	public InternalNode(Node leftChild, Node rightChild) {
-		if (leftChild == null || rightChild == null)
-			throw new NullPointerException("Argument is null");
-		this.leftChild = leftChild;
-		this.rightChild = rightChild;
+	public InternalNode(Node left, Node right) {
+		if (left == null || right == null)
+			throw new NullPointerException();
+		leftChild = left;
+		rightChild = right;
 	}
 }
 
@@ -136,11 +157,11 @@ final class InternalNode extends Node {
  */
 final class Leaf extends Node {
 	
-	public final int symbol;
+	public final int symbol;  // Always non-negative
 	
-	public Leaf(int symbol) {
-		if (symbol < 0)
-			throw new IllegalArgumentException("Illegal symbol value");
-		this.symbol = symbol;
+	public Leaf(int sym) {
+		if (sym < 0)
+			throw new IllegalArgumentException("Symbol value must be non-negative");
+		symbol = sym;
 	}
 }
