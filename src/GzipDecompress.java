@@ -41,6 +41,7 @@ public class GzipDecompress {
 			return "Input file does not exist: " + inFile;
 		if (inFile.isDirectory())
 			return "Input file is a directory: " + inFile;
+		File outFile = new File(args[1]);
 		
 		try {
 			// Start reading
@@ -128,12 +129,8 @@ public class GzipDecompress {
 				}
 				
 				// Footer
-				{
-					byte[] b = new byte[8];
-					in.readFully(b);
-					crc  = (b[0] & 0xFF) | (b[1] & 0xFF) << 8 | (b[2] & 0xFF) << 16 | b[3] << 24;
-					size = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | b[7] << 24;
-				}
+				crc  = Integer.reverseBytes(in.readInt());
+				size = Integer.reverseBytes(in.readInt());
 			} finally {
 				in.close();
 			}
@@ -145,7 +142,6 @@ public class GzipDecompress {
 				return String.format("CRC-32 mismatch: expected=%08X, actual=%08X", crc, getCrc32(decomp));
 			
 			// Write decompressed data to output file
-			File outFile = new File(args[1]);
 			OutputStream out = new FileOutputStream(outFile);
 			try {
 				out.write(decomp);
