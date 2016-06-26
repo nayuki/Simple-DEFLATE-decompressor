@@ -39,43 +39,6 @@ final class CanonicalCode {
 	}
 	
 	
-	// Builds a canonical code from the given code tree.
-	public CanonicalCode(CodeTree tree, int symbolLimit) {
-		codeLengths = new int[symbolLimit];
-		buildCodeLengths(tree.root, 0);
-	}
-	
-	
-	private void buildCodeLengths(Node node, int depth) {
-		if (node instanceof InternalNode) {
-			InternalNode internalNode = (InternalNode)node;
-			buildCodeLengths(internalNode.leftChild , depth + 1);
-			buildCodeLengths(internalNode.rightChild, depth + 1);
-		} else if (node instanceof Leaf) {
-			int symbol = ((Leaf)node).symbol;
-			if (codeLengths[symbol] != 0)
-				throw new AssertionError("Symbol has more than one code");  // Because CodeTree has a checked constraint that disallows a symbol in multiple leaves
-			if (symbol >= codeLengths.length)
-				throw new IllegalArgumentException("Symbol exceeds symbol limit");
-			codeLengths[symbol] = depth;
-		} else {
-			throw new AssertionError("Illegal node type");
-		}
-	}
-	
-	
-	
-	public int getSymbolLimit() {
-		return codeLengths.length;
-	}
-	
-	
-	public int getCodeLength(int symbol) {
-		if (symbol < 0 || symbol >= codeLengths.length)
-			throw new IllegalArgumentException("Symbol out of range");
-		return codeLengths[symbol];
-	}
-	
 	
 	public CodeTree toCodeTree() {
 		List<Node> nodes = new ArrayList<Node>();

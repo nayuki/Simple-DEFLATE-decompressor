@@ -81,16 +81,6 @@ final class CodeTree {
 	
 	
 	
-	public List<Integer> getCode(int symbol) {
-		if (symbol < 0)
-			throw new IllegalArgumentException("Illegal symbol");
-		else if (codes.get(symbol) == null)
-			throw new IllegalArgumentException("No code for given symbol");
-		else
-			return codes.get(symbol);
-	}
-	
-	
 	// Returns a string showing all the codes in this tree. The format is subject to change. Useful for debugging.
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
