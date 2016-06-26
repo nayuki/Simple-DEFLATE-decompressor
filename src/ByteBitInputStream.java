@@ -11,7 +11,7 @@ import java.io.InputStream;
  */
 public final class ByteBitInputStream implements BitInputStream {
 	
-	/* Fields */
+	/*---- Fields ----*/
 	
 	// The underlying byte stream to read from (not null).
 	private InputStream input;
@@ -24,7 +24,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	
 	
-	/* Constructor */
+	/*---- Constructor ----*/
 	
 	/**
 	 * Constructs a bit input stream based on the specified byte input stream.
@@ -41,7 +41,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	
 	
-	/* Methods */
+	/*---- Methods ----*/
 	
 	/**
 	 * Returns the current bit position, which ascends from 0 to 7 as bits are read.

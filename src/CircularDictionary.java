@@ -7,6 +7,8 @@ import java.io.OutputStream;
  */
 final class CircularDictionary {
 	
+	/*---- Fields ----*/
+	
 	private byte[] data;
 	
 	private int index;
@@ -14,6 +16,8 @@ final class CircularDictionary {
 	private int mask;
 	
 	
+	
+	/*---- Constructor ----*/
 	
 	/**
 	 * Constructs a circular dictionary of the specified size, initialized to zeros.
@@ -32,6 +36,8 @@ final class CircularDictionary {
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	/**
 	 * Appends the specified byte to this circular dictionary.

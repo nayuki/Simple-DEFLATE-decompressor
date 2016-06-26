@@ -8,11 +8,15 @@ import java.io.IOException;
  */
 final class StringBitInputStream implements BitInputStream {
 	
+	/*---- Fields ----*/
+	
 	private final String data;
 	
 	private int index;
 	
 	
+	
+	/*---- Constructor ----*/
 	
 	public StringBitInputStream(String str) {
 		if (!str.matches("[01]*"))
@@ -24,6 +28,8 @@ final class StringBitInputStream implements BitInputStream {
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	public int getBitPosition() {
 		return index % 8;

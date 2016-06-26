@@ -126,6 +126,8 @@ final class CodeTree {
 
 
 
+/*---- Helper structures ----*/
+
 /**
  * A node in a code tree. This class has exactly two subclasses: InternalNode, Leaf.
  */

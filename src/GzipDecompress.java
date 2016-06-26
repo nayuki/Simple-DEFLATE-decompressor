@@ -160,6 +160,8 @@ public class GzipDecompress {
 	}
 	
 	
+	/*---- Helper methods ----*/
+	
 	private static String readNullTerminatedString(DataInput in) throws IOException {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		while (true) {
