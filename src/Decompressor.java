@@ -1,6 +1,7 @@
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.zip.DataFormatException;
 
@@ -10,11 +11,17 @@ import java.util.zip.DataFormatException;
  */
 public final class Decompressor {
 	
-	/*---- Public method ----*/
+	/*---- Public methods ----*/
 	
 	public static byte[] decompress(BitInputStream in) throws IOException, DataFormatException {
-		Decompressor decomp = new Decompressor(in);
-		return decomp.output.toByteArray();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		new Decompressor(in, out);
+		return out.toByteArray();
+	}
+	
+	
+	public static void decompress(BitInputStream in, OutputStream out) throws IOException, DataFormatException {
+		new Decompressor(in, out);
 	}
 	
 	
@@ -25,16 +32,16 @@ public final class Decompressor {
 	
 	private BitInputStream input;
 	
-	private ByteArrayOutputStream output;
+	private OutputStream output;
 	
 	private CircularDictionary dictionary;
 	
 	
 	
 	// Constructor
-	private Decompressor(BitInputStream in) throws IOException, DataFormatException {
+	private Decompressor(BitInputStream in, OutputStream out) throws IOException, DataFormatException {
 		input = in;
-		output = new ByteArrayOutputStream();
+		output = out;
 		dictionary = new CircularDictionary(32 * 1024);
 		
 		// Process the stream of blocks
