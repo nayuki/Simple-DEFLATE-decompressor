@@ -44,6 +44,29 @@ public final class ByteBitInputStream implements BitInputStream {
 	/* Methods */
 	
 	/**
+	 * Returns the current bit position, which ascends from 0 to 7 as bits are read.
+	 * The number of bits remaining in the current byte is 8 minus this number.
+	 * @return the current bit position, which is between 0 and 7
+	 */
+	public int getBitPosition() {
+		if (numBitsRemaining < 0 || numBitsRemaining > 7)
+			throw new AssertionError();
+		return 7 - numBitsRemaining;
+	}
+	
+	
+	/**
+	 * Discards the remainder of the current byte (if any) and reads the next whole byte from the stream.
+	 * @return the next byte from the stream
+	 */
+	public int readByte() throws IOException {
+		currentByte = 0;
+		numBitsRemaining = 0;
+		return input.read();
+	}
+	
+	
+	/**
 	 * Reads a bit from this stream. Returns 0 or 1 if a bit is available, or -1 if
 	 * the end of stream is reached. The end of stream always occurs on a byte boundary.
 	 * @return the next bit of 0 or 1, or -1 for the end of stream
@@ -78,29 +101,6 @@ public final class ByteBitInputStream implements BitInputStream {
 			return result;
 		else
 			throw new EOFException();
-	}
-	
-	
-	/**
-	 * Returns the current bit position, which ascends from 0 to 7 as bits are read.
-	 * The number of bits remaining in the current byte is 8 minus this number.
-	 * @return the current bit position, which is between 0 and 7
-	 */
-	public int getBitPosition() {
-		if (numBitsRemaining < 0 || numBitsRemaining > 7)
-			throw new AssertionError();
-		return 7 - numBitsRemaining;
-	}
-	
-	
-	/**
-	 * Discards the remainder of the current byte (if any) and reads the next whole byte from the stream.
-	 * @return the next byte from the stream
-	 */
-	public int readByte() throws IOException {
-		currentByte = 0;
-		numBitsRemaining = 0;
-		return input.read();
 	}
 	
 	
