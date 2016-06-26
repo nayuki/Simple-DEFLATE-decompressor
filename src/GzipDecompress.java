@@ -1,4 +1,5 @@
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.File;
@@ -6,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
@@ -159,15 +161,14 @@ public class GzipDecompress {
 	
 	
 	private static String readNullTerminatedString(DataInput in) throws IOException {
-		StringBuilder sb = new StringBuilder();
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		while (true) {
-			byte c = in.readByte();
-			if (c == 0)
+			byte b = in.readByte();
+			if (b == 0)
 				break;
-			else
-				sb.append((char)(c & 0xFF));
+			bout.write(b);
 		}
-		return sb.toString();
+		return new String(bout.toByteArray(), StandardCharsets.UTF_8);
 	}
 	
 	
