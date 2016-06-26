@@ -5,9 +5,12 @@ import java.util.Arrays;
 import java.util.zip.DataFormatException;
 
 
+/**
+ * Decompresses raw DEFLATE data (without zlib or gzip container) into bytes.
+ */
 public final class Decompressor {
 	
-	/* Public method */
+	/*---- Public method ----*/
 	
 	public static byte[] decompress(BitInputStream in) throws IOException, DataFormatException {
 		Decompressor decomp = new Decompressor(in);
@@ -16,7 +19,9 @@ public final class Decompressor {
 	
 	
 	
-	/* Private members */
+	/*---- Private implementation ----*/
+	
+	/* Fields */
 	
 	private BitInputStream input;
 	
@@ -26,6 +31,7 @@ public final class Decompressor {
 	
 	
 	
+	// Constructor
 	private Decompressor(BitInputStream in) throws IOException, DataFormatException {
 		input = in;
 		output = new ByteArrayOutputStream();
@@ -63,7 +69,7 @@ public final class Decompressor {
 	}
 	
 	
-	// For handling static Huffman codes (btype = 1)
+	/* Tables for static Huffman codes (btype = 1) */
 	
 	private static CodeTree fixedLiteralLengthCode;
 	private static CodeTree fixedDistanceCode;
@@ -82,7 +88,8 @@ public final class Decompressor {
 	}
 	
 	
-	// For handling dynamic Huffman codes (btype = 2)
+	/* Method for reading and decoding dynamic Huffman codes (btype = 2) */
+	
 	private CodeTree[] decodeHuffmanCodes(BitInputStream in) throws IOException, DataFormatException {
 		int numLitLenCodes = readInt(5) + 257;  // hlit  + 257
 		int numDistCodes = readInt(5) + 1;      // hdist +   1
@@ -183,6 +190,7 @@ public final class Decompressor {
 	
 	/* Block decompression methods */
 	
+	// Handles and copies an uncompressed block from the input bit stream.
 	private void decompressUncompressedBlock() throws IOException, DataFormatException {
 		// Discard bits to align to byte boundary
 		while (input.getBitPosition() != 0)
@@ -205,6 +213,7 @@ public final class Decompressor {
 	}
 	
 	
+	// Decompresses a Huffman-coded block from the input bit stream based on the given Huffman codes.
 	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode) throws IOException, DataFormatException {
 		if (litLenCode == null)
 			throw new NullPointerException();
@@ -231,6 +240,8 @@ public final class Decompressor {
 	
 	/* Symbol decoding methods */
 	
+	// Decodes the next symbol from the bit input stream based on
+	// the given code tree. The returned symbol value is at least 0.
 	private int decodeSymbol(CodeTree code) throws IOException {
 		InternalNode currentNode = code.root;
 		while (true) {
@@ -250,6 +261,7 @@ public final class Decompressor {
 	}
 	
 	
+	// Returns the run length based on the given symbol and possibly reading more bits.
 	private int decodeRunLength(int sym) throws IOException, DataFormatException {
 		if (sym < 257 || sym > 285)
 			throw new DataFormatException("Invalid run length symbol: " + sym);
@@ -263,6 +275,7 @@ public final class Decompressor {
 	}
 	
 	
+	// Returns the distance based on the given symbol and possibly reading more bits.
 	private int decodeDistance(int sym) throws IOException, DataFormatException {
 		if (sym <= 3)
 			return sym + 1;
@@ -276,6 +289,7 @@ public final class Decompressor {
 	
 	/* Utility method */
 	
+	// Reads the given number of bits from the bit input stream as a single integer, packed in little endian.
 	private int readInt(int numBits) throws IOException {
 		if (numBits < 0 || numBits >= 32)
 			throw new IllegalArgumentException();

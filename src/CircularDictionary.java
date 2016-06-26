@@ -2,6 +2,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 
+/**
+ * A finite circular buffer of bytes, useful as an implicit dictionary for Lempel-Ziv schemes.
+ */
 final class CircularDictionary {
 	
 	private byte[] data;
@@ -12,6 +15,10 @@ final class CircularDictionary {
 	
 	
 	
+	/**
+	 * Constructs a circular dictionary of the specified size, initialized to zeros.
+	 * @param size the size, which must be positive
+	 */
 	public CircularDictionary(int size) {
 		data = new byte[size];
 		index = 0;
@@ -24,6 +31,11 @@ final class CircularDictionary {
 	
 	
 	
+	/**
+	 * Appends the specified byte to this circular dictionary.
+	 * This overwrites the byte value at {@code size} positions ago.
+	 * @param b the byte value to append
+	 */
 	public void append(int b) {
 		data[index] = (byte)b;
 		if (mask != 0)
@@ -33,6 +45,19 @@ final class CircularDictionary {
 	}
 	
 	
+	/**
+	 * Copies {@code len} bytes starting at {@code dist} bytes ago to
+	 * the specified output stream and also back into this buffer itself.
+	 * <p>Note that if the length exceeds the distance, then some of the output
+	 * data will be a copy of data that was copied earlier in the process.</p>
+	 * @param dist the distance to go back, which must be positive but no greater than the buffer's size
+	 * @param len the length to copy, which must be non-negative and is allowed to exceed the distance
+	 * @param out the output stream to write to
+	 * @throws NullPointerException if the output stream is {@code null}
+	 * @throws IllegalArgumentException if the length is negative,
+	 * distance is not positive, or distance is greater than the buffer size
+	 * @throws IOException if an I/O exception occurs
+	 */
 	public void copy(int dist, int len, OutputStream out) throws IOException {
 		if (len < 0 || dist < 1 || dist > data.length)
 			throw new IllegalArgumentException();

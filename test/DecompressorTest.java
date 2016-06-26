@@ -5,9 +5,12 @@ import java.util.zip.DataFormatException;
 import org.junit.Test;
 
 
+/**
+ * Tests the decompression of various raw (header/footer-less) DEFLATE bit streams that exercise various features.
+ */
 public final class DecompressorTest {
 	
-	/* Test cases */
+	/*---- Test cases ----*/
 	
 	@Test(expected=EOFException.class)
 	public void testEofStartOfBlock() throws IOException, DataFormatException {
@@ -372,12 +375,19 @@ public final class DecompressorTest {
 	
 	
 	
-	/* Utility method */
+	/*---- Utility method ----*/
 	
-	// 'input' is a string of 0's and 1's (with optional spaces) representing the input bit sequence.
-	// 'refOutput' is a string of pairs of hexadecimal digits (with optional spaces) representing
-	// the expected decompressed output byte sequence.
+	/**
+	 * Tests that the specified string of bits decompresses to the specified string of hexadecimal bytes.
+	 * This returns silently if the decompression matches the reference output; otherwise it throws an {@code AssertionError}.
+	 * @param input the input bit string, e.g. "101 00110  1", with optional spaces
+	 * @param refOutput the reference byte string, e.g. "FF 8A5200", with optional spaces
+	 * @throws IOException if an I/O exception occurs
+	 * @throws DataFormatException if the DEFLATE data is invalid
+	 * @throws AssertionError if the decompressed output mismatches the expected output
+	 */
 	private static void test(String input, String refOutput) throws IOException, DataFormatException {
+		// Preprocess the reference output
 		refOutput = refOutput.replace(" ", "");
 		if (refOutput.length() % 2 != 0)
 			throw new IllegalArgumentException();
@@ -385,6 +395,7 @@ public final class DecompressorTest {
 		for (int i = 0; i < refOut.length; i++)
 			refOut[i] = (byte)Integer.parseInt(refOutput.substring(i * 2, (i + 1) * 2), 16);
 		
+		// Decompress and compare the data
 		input = input.replace(" ", "");
 		BitInputStream in = new StringBitInputStream(input);
 		byte[] actualOut = Decompressor.decompress(in);

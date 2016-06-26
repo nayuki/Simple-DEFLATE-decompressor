@@ -2,6 +2,10 @@ import java.io.EOFException;
 import java.io.IOException;
 
 
+/**
+ * A bit input stream based on an ASCII string of 0s and 1s, useful for test vectors.
+ * <p>Note that for {@code readByte()}, whole bytes are serialized unintuitively in reverse order.</p>
+ */
 final class StringBitInputStream implements BitInputStream {
 	
 	private final String data;

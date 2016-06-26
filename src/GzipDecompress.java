@@ -11,6 +11,12 @@ import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 
 
+/**
+ * Decompression application for the gzip file format.
+ * <p>Usage: java GzipDecompress InputFile OutputFile</p>
+ * <p>This decompresses a single gzip file into a single output file. The program also prints
+ * some information to standard output, and error messages if the file is invalid/corrupt.</p>
+ */
 public class GzipDecompress {
 	
 	public static void main(String[] args) {
@@ -22,6 +28,7 @@ public class GzipDecompress {
 	}
 	
 	
+	// Returns null if successful, otherwise returns an error message string.
 	private static String submain(String[] args) {
 		// Check arguments
 		if (args.length != 2)
@@ -129,7 +136,7 @@ public class GzipDecompress {
 				in.close();
 			}
 			
-			// Check
+			// Check decompressed data's length and CRC
 			if (size != decomp.length)
 				return String.format("Size mismatch: expected=%d, actual=%d", size, decomp.length);
 			if (crc != getCrc32(decomp))
