@@ -10,13 +10,13 @@ import java.io.IOException;
 
 
 /**
- * A stream of bits that can be read.
+ * A stream of bits that can be read. Bits are packed in little endian within a byte.
+ * For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1].
  */
 public interface BitInputStream {
 	
 	/**
 	 * Returns the current bit position, which ascends from 0 to 7 as bits are read.
-	 * The number of bits remaining in the current byte is 8 minus this number.
 	 * @return the current bit position, which is between 0 and 7
 	 */
 	public int getBitPosition();

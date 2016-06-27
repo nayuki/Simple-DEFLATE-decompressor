@@ -13,7 +13,7 @@ import java.io.InputStream;
 
 /**
  * A stream of bits that can be read. Because they come from an underlying byte stream,
- * the total number of bits is always a multiple of 8. The bits are read in big endian.
+ * the total number of bits is always a multiple of 8. The bits are read in little endian.
  * Mutable and not thread-safe.
  * @see BitOutputStream
  */
@@ -53,13 +53,12 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	/**
 	 * Returns the current bit position, which ascends from 0 to 7 as bits are read.
-	 * The number of bits remaining in the current byte is 8 minus this number.
 	 * @return the current bit position, which is between 0 and 7
 	 */
 	public int getBitPosition() {
 		if (numBitsRemaining < 0 || numBitsRemaining > 7)
 			throw new AssertionError();
-		return 7 - numBitsRemaining;
+		return (8 - numBitsRemaining) % 8;
 	}
 	
 	
@@ -92,7 +91,7 @@ public final class ByteBitInputStream implements BitInputStream {
 		if (numBitsRemaining <= 0)
 			throw new AssertionError();
 		numBitsRemaining--;
-		return (currentByte >>> numBitsRemaining) & 1;
+		return (currentByte >>> (7 - numBitsRemaining)) & 1;
 	}
 	
 	
