@@ -90,11 +90,11 @@ final class CodeTree {
 		}
 		
 		// Convert code lengths to code tree
-		List<Node> nodes = new ArrayList<Node>();
+		List<Node> nodes = new ArrayList<>();
 		for (int i = 15; i >= 0; i--) {  // Descend through code lengths (maximum 15 for DEFLATE)
 			if (nodes.size() % 2 != 0)
 				throw new IllegalStateException("This canonical code does not represent a Huffman code tree");
-			List<Node> newNodes = new ArrayList<Node>();
+			List<Node> newNodes = new ArrayList<>();
 			
 			// Add leaves for symbols with positive code length i
 			if (i > 0) {
@@ -113,7 +113,7 @@ final class CodeTree {
 		if (nodes.size() != 1)
 			throw new IllegalStateException("This canonical code does not represent a Huffman code tree");
 		root = (InternalNode)nodes.get(0);
-		codes = new ArrayList<List<Integer>>();
+		codes = new ArrayList<>();
 		for (int i = 0; i < canonicalCodeLengths.length; i++)
 			codes.add(null);
 		buildCodeList(root, new ArrayList<Integer>());  // Fill 'codes' with appropriate data
@@ -139,7 +139,7 @@ final class CodeTree {
 				throw new IllegalArgumentException("Symbol exceeds symbol limit");
 			if (codes.get(leaf.symbol) != null)
 				throw new IllegalArgumentException("Symbol has more than one code");
-			codes.set(leaf.symbol, new ArrayList<Integer>(prefix));
+			codes.set(leaf.symbol, new ArrayList<>(prefix));
 			
 		} else {
 			throw new AssertionError("Illegal node type");
