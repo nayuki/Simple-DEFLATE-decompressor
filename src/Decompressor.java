@@ -46,19 +46,20 @@ public final class Decompressor {
 	
 	
 	
-	// Constructor
+	// Constructor, which immediately performs decompression
 	private Decompressor(BitInputStream in, OutputStream out) throws IOException, DataFormatException {
+		// Initialize fields
 		input = in;
 		output = out;
 		dictionary = new CircularDictionary(32 * 1024);
 		
 		// Process the stream of blocks
 		while (true) {
-			// Block header
+			// Read block header
 			boolean isFinal = in.readNoEof() == 1;  // bfinal
-			int type = readInt(2);                  // btype
+			int type = readInt(2);  // btype
 			
-			// Decompress by type
+			// Decompress rest of block based on the type
 			if (type == 0)
 				decompressUncompressedBlock();
 			else if (type == 1 || type == 2) {
