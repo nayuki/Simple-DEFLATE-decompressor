@@ -87,11 +87,11 @@ public final class Decompressor {
 		Arrays.fill(llcodelens, 144, 256, 9);
 		Arrays.fill(llcodelens, 256, 280, 7);
 		Arrays.fill(llcodelens, 280, 288, 8);
-		fixedLiteralLengthCode = new CanonicalCode(llcodelens).toCodeTree();
+		fixedLiteralLengthCode = new CodeTree(llcodelens);
 		
 		int[] distcodelens = new int[32];
 		Arrays.fill(distcodelens, 5);
-		fixedDistanceCode = new CanonicalCode(distcodelens).toCodeTree();
+		fixedDistanceCode = new CodeTree(distcodelens);
 	}
 	
 	
@@ -115,7 +115,7 @@ public final class Decompressor {
 		}
 		CodeTree codeLenCode;
 		try {
-			codeLenCode = new CanonicalCode(codeLenCodeLen).toCodeTree();
+			codeLenCode = new CodeTree(codeLenCodeLen);
 		} catch (IllegalStateException e) {
 			throw new DataFormatException(e.getMessage());
 		}
@@ -157,7 +157,7 @@ public final class Decompressor {
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
 		CodeTree litLenCode;
 		try {
-			litLenCode = new CanonicalCode(litLenCodeLen).toCodeTree();
+			litLenCode = new CodeTree(litLenCodeLen);
 		} catch (IllegalStateException e) {
 			throw new DataFormatException(e.getMessage());
 		}
@@ -185,7 +185,7 @@ public final class Decompressor {
 			}
 			
 			try {
-				distCode = new CanonicalCode(distCodeLen).toCodeTree();
+				distCode = new CodeTree(distCodeLen);
 			} catch (IllegalStateException e) {
 				throw new DataFormatException(e.getMessage());
 			}
