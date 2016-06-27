@@ -1,3 +1,11 @@
+/* 
+ * Simple DEFLATE decompressor
+ * Copyright (c) Project Nayuki
+ * 
+ * https://www.nayuki.io/page/simple-deflate-decompressor
+ * https://github.com/nayuki/Simple-DEFLATE-decompressor
+ */
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
