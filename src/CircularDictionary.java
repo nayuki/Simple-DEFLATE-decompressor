@@ -46,6 +46,8 @@ final class CircularDictionary {
 	 * @param b the byte value to append
 	 */
 	public void append(int b) {
+		if (index < 0 || index >= data.length)
+			throw new AssertionError();
 		data[index] = (byte)b;
 		index = (index + 1) % data.length;
 	}
@@ -70,7 +72,11 @@ final class CircularDictionary {
 		if (len < 0 || dist < 1 || dist > data.length)
 			throw new IllegalArgumentException();
 		
+		// This calculation is correct for all possible values and does not overflow
 		int readIndex = (index - dist + data.length) % data.length;
+		if (readIndex < 0 || readIndex >= data.length)
+			throw new AssertionError();
+		
 		for (int i = 0; i < len; i++) {
 			byte b = data[readIndex];
 			readIndex = (readIndex + 1) % data.length;
