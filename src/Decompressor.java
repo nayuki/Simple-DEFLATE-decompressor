@@ -23,7 +23,7 @@ public final class Decompressor {
 	
 	public static byte[] decompress(BitInputStream in) throws IOException, DataFormatException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		new Decompressor(in, out);
+		decompress(in, out);
 		return out.toByteArray();
 	}
 	
@@ -282,8 +282,8 @@ public final class Decompressor {
 		else if (sym <= 264)
 			return sym - 254;
 		else if (sym <= 284) {
-			int i = (sym - 261) / 4;  // Number of extra bits to read
-			return (((sym - 265) % 4 + 4) << i) + 3 + readInt(i);
+			int numExtraBits = (sym - 261) / 4;
+			return (((sym - 265) % 4 + 4) << numExtraBits) + 3 + readInt(numExtraBits);
 		} else  // sym == 285
 			return 258;
 	}
@@ -294,8 +294,8 @@ public final class Decompressor {
 		if (sym <= 3)
 			return sym + 1;
 		else if (sym <= 29) {
-			int i = sym / 2 - 1;  // Number of extra bits to read
-			return ((sym % 2 + 2) << i) + 1 + readInt(i);
+			int numExtraBits = sym / 2 - 1;
+			return ((sym % 2 + 2) << numExtraBits) + 1 + readInt(numExtraBits);
 		} else
 			throw new DataFormatException("Invalid distance symbol: " + sym);
 	}

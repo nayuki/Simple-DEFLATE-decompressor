@@ -17,8 +17,10 @@ final class CircularDictionary {
 	
 	/*---- Fields ----*/
 	
+	// Buffer of byte data.
 	private byte[] data;
 	
+	// Index of next byte to write to, always in the range [0, data.length).
 	private int index;
 	
 	
