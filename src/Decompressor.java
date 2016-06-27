@@ -277,27 +277,31 @@ public final class Decompressor {
 	
 	// Returns the run length based on the given symbol and possibly reading more bits.
 	private int decodeRunLength(int sym) throws IOException, DataFormatException {
-		if (sym < 257 || sym > 285)
-			throw new DataFormatException("Invalid run length symbol: " + sym);
+		if (sym < 257 || sym > 287)  // Cannot occur in the bit stream; indicates the decompressor is buggy
+			throw new AssertionError("Invalid run length symbol: " + sym);
 		else if (sym <= 264)
 			return sym - 254;
 		else if (sym <= 284) {
 			int numExtraBits = (sym - 261) / 4;
 			return (((sym - 265) % 4 + 4) << numExtraBits) + 3 + readInt(numExtraBits);
-		} else  // sym == 285
+		} else if (sym == 285)
 			return 258;
+		else  // sym is 286 or 287
+			throw new DataFormatException("Reserved length symbol: " + sym);
 	}
 	
 	
 	// Returns the distance based on the given symbol and possibly reading more bits.
 	private int decodeDistance(int sym) throws IOException, DataFormatException {
+		if (sym < 0 || sym > 31)  // Cannot occur in the bit stream; indicates the decompressor is buggy
+			throw new AssertionError("Invalid distance symbol: " + sym);
 		if (sym <= 3)
 			return sym + 1;
 		else if (sym <= 29) {
 			int numExtraBits = sym / 2 - 1;
 			return ((sym % 2 + 2) << numExtraBits) + 1 + readInt(numExtraBits);
-		} else
-			throw new DataFormatException("Invalid distance symbol: " + sym);
+		} else  // sym is 30 or 31
+			throw new DataFormatException("Reserved distance symbol: " + sym);
 	}
 	
 	
