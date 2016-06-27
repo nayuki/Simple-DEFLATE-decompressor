@@ -114,18 +114,13 @@ public class GzipDecompress {
 					System.out.println("Flag: Text");
 				if ((flags & 0x04) != 0) {
 					System.out.println("Flag: Extra");
-					byte[] b = new byte[2];
-					in.readFully(b);
-					int len = (b[0] & 0xFF) | (b[1] & 0xFF) << 8;
+					int len = readLittleEndianUint16(in);
 					in.readFully(new byte[len]);  // Skip extra data
 				}
 				if ((flags & 0x08) != 0)
 					System.out.println("File name: " + readNullTerminatedString(in));
-				if ((flags & 0x02) != 0) {
-					byte[] b = new byte[2];
-					in.readFully(b);
-					System.out.printf("Header CRC-16: %04X%n", (b[0] & 0xFF) | (b[1] & 0xFF) << 8);
-				}
+				if ((flags & 0x02) != 0)
+					System.out.printf("Header CRC-16: %04X%n", readLittleEndianUint16(in));
 				if ((flags & 0x10) != 0)
 					System.out.println("Comment: " + readNullTerminatedString(in));
 				
@@ -137,8 +132,8 @@ public class GzipDecompress {
 				}
 				
 				// Footer
-				crc  = Integer.reverseBytes(in.readInt());
-				size = Integer.reverseBytes(in.readInt());
+				crc  = readLittleEndianInt32(in);
+				size = readLittleEndianInt32(in);
 			} finally {
 				in.close();
 			}
@@ -182,6 +177,16 @@ public class GzipDecompress {
 		CRC32 crc = new CRC32();
 		crc.update(data);
 		return (int)crc.getValue();
+	}
+	
+	
+	private static int readLittleEndianUint16(DataInput in) throws IOException {
+		return Integer.reverseBytes(in.readUnsignedShort()) >>> 16;
+	}
+	
+	
+	private static int readLittleEndianInt32(DataInput in) throws IOException {
+		return Integer.reverseBytes(in.readInt());
 	}
 	
 }
