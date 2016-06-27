@@ -46,10 +46,6 @@ final class CodeTree {
 	 */
 	public final InternalNode root;
 	
-	// Stores the code for each symbol, or null if the symbol has no code.
-	// For example, if symbol 5 has code 10011, then codes.get(5) is the list [1,0,0,1,1].
-	private List<List<Integer>> codes;
-	
 	
 	
 	/**
@@ -113,37 +109,6 @@ final class CodeTree {
 		if (nodes.size() != 1)
 			throw new IllegalStateException("This canonical code does not represent a Huffman code tree");
 		root = (InternalNode)nodes.get(0);
-		codes = new ArrayList<>();
-		for (int i = 0; i < canonicalCodeLengths.length; i++)
-			codes.add(null);
-		buildCodeList(root, new ArrayList<Integer>());  // Fill 'codes' with appropriate data
-	}
-	
-	
-	// Recursive helper function for the constructor
-	private void buildCodeList(Node node, List<Integer> prefix) {
-		if (node instanceof InternalNode) {
-			InternalNode internalNode = (InternalNode)node;
-			
-			prefix.add(0);
-			buildCodeList(internalNode.leftChild , prefix);
-			prefix.remove(prefix.size() - 1);
-			
-			prefix.add(1);
-			buildCodeList(internalNode.rightChild, prefix);
-			prefix.remove(prefix.size() - 1);
-			
-		} else if (node instanceof Leaf) {
-			Leaf leaf = (Leaf)node;
-			if (leaf.symbol >= codes.size())
-				throw new IllegalArgumentException("Symbol exceeds symbol limit");
-			if (codes.get(leaf.symbol) != null)
-				throw new IllegalArgumentException("Symbol has more than one code");
-			codes.set(leaf.symbol, new ArrayList<>(prefix));
-			
-		} else {
-			throw new AssertionError("Illegal node type");
-		}
 	}
 	
 	
