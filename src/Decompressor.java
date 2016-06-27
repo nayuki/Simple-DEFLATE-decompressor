@@ -54,9 +54,10 @@ public final class Decompressor {
 		dictionary = new CircularDictionary(32 * 1024);
 		
 		// Process the stream of blocks
-		while (true) {
+		boolean isFinal = false;
+		do {
 			// Read block header
-			boolean isFinal = in.readNoEof() == 1;  // bfinal
+			isFinal = in.readNoEof() == 1;  // bfinal
 			int type = readInt(2);  // btype
 			
 			// Decompress rest of block based on the type
@@ -75,13 +76,10 @@ public final class Decompressor {
 				decompressHuffmanBlock(litLenCode, distCode);
 				
 			} else if (type == 3)
-				throw new DataFormatException("Invalid block type");
+				throw new DataFormatException("Reserved block type");
 			else
-				throw new AssertionError();
-			
-			if (isFinal)
-				break;
-		}
+				throw new AssertionError("Impossible value");
+		} while (!isFinal);
 	}
 	
 	
