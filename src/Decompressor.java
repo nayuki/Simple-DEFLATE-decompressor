@@ -69,7 +69,7 @@ public final class Decompressor {
 					litLenCode = fixedLiteralLengthCode;
 					distCode = fixedDistanceCode;
 				} else {
-					CodeTree[] temp = decodeHuffmanCodes(in);
+					CodeTree[] temp = decodeHuffmanCodes();
 					litLenCode = temp[0];
 					distCode = temp[1];
 				}
@@ -104,7 +104,7 @@ public final class Decompressor {
 	
 	/* Method for reading and decoding dynamic Huffman codes (btype = 2) */
 	
-	private CodeTree[] decodeHuffmanCodes(BitInputStream in) throws IOException, DataFormatException {
+	private CodeTree[] decodeHuffmanCodes() throws IOException, DataFormatException {
 		int numLitLenCodes = readInt(5) + 257;  // hlit  + 257
 		int numDistCodes = readInt(5) + 1;      // hdist +   1
 		
