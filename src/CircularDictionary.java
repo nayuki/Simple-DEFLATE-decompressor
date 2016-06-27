@@ -64,10 +64,10 @@ final class CircularDictionary {
 		
 		int readIndex = (index - dist + data.length) % data.length;
 		for (int i = 0; i < len; i++) {
-			out.write(data[readIndex]);
-			data[index] = data[readIndex];
+			byte b = data[readIndex];
 			readIndex = (readIndex + 1) % data.length;
-			index = (index + 1) % data.length;
+			out.write(b);
+			append(b);
 		}
 	}
 	
