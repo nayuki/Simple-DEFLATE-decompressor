@@ -63,18 +63,11 @@ public final class Decompressor {
 			// Decompress rest of block based on the type
 			if (type == 0)
 				decompressUncompressedBlock();
-			else if (type == 1 || type == 2) {
-				CodeTree litLenCode, distCode;
-				if (type == 1) {
-					litLenCode = fixedLiteralLengthCode;
-					distCode = fixedDistanceCode;
-				} else {
-					CodeTree[] temp = decodeHuffmanCodes();
-					litLenCode = temp[0];
-					distCode = temp[1];
-				}
-				decompressHuffmanBlock(litLenCode, distCode);
-				
+			else if (type == 1)
+				decompressHuffmanBlock(fixedLiteralLengthCode, fixedDistanceCode);
+			else if (type == 2) {
+				CodeTree[] litLenAndDist = decodeHuffmanCodes();
+				decompressHuffmanBlock(litLenAndDist[0], litLenAndDist[1]);
 			} else if (type == 3)
 				throw new DataFormatException("Reserved block type");
 			else
