@@ -243,12 +243,16 @@ public final class Decompressor {
 				output.write(sym);
 				dictionary.append(sym);
 			} else {  // Length and distance for copying
-				int len = decodeRunLength(sym);
+				int run = decodeRunLength(sym);
+				if (run < 3 || run > 258)
+					throw new AssertionError("Invalid run length");
 				if (distCode == null)
 					throw new DataFormatException("Length symbol encountered with empty distance code");
 				int distSym = decodeSymbol(distCode);
 				int dist = decodeDistance(distSym);
-				dictionary.copy(dist, len, output);
+				if (dist < 1 || dist > 32768)
+					throw new AssertionError("Invalid distance");
+				dictionary.copy(dist, run, output);
 			}
 		}
 	}
