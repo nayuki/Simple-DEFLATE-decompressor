@@ -140,7 +140,7 @@ public final class Decompressor {
 				runLen--;
 			} else {
 				int sym = decodeSymbol(codeLenCode);
-				if (sym < 16) {
+				if (0 <= sym && sym <= 15) {
 					codeLens[i] = sym;
 					runVal = sym;
 				} else {
@@ -155,7 +155,7 @@ public final class Decompressor {
 						runVal = 0;
 						runLen = readInt(7) + 11;
 					} else
-						throw new AssertionError();
+						throw new AssertionError("Symbol out of range");
 					i--;  // Don't advance by an element
 				}
 			}
@@ -267,14 +267,14 @@ public final class Decompressor {
 			Node nextNode;
 			if      (temp == 0) nextNode = currentNode.leftChild;
 			else if (temp == 1) nextNode = currentNode.rightChild;
-			else throw new AssertionError();
+			else throw new AssertionError("Illegal subclass");
 			
 			if (nextNode instanceof Leaf)
 				return ((Leaf)nextNode).symbol;
 			else if (nextNode instanceof InternalNode)
 				currentNode = (InternalNode)nextNode;
 			else
-				throw new AssertionError();
+				throw new AssertionError("Illegal subclass");
 		}
 	}
 	
