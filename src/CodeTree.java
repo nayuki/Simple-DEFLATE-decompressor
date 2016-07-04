@@ -89,7 +89,7 @@ final class CodeTree {
 		List<Node> nodes = new ArrayList<>();
 		for (int i = 15; i >= 0; i--) {  // Descend through code lengths (maximum 15 for DEFLATE)
 			if (nodes.size() % 2 != 0)
-				throw new IllegalStateException("This canonical code does not represent a Huffman code tree");
+				throw new IllegalArgumentException("This canonical code does not represent a Huffman code tree");
 			List<Node> newNodes = new ArrayList<>();
 			
 			// Add leaves for symbols with positive code length i
@@ -107,7 +107,7 @@ final class CodeTree {
 		}
 		
 		if (nodes.size() != 1)
-			throw new IllegalStateException("This canonical code does not represent a Huffman code tree");
+			throw new IllegalArgumentException("This canonical code does not represent a Huffman code tree");
 		root = (InternalNode)nodes.get(0);
 	}
 	

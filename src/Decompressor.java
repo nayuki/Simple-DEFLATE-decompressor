@@ -126,7 +126,7 @@ public final class Decompressor {
 		CodeTree codeLenCode;
 		try {
 			codeLenCode = new CodeTree(codeLenCodeLen);
-		} catch (IllegalStateException e) {
+		} catch (IllegalArgumentException e) {
 			throw new DataFormatException(e.getMessage());
 		}
 		
@@ -168,7 +168,7 @@ public final class Decompressor {
 		CodeTree litLenCode;
 		try {
 			litLenCode = new CodeTree(litLenCodeLen);
-		} catch (IllegalStateException e) {
+		} catch (IllegalArgumentException e) {
 			throw new DataFormatException(e.getMessage());
 		}
 		
@@ -196,7 +196,7 @@ public final class Decompressor {
 			}
 			try {
 				distCode = new CodeTree(distCodeLen);
-			} catch (IllegalStateException e) {
+			} catch (IllegalArgumentException e) {
 				throw new DataFormatException(e.getMessage());
 			}
 		}
