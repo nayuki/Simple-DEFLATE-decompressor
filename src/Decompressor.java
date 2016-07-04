@@ -56,7 +56,7 @@ public final class Decompressor {
 		// Process the stream of blocks
 		boolean isFinal = false;
 		do {
-			// Read block header
+			// Read the block header
 			isFinal = in.readNoEof() == 1;  // bfinal
 			int type = readInt(2);  // btype
 			
@@ -83,12 +83,12 @@ public final class Decompressor {
 	}
 	
 	
-	/* Tables for static Huffman codes (btype = 1) */
+	/* Code trees for static Huffman codes (btype = 1) */
 	
 	private static CodeTree fixedLiteralLengthCode;
 	private static CodeTree fixedDistanceCode;
 	
-	static {
+	static {  // Make temporary tables of canonical code lengths
 		int[] llcodelens = new int[288];
 		Arrays.fill(llcodelens,   0, 144, 8);
 		Arrays.fill(llcodelens, 144, 256, 9);
@@ -106,10 +106,11 @@ public final class Decompressor {
 	
 	private CodeTree[] decodeHuffmanCodes() throws IOException, DataFormatException {
 		int numLitLenCodes = readInt(5) + 257;  // hlit  + 257
-		int numDistCodes = readInt(5) + 1;      // hdist +   1
+		int numDistCodes = readInt(5) + 1;      // hdist + 1
 		
-		int numCodeLenCodes = readInt(4) + 4;   // hclen +   4
-		int[] codeLenCodeLen = new int[19];
+		// Read the code length code lengths
+		int numCodeLenCodes = readInt(4) + 4;   // hclen + 4
+		int[] codeLenCodeLen = new int[19];  // This array is filled in a strange order
 		codeLenCodeLen[16] = readInt(3);
 		codeLenCodeLen[17] = readInt(3);
 		codeLenCodeLen[18] = readInt(3);
@@ -120,6 +121,8 @@ public final class Decompressor {
 			else
 				codeLenCodeLen[7 - i / 2] = readInt(3);
 		}
+		
+		// Create the code length code
 		CodeTree codeLenCode;
 		try {
 			codeLenCode = new CodeTree(codeLenCodeLen);
@@ -127,6 +130,7 @@ public final class Decompressor {
 			throw new DataFormatException(e.getMessage());
 		}
 		
+		// Read the main code lengths and handle runs
 		int[] codeLens = new int[numLitLenCodes + numDistCodes];
 		int runVal = -1;
 		int runLen = 0;
@@ -134,7 +138,6 @@ public final class Decompressor {
 			if (runLen > 0) {
 				codeLens[i] = runVal;
 				runLen--;
-				
 			} else {
 				int sym = decodeSymbol(codeLenCode);
 				if (sym < 16) {
@@ -153,14 +156,14 @@ public final class Decompressor {
 						runLen = readInt(7) + 11;
 					} else
 						throw new AssertionError();
-					i--;
+					i--;  // Don't advance by an element
 				}
 			}
 		}
 		if (runLen > 0)
 			throw new DataFormatException("Run exceeds number of codes");
 		
-		// Create code trees
+		// Create literal-length code tree
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
 		CodeTree litLenCode;
 		try {
@@ -169,6 +172,7 @@ public final class Decompressor {
 			throw new DataFormatException(e.getMessage());
 		}
 		
+		// Create distance code tree with some extra processing
 		int[] distCodeLen = Arrays.copyOfRange(codeLens, numLitLenCodes, codeLens.length);
 		CodeTree distCode;
 		if (distCodeLen.length == 1 && distCodeLen[0] == 0)
@@ -190,7 +194,6 @@ public final class Decompressor {
 				distCodeLen = Arrays.copyOf(distCodeLen, 32);
 				distCodeLen[31] = 1;
 			}
-			
 			try {
 				distCode = new CodeTree(distCodeLen);
 			} catch (IllegalStateException e) {
@@ -231,6 +234,7 @@ public final class Decompressor {
 	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode) throws IOException, DataFormatException {
 		if (litLenCode == null)
 			throw new NullPointerException();
+		// distCode is allowed to be null
 		
 		while (true) {
 			int sym = decodeSymbol(litLenCode);
