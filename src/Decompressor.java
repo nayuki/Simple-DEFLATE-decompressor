@@ -21,6 +21,7 @@ public final class Decompressor {
 	
 	/*---- Public methods ----*/
 	
+	// Reads from the given input stream, decompress the data, and returns a new byte array.
 	public static byte[] decompress(BitInputStream in) throws IOException, DataFormatException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		decompress(in, out);
@@ -28,6 +29,7 @@ public final class Decompressor {
 	}
 	
 	
+	// Reads from the given input stream, decompress the data, and writes to the given output stream.
 	public static void decompress(BitInputStream in, OutputStream out) throws IOException, DataFormatException {
 		new Decompressor(in, out);
 	}
@@ -97,6 +99,8 @@ public final class Decompressor {
 	
 	/* Method for reading and decoding dynamic Huffman codes (btype = 2) */
 	
+	// Reads from the bit input stream, decodes the Huffman code
+	// specifications into code trees, and returns the trees.
 	private CodeTree[] decodeHuffmanCodes() throws IOException, DataFormatException {
 		int numLitLenCodes = readInt(5) + 257;  // hlit  + 257
 		int numDistCodes = readInt(5) + 1;      // hdist + 1
@@ -224,7 +228,8 @@ public final class Decompressor {
 	
 	
 	// Decompresses a Huffman-coded block from the input bit stream based on the given Huffman codes.
-	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode) throws IOException, DataFormatException {
+	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode)
+			throws IOException, DataFormatException {
 		if (litLenCode == null)
 			throw new NullPointerException();
 		// distCode is allowed to be null
