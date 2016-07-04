@@ -66,7 +66,7 @@ public final class Decompressor {
 			if (type == 0)
 				decompressUncompressedBlock();
 			else if (type == 1)
-				decompressHuffmanBlock(fixedLiteralLengthCode, fixedDistanceCode);
+				decompressHuffmanBlock(FIXED_LITERAL_LENGTH_CODE, FIXED_DISTANCE_CODE);
 			else if (type == 2) {
 				CodeTree[] litLenAndDist = decodeHuffmanCodes();
 				decompressHuffmanBlock(litLenAndDist[0], litLenAndDist[1]);
@@ -80,8 +80,8 @@ public final class Decompressor {
 	
 	/* Code trees for static Huffman codes (btype = 1) */
 	
-	private static CodeTree fixedLiteralLengthCode;
-	private static CodeTree fixedDistanceCode;
+	private static final CodeTree FIXED_LITERAL_LENGTH_CODE;
+	private static final CodeTree FIXED_DISTANCE_CODE;
 	
 	static {  // Make temporary tables of canonical code lengths
 		int[] llcodelens = new int[288];
@@ -89,11 +89,11 @@ public final class Decompressor {
 		Arrays.fill(llcodelens, 144, 256, 9);
 		Arrays.fill(llcodelens, 256, 280, 7);
 		Arrays.fill(llcodelens, 280, 288, 8);
-		fixedLiteralLengthCode = new CodeTree(llcodelens);
+		FIXED_LITERAL_LENGTH_CODE = new CodeTree(llcodelens);
 		
 		int[] distcodelens = new int[32];
 		Arrays.fill(distcodelens, 5);
-		fixedDistanceCode = new CodeTree(distcodelens);
+		FIXED_DISTANCE_CODE = new CodeTree(distcodelens);
 	}
 	
 	
