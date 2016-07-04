@@ -131,30 +131,31 @@ public final class Decompressor {
 		int[] codeLens = new int[numLitLenCodes + numDistCodes];
 		int runVal = -1;
 		int runLen = 0;
-		for (int i = 0; i < codeLens.length; i++) {
+		for (int i = 0; i < codeLens.length; ) {
 			if (runLen > 0) {
+				if (runVal == -1)
+					throw new AssertionError("Impossible state");
 				codeLens[i] = runVal;
 				runLen--;
+				i++;
 			} else {
 				int sym = decodeSymbol(codeLenCode);
 				if (0 <= sym && sym <= 15) {
 					codeLens[i] = sym;
 					runVal = sym;
-				} else {
-					if (sym == 16) {
-						if (runVal == -1)
-							throw new DataFormatException("No code length value to copy");
-						runLen = readInt(2) + 3;
-					} else if (sym == 17) {
-						runVal = 0;
-						runLen = readInt(3) + 3;
-					} else if (sym == 18) {
-						runVal = 0;
-						runLen = readInt(7) + 11;
-					} else
-						throw new AssertionError("Symbol out of range");
-					i--;  // Don't advance by an element
-				}
+					i++;
+				} else if (sym == 16) {
+					if (runVal == -1)
+						throw new DataFormatException("No code length value to copy");
+					runLen = readInt(2) + 3;
+				} else if (sym == 17) {
+					runVal = 0;
+					runLen = readInt(3) + 3;
+				} else if (sym == 18) {
+					runVal = 0;
+					runLen = readInt(7) + 11;
+				} else
+					throw new AssertionError("Symbol out of range");
 			}
 		}
 		if (runLen > 0)
