@@ -23,7 +23,7 @@ import java.util.zip.DataFormatException;
 
 /**
  * Decompression application for the gzip file format.
- * <p>Usage: java GzipDecompress InputFile OutputFile</p>
+ * <p>Usage: java GzipDecompress InputFile.gz OutputFile</p>
  * <p>This decompresses a single gzip file into a single output file. The program also prints
  * some information to standard output, and error messages if the file is invalid/corrupt.</p>
  */
@@ -42,7 +42,7 @@ public class GzipDecompress {
 	private static String submain(String[] args) {
 		// Check arguments
 		if (args.length != 2)
-			return "Usage: java GzipDecompress InputFile OutputFile";
+			return "Usage: java GzipDecompress InputFile.gz OutputFile";
 		
 		File inFile = new File(args[0]);
 		if (!inFile.exists())
