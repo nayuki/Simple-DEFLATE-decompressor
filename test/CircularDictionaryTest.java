@@ -95,7 +95,7 @@ public final class CircularDictionaryTest {
 			}
 		} catch (IOException e) {
 			throw new AssertionError(e);
-		}		
+		}
 	}
 	
 	
