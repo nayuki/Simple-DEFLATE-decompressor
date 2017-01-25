@@ -8,6 +8,7 @@
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 
 /**
@@ -69,8 +70,7 @@ final class CircularDictionary {
 	 * @throws IOException if an I/O exception occurs
 	 */
 	public void copy(int dist, int len, OutputStream out) throws IOException {
-		if (out == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(out);
 		if (len < 0 || dist < 1 || dist > data.length)
 			throw new IllegalArgumentException();
 		

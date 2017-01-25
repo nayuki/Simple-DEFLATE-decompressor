@@ -11,6 +11,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.zip.DataFormatException;
 
 
@@ -231,8 +232,7 @@ public final class Decompressor {
 	// Decompresses a Huffman-coded block from the input bit stream based on the given Huffman codes.
 	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode)
 			throws IOException, DataFormatException {
-		if (litLenCode == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(litLenCode);
 		// distCode is allowed to be null
 		
 		while (true) {

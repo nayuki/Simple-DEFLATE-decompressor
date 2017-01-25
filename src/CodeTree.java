@@ -8,6 +8,7 @@
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -76,8 +77,7 @@ final class CodeTree {
 	 */
 	public CodeTree(int[] canonicalCodeLengths) {
 		// Check basic validity
-		if (canonicalCodeLengths == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(canonicalCodeLengths);
 		if (canonicalCodeLengths.length < 2)
 			throw new IllegalArgumentException("At least 2 symbols needed");
 		for (int cl : canonicalCodeLengths) {
@@ -162,8 +162,8 @@ final class InternalNode extends Node {
 	public final Node rightChild;  // Not null
 	
 	public InternalNode(Node left, Node right) {
-		if (left == null || right == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(left);
+		Objects.requireNonNull(right);
 		leftChild = left;
 		rightChild = right;
 	}
