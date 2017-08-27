@@ -43,7 +43,6 @@ public final class GzipDecompress {
 		// Check arguments
 		if (args.length != 2)
 			return "Usage: java GzipDecompress InputFile.gz OutputFile";
-		
 		File inFile = new File(args[0]);
 		if (!inFile.exists())
 			return "Input file does not exist: " + inFile;
@@ -145,10 +144,10 @@ public final class GzipDecompress {
 			try (OutputStream out = new FileOutputStream(outFile)) {
 				out.write(decomp);
 			}
+			
 		} catch (IOException e) {
 			return "I/O exception: " + e.getMessage();
 		}
-		
 		return null;
 	}
 	

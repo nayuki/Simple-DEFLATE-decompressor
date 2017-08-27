@@ -318,7 +318,6 @@ public final class Decompressor {
 	private int readInt(int numBits) throws IOException {
 		if (numBits < 0 || numBits >= 32)
 			throw new IllegalArgumentException();
-		
 		int result = 0;
 		for (int i = 0; i < numBits; i++)
 			result |= input.readNoEof() << i;
