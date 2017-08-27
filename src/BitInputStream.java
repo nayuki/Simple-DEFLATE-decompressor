@@ -6,6 +6,7 @@
  * https://github.com/nayuki/Simple-DEFLATE-decompressor
  */
 
+import java.io.Closeable;
 import java.io.IOException;
 
 
@@ -13,7 +14,7 @@ import java.io.IOException;
  * A stream of bits that can be read. Bits are packed in little endian within a byte.
  * For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1].
  */
-public interface BitInputStream {
+public interface BitInputStream extends Closeable {
 	
 	/**
 	 * Returns the current bit position, which ascends from 0 to 7 as bits are read.
