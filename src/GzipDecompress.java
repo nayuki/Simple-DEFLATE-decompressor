@@ -40,7 +40,7 @@ public final class GzipDecompress {
 	
 	// Returns null if successful, otherwise returns an error message string.
 	private static String submain(String[] args) {
-		// Check arguments
+		// Handle command line arguments
 		if (args.length != 2)
 			return "Usage: java GzipDecompress InputFile.gz OutputFile";
 		File inFile = new File(args[0]);
@@ -148,7 +148,7 @@ public final class GzipDecompress {
 		} catch (IOException e) {
 			return "I/O exception: " + e.getMessage();
 		}
-		return null;
+		return null;  // Success, no error message
 	}
 	
 	
