@@ -52,11 +52,10 @@ public final class GzipDecompress {
 		File outFile = new File(args[1]);
 		
 		try {
-			// Start reading
-			DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(inFile), 16 * 1024));
 			byte[] decomp;
 			int crc, size;
-			try {
+			// Start reading
+			try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(inFile), 16 * 1024))) {
 				// Header
 				int flags;
 				{
@@ -134,8 +133,6 @@ public final class GzipDecompress {
 				// Footer
 				crc  = readLittleEndianInt32(in);
 				size = readLittleEndianInt32(in);
-			} finally {
-				in.close();
 			}
 			
 			// Check decompressed data's length and CRC
@@ -145,11 +142,8 @@ public final class GzipDecompress {
 				return String.format("CRC-32 mismatch: expected=%08X, actual=%08X", crc, getCrc32(decomp));
 			
 			// Write decompressed data to output file
-			OutputStream out = new FileOutputStream(outFile);
-			try {
+			try (OutputStream out = new FileOutputStream(outFile)) {
 				out.write(decomp);
-			} finally {
-				out.close();
 			}
 		} catch (IOException e) {
 			return "I/O exception: " + e.getMessage();
