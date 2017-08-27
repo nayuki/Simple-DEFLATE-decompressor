@@ -27,7 +27,7 @@ import java.util.zip.DataFormatException;
  * <p>This decompresses a single gzip file into a single output file. The program also prints
  * some information to standard output, and error messages if the file is invalid/corrupt.</p>
  */
-public class GzipDecompress {
+public final class GzipDecompress {
 	
 	public static void main(String[] args) {
 		String msg = submain(args);
