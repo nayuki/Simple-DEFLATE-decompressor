@@ -117,14 +117,14 @@ final class CanonicalCode {
 	/**
 	 * Decodes the next symbol from the specified bit input stream based
 	 * on this code tree. The returned symbol value is at least 0.
-	 * @param input the bit input stream to read from
+	 * @param in the bit input stream to read from
 	 * @return the next decoded symbol
 	 * @throws IOException if an I/O exception occurred
 	 */
-	public int decodeSymbol(BitInputStream input) throws IOException {
+	public int decodeNextSymbol(BitInputStream in) throws IOException {
 		InternalNode currentNode = root;
 		while (true) {
-			int temp = input.readNoEof();
+			int temp = in.readNoEof();
 			Node nextNode;
 			if      (temp == 0) nextNode = currentNode.leftChild;
 			else if (temp == 1) nextNode = currentNode.rightChild;

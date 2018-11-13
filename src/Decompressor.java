@@ -140,7 +140,7 @@ public final class Decompressor {
 				runLen--;
 				i++;
 			} else {
-				int sym = codeLenCode.decodeSymbol(input);
+				int sym = codeLenCode.decodeNextSymbol(input);
 				if (0 <= sym && sym <= 15) {
 					codeLens[i] = sym;
 					runVal = sym;
@@ -236,7 +236,7 @@ public final class Decompressor {
 		// distCode is allowed to be null
 		
 		while (true) {
-			int sym = litLenCode.decodeSymbol(input);
+			int sym = litLenCode.decodeNextSymbol(input);
 			if (sym == 256)  // End of block
 				break;
 			
@@ -249,7 +249,7 @@ public final class Decompressor {
 					throw new AssertionError("Invalid run length");
 				if (distCode == null)
 					throw new DataFormatException("Length symbol encountered with empty distance code");
-				int distSym = distCode.decodeSymbol(input);
+				int distSym = distCode.decodeNextSymbol(input);
 				int dist = decodeDistance(distSym);
 				if (dist < 1 || dist > 32768)
 					throw new AssertionError("Invalid distance");
