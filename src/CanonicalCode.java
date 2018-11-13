@@ -7,28 +7,26 @@
  */
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Objects;
 
 
 /**
- * A binary tree that represents a mapping between symbols and binary strings.
- * A code tree is constructed from given code lengths as a canonical code.
- * Thereafter, the tree structure can be walked through to extract the desired information.
- * This data structure is immutable.
- * <p>Illustrated example:</p>
+ * A canonical Huffman code, where the code values for each symbol is derived
+ * from a given sequence of code lengths. This data structure is immutable.
+ * This could be transformed into an explicit Huffman code tree.
+ * <p>Example:</p>
  * <pre>  Code lengths (canonical code):
  *    Symbol A: 1
- *    Symbol B: 3
- *    Symbol C: 0 (no code)
+ *    Symbol B: 0 (no code)
+ *    Symbol C: 3
  *    Symbol D: 2
  *    Symbol E: 3
  *  
  *  Generated Huffman codes:
  *    Symbol A: 0
- *    Symbol B: 110
- *    Symbol C: None
+ *    Symbol B: (Absent)
+ *    Symbol C: 110
  *    Symbol D: 10
  *    Symbol E: 111
  *  
@@ -39,19 +37,32 @@ import java.util.Objects;
  *       / \
  *      D   .
  *         / \
- *        B   E</pre>
+ *        C   E</pre>
  */
 final class CanonicalCode {
 	
-	/**
-	 * The root node of this code tree (not {@code null}).
+	/* 
+	 * These arrays store the Huffman codes and values necessary for decoding.
+	 * symbolCodeBits contains Huffman codes, each padded with a 1 bit at the
+	 * beginning to disambiguate codes of different lengths (e.g. otherwise we
+	 * can't distinguish 0b01 from 0b0001). Each symbolCodeBits[i] decodes to its
+	 * corresponding symbolValues[i]. Values in symbolCodeBits are strictly increasing.
+	 * 
+	 * For the example of codeLengths=[1,0,3,2,3], we would have:
+	 *   i | symbolCodeBits[i] | symbolValues[i]
+	 *   --+-------------------+----------------
+	 *   0 |             0b1_0 |               0
+	 *   1 |            0b1_10 |               3
+	 *   2 |           0b1_110 |               2
+	 *   3 |           0b1_111 |               4
 	 */
-	public final InternalNode root;
+	private int[] symbolCodeBits;
+	private int[] symbolValues;
 	
 	
 	
 	/**
-	 * Constructs a canonical Huffman code tree from the specified array of symbol code lengths.
+	 * Constructs a canonical Huffman code from the specified array of symbol code lengths.
 	 * Each code length must be non-negative. Code length 0 means no code for the symbol.
 	 * The collection of code lengths must represent a proper full Huffman code tree.
 	 * <p>Examples of code lengths that result in under-full Huffman code trees:</p>
@@ -62,54 +73,63 @@ final class CanonicalCode {
 	 * </ul>
 	 * <p>Examples of code lengths that result in correct full Huffman code trees:</p>
 	 * <ul>
-	 *   <li>[1, 1]</li>
-	 *   <li>[2, 2, 1, 0, 0, 0]</li>
-	 *   <li>[3, 3, 3, 3, 3, 3, 3, 3]</li>
+	 *   <li>[1, 1] (result: A=0, B=1)</li>
+	 *   <li>[2, 2, 1, 0, 0, 0] (result: A=10, B=11, C=0)</li>
+	 *   <li>[3, 3, 3, 3, 3, 3, 3, 3] (result: A=000, B=001, C=010, ..., H=111)</li>
+	 * </ul>
+	 * <p>Examples of code lengths that result in under-full Huffman code trees:</p>
+	 * <ul>
+	 *   <li>[0, 2, 0] (result: B=00, unused=01, unused=1)</li>
+	 *   <li>[0, 1, 0, 2] (result: B=0, D=10, unused=11)</li>
 	 * </ul>
 	 * <p>Examples of code lengths that result in over-full Huffman code trees:</p>
 	 * <ul>
-	 *   <li>[1, 1, 1]</li>
-	 *   <li>[1, 1, 2, 2, 3, 3, 3, 3]</li>
+	 *   <li>[1, 1, 1] (result: A=0, B=1, C=overflow)</li>
+	 *   <li>[1, 1, 2, 2, 3, 3, 3, 3] (result: A=0, B=1, C=overflow, ...)</li>
 	 * </ul>
 	 * @param canonicalCodeLengths array of symbol code lengths
 	 * @throws NullPointerException if the array is {@code null}
-	 * @throws IllegalArgumentException if the array length is less than 2, any element is negative,
-	 * or the collection of code lengths would yield an under-full or over-full Huffman code tree
+	 * @throws IllegalArgumentException if the array length is less than 2,
+	 * any element is negative, any value exceeds MAX_CODE_LENGTH, or the collection
+	 * of code lengths would yield an under-full or over-full Huffman code tree
 	 */
-	public CanonicalCode(int[] canonicalCodeLengths) {
-		// Check basic validity
-		Objects.requireNonNull(canonicalCodeLengths);
-		if (canonicalCodeLengths.length < 2)
-			throw new IllegalArgumentException("At least 2 symbols needed");
-		for (int cl : canonicalCodeLengths) {
-			if (cl < 0)
-				throw new IllegalArgumentException("Illegal code length");
+	public CanonicalCode(int[] codeLengths) {
+		// Check argument values
+		Objects.requireNonNull(codeLengths);
+		for (int x : codeLengths) {
+			if (x < 0)
+				throw new IllegalArgumentException("Negative code length");
+			if (x > MAX_CODE_LENGTH)
+				throw new IllegalArgumentException("Maximum code length exceeded");
 		}
 		
-		// Convert code lengths to code tree
-		List<Node> nodes = new ArrayList<>();
-		for (int i = 15; i >= 0; i--) {  // Descend through code lengths (maximum 15 for DEFLATE)
-			if (nodes.size() % 2 != 0)
-				throw new IllegalArgumentException("This canonical code does not represent a Huffman code tree");
-			List<Node> newNodes = new ArrayList<>();
-			
-			// Add leaves for symbols with positive code length i
-			if (i > 0) {
-				for (int j = 0; j < canonicalCodeLengths.length; j++) {
-					if (canonicalCodeLengths[j] == i)
-						newNodes.add(new Leaf(j));
-				}
+		// Allocate code values to symbols. Symbols are processed in the order
+		// of shortest code length first, breaking ties by lowest symbol value.
+		symbolCodeBits = new int[codeLengths.length];
+		symbolValues   = new int[codeLengths.length];
+		int numSymbolsAllocated = 0;
+		int nextCode = 0;
+		for (int codeLength = 1; codeLength <= MAX_CODE_LENGTH; codeLength++) {
+			nextCode *= 2;
+			int startBit = 1 << codeLength;
+			for (int symbol = 0; symbol < codeLengths.length; symbol++) {
+				if (codeLengths[symbol] != codeLength)
+					continue;
+				if (nextCode >= startBit)  // Over-full
+					throw new IllegalArgumentException("This canonical code does not represent a Huffman code tree");
+				
+				symbolCodeBits[numSymbolsAllocated] = startBit | nextCode;
+				symbolValues  [numSymbolsAllocated] = symbol;
+				numSymbolsAllocated++;
+				nextCode++;
 			}
-			
-			// Merge pairs of nodes from the previous deeper layer
-			for (int j = 0; j < nodes.size(); j += 2)
-				newNodes.add(new InternalNode(nodes.get(j), nodes.get(j + 1)));
-			nodes = newNodes;
 		}
-		
-		if (nodes.size() != 1)
+		if (nextCode != 1 << MAX_CODE_LENGTH)  // Under-full
 			throw new IllegalArgumentException("This canonical code does not represent a Huffman code tree");
-		root = (InternalNode)nodes.get(0);
+		
+		// Trim unused suffix in arrays
+		symbolCodeBits = Arrays.copyOf(symbolCodeBits, numSymbolsAllocated);
+		symbolValues   = Arrays.copyOf(symbolValues  , numSymbolsAllocated);
 	}
 	
 	
@@ -122,91 +142,38 @@ final class CanonicalCode {
 	 * @throws IOException if an I/O exception occurred
 	 */
 	public int decodeNextSymbol(BitInputStream in) throws IOException {
-		InternalNode currentNode = root;
+		Objects.requireNonNull(in);
+		int codeBits = 1;  // The start bit
 		while (true) {
-			int temp = in.readNoEof();
-			Node nextNode;
-			if      (temp == 0) nextNode = currentNode.leftChild;
-			else if (temp == 1) nextNode = currentNode.rightChild;
-			else throw new AssertionError("Illegal subclass");
-			
-			if (nextNode instanceof Leaf)
-				return ((Leaf)nextNode).symbol;
-			else if (nextNode instanceof InternalNode)
-				currentNode = (InternalNode)nextNode;
-			else
-				throw new AssertionError("Illegal subclass");
+			// Accumulate one bit at a time on the right side until a match is
+			// found in the symbolCodeBits array. Because the Huffman code tree is
+			// full, this loop must terminate after at most MAX_CODE_LENGTH iterations.
+			codeBits = codeBits << 1 | in.readNoEof();
+			int index = Arrays.binarySearch(symbolCodeBits, codeBits);
+			if (index >= 0)
+				return symbolValues[index];
 		}
 	}
 	
 	
 	/**
-	 * Returns a string representation of this code tree,
+	 * Returns a string representation of this canonical code,
 	 * useful for debugging only, and the format is subject to change.
-	 * @return a string representation of this code tree
+	 * @return a string representation of this canonical code
 	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		toString("", root, sb);
+		for (int i = 0; i < symbolCodeBits.length; i++) {
+			sb.append(String.format("Code %s: Symbol %d%n",
+				Integer.toBinaryString(symbolCodeBits[i]).substring(1),
+				symbolValues[i]));
+		}
 		return sb.toString();
 	}
 	
 	
-	// Recursive helper function for toString()
-	private static void toString(String prefix, Node node, StringBuilder sb) {
-		if (node instanceof InternalNode) {
-			InternalNode internalNode = (InternalNode)node;
-			toString(prefix + "0", internalNode.leftChild , sb);
-			toString(prefix + "1", internalNode.rightChild, sb);
-		} else if (node instanceof Leaf) {
-			sb.append(String.format("Code %s: Symbol %d%n", prefix, ((Leaf)node).symbol));
-		} else {
-			throw new AssertionError("Illegal node type");
-		}
-	}
 	
-}
-
-
-
-/*---- Helper structures ----*/
-
-/**
- * A node in a code tree. This class has exactly two subclasses: InternalNode, Leaf.
- */
-abstract class Node {
+	// The maximum Huffman code length allowed in the DEFLATE standard.
+	private static final int MAX_CODE_LENGTH = 16;
 	
-	public Node() {}
-}
-
-
-/**
- * An internal node in a code tree. It has two nodes as children. Immutable.
- */
-final class InternalNode extends Node {
-	
-	public final Node leftChild;  // Not null
-	public final Node rightChild;  // Not null
-	
-	public InternalNode(Node left, Node right) {
-		Objects.requireNonNull(left);
-		Objects.requireNonNull(right);
-		leftChild = left;
-		rightChild = right;
-	}
-}
-
-
-/**
- * A leaf node in a code tree. It has a symbol value. Immutable.
- */
-final class Leaf extends Node {
-	
-	public final int symbol;  // Always non-negative
-	
-	public Leaf(int sym) {
-		if (sym < 0)
-			throw new IllegalArgumentException("Symbol value must be non-negative");
-		symbol = sym;
-	}
 }
