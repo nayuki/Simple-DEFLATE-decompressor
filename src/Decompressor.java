@@ -103,7 +103,7 @@ public final class Decompressor {
 	// Reads from the bit input stream, decodes the Huffman code
 	// specifications into code trees, and returns the trees.
 	private CanonicalCode[] decodeHuffmanCodes() throws IOException, DataFormatException {
-		int numLitLenCodes = readInt(5) + 257;  // hlit  + 257
+		int numLitLenCodes = readInt(5) + 257;  // hlit + 257
 		int numDistCodes = readInt(5) + 1;      // hdist + 1
 		
 		// Read the code length code lengths

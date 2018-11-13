@@ -7,6 +7,7 @@
  */
 
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.IOException;
 
 
