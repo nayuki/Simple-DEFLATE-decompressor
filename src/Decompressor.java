@@ -69,7 +69,7 @@ public final class Decompressor {
 			else if (type == 1)
 				decompressHuffmanBlock(FIXED_LITERAL_LENGTH_CODE, FIXED_DISTANCE_CODE);
 			else if (type == 2) {
-				CodeTree[] litLenAndDist = decodeHuffmanCodes();
+				CanonicalCode[] litLenAndDist = decodeHuffmanCodes();
 				decompressHuffmanBlock(litLenAndDist[0], litLenAndDist[1]);
 			} else if (type == 3)
 				throw new DataFormatException("Reserved block type");
@@ -81,8 +81,8 @@ public final class Decompressor {
 	
 	/* Code trees for static Huffman codes (btype = 1) */
 	
-	private static final CodeTree FIXED_LITERAL_LENGTH_CODE;
-	private static final CodeTree FIXED_DISTANCE_CODE;
+	private static final CanonicalCode FIXED_LITERAL_LENGTH_CODE;
+	private static final CanonicalCode FIXED_DISTANCE_CODE;
 	
 	static {  // Make temporary tables of canonical code lengths
 		int[] llcodelens = new int[288];
@@ -90,11 +90,11 @@ public final class Decompressor {
 		Arrays.fill(llcodelens, 144, 256, 9);
 		Arrays.fill(llcodelens, 256, 280, 7);
 		Arrays.fill(llcodelens, 280, 288, 8);
-		FIXED_LITERAL_LENGTH_CODE = new CodeTree(llcodelens);
+		FIXED_LITERAL_LENGTH_CODE = new CanonicalCode(llcodelens);
 		
 		int[] distcodelens = new int[32];
 		Arrays.fill(distcodelens, 5);
-		FIXED_DISTANCE_CODE = new CodeTree(distcodelens);
+		FIXED_DISTANCE_CODE = new CanonicalCode(distcodelens);
 	}
 	
 	
@@ -102,7 +102,7 @@ public final class Decompressor {
 	
 	// Reads from the bit input stream, decodes the Huffman code
 	// specifications into code trees, and returns the trees.
-	private CodeTree[] decodeHuffmanCodes() throws IOException, DataFormatException {
+	private CanonicalCode[] decodeHuffmanCodes() throws IOException, DataFormatException {
 		int numLitLenCodes = readInt(5) + 257;  // hlit  + 257
 		int numDistCodes = readInt(5) + 1;      // hdist + 1
 		
@@ -121,9 +121,9 @@ public final class Decompressor {
 		}
 		
 		// Create the code length code
-		CodeTree codeLenCode;
+		CanonicalCode codeLenCode;
 		try {
-			codeLenCode = new CodeTree(codeLenCodeLen);
+			codeLenCode = new CanonicalCode(codeLenCodeLen);
 		} catch (IllegalArgumentException e) {
 			throw new DataFormatException(e.getMessage());
 		}
@@ -164,16 +164,16 @@ public final class Decompressor {
 		
 		// Create literal-length code tree
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
-		CodeTree litLenCode;
+		CanonicalCode litLenCode;
 		try {
-			litLenCode = new CodeTree(litLenCodeLen);
+			litLenCode = new CanonicalCode(litLenCodeLen);
 		} catch (IllegalArgumentException e) {
 			throw new DataFormatException(e.getMessage());
 		}
 		
 		// Create distance code tree with some extra processing
 		int[] distCodeLen = Arrays.copyOfRange(codeLens, numLitLenCodes, codeLens.length);
-		CodeTree distCode;
+		CanonicalCode distCode;
 		if (distCodeLen.length == 1 && distCodeLen[0] == 0)
 			distCode = null;  // Empty distance code; the block shall be all literal symbols
 		else {
@@ -194,13 +194,13 @@ public final class Decompressor {
 				distCodeLen[31] = 1;
 			}
 			try {
-				distCode = new CodeTree(distCodeLen);
+				distCode = new CanonicalCode(distCodeLen);
 			} catch (IllegalArgumentException e) {
 				throw new DataFormatException(e.getMessage());
 			}
 		}
 		
-		return new CodeTree[]{litLenCode, distCode};
+		return new CanonicalCode[]{litLenCode, distCode};
 	}
 	
 	
@@ -230,7 +230,7 @@ public final class Decompressor {
 	
 	
 	// Decompresses a Huffman-coded block from the input bit stream based on the given Huffman codes.
-	private void decompressHuffmanBlock(CodeTree litLenCode, CodeTree distCode)
+	private void decompressHuffmanBlock(CanonicalCode litLenCode, CanonicalCode distCode)
 			throws IOException, DataFormatException {
 		Objects.requireNonNull(litLenCode);
 		// distCode is allowed to be null
@@ -263,7 +263,7 @@ public final class Decompressor {
 	
 	// Decodes the next symbol from the bit input stream based on
 	// the given code tree. The returned symbol value is at least 0.
-	private int decodeSymbol(CodeTree code) throws IOException {
+	private int decodeSymbol(CanonicalCode code) throws IOException {
 		InternalNode currentNode = code.root;
 		while (true) {
 			int temp = input.readNoEof();

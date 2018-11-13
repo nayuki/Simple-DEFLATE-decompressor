@@ -40,7 +40,7 @@ import java.util.Objects;
  *         / \
  *        B   E</pre>
  */
-final class CodeTree {
+final class CanonicalCode {
 	
 	/**
 	 * The root node of this code tree (not {@code null}).
@@ -75,7 +75,7 @@ final class CodeTree {
 	 * @throws IllegalArgumentException if the array length is less than 2, any element is negative,
 	 * or the collection of code lengths would yield an under-full or over-full Huffman code tree
 	 */
-	public CodeTree(int[] canonicalCodeLengths) {
+	public CanonicalCode(int[] canonicalCodeLengths) {
 		// Check basic validity
 		Objects.requireNonNull(canonicalCodeLengths);
 		if (canonicalCodeLengths.length < 2)
