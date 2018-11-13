@@ -6,6 +6,7 @@
  * https://github.com/nayuki/Simple-DEFLATE-decompressor
  */
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -111,6 +112,32 @@ final class CanonicalCode {
 		root = (InternalNode)nodes.get(0);
 	}
 	
+	
+	
+	/**
+	 * Decodes the next symbol from the specified bit input stream based
+	 * on this code tree. The returned symbol value is at least 0.
+	 * @param input the bit input stream to read from
+	 * @return the next decoded symbol
+	 * @throws IOException if an I/O exception occurred
+	 */
+	public int decodeSymbol(BitInputStream input) throws IOException {
+		InternalNode currentNode = root;
+		while (true) {
+			int temp = input.readNoEof();
+			Node nextNode;
+			if      (temp == 0) nextNode = currentNode.leftChild;
+			else if (temp == 1) nextNode = currentNode.rightChild;
+			else throw new AssertionError("Illegal subclass");
+			
+			if (nextNode instanceof Leaf)
+				return ((Leaf)nextNode).symbol;
+			else if (nextNode instanceof InternalNode)
+				currentNode = (InternalNode)nextNode;
+			else
+				throw new AssertionError("Illegal subclass");
+		}
+	}
 	
 	
 	/**

@@ -140,7 +140,7 @@ public final class Decompressor {
 				runLen--;
 				i++;
 			} else {
-				int sym = decodeSymbol(codeLenCode);
+				int sym = codeLenCode.decodeSymbol(input);
 				if (0 <= sym && sym <= 15) {
 					codeLens[i] = sym;
 					runVal = sym;
@@ -236,7 +236,7 @@ public final class Decompressor {
 		// distCode is allowed to be null
 		
 		while (true) {
-			int sym = decodeSymbol(litLenCode);
+			int sym = litLenCode.decodeSymbol(input);
 			if (sym == 256)  // End of block
 				break;
 			
@@ -249,7 +249,7 @@ public final class Decompressor {
 					throw new AssertionError("Invalid run length");
 				if (distCode == null)
 					throw new DataFormatException("Length symbol encountered with empty distance code");
-				int distSym = decodeSymbol(distCode);
+				int distSym = distCode.decodeSymbol(input);
 				int dist = decodeDistance(distSym);
 				if (dist < 1 || dist > 32768)
 					throw new AssertionError("Invalid distance");
@@ -260,27 +260,6 @@ public final class Decompressor {
 	
 	
 	/* Symbol decoding methods */
-	
-	// Decodes the next symbol from the bit input stream based on
-	// the given code tree. The returned symbol value is at least 0.
-	private int decodeSymbol(CanonicalCode code) throws IOException {
-		InternalNode currentNode = code.root;
-		while (true) {
-			int temp = input.readNoEof();
-			Node nextNode;
-			if      (temp == 0) nextNode = currentNode.leftChild;
-			else if (temp == 1) nextNode = currentNode.rightChild;
-			else throw new AssertionError("Illegal subclass");
-			
-			if (nextNode instanceof Leaf)
-				return ((Leaf)nextNode).symbol;
-			else if (nextNode instanceof InternalNode)
-				currentNode = (InternalNode)nextNode;
-			else
-				throw new AssertionError("Illegal subclass");
-		}
-	}
-	
 	
 	// Returns the run length based on the given symbol and possibly reading more bits.
 	private int decodeRunLength(int sym) throws IOException, DataFormatException {
