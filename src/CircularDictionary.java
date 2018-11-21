@@ -63,7 +63,7 @@ final class CircularDictionary {
 	 * data will be a copy of data that was copied earlier in the process.</p>
 	 * @param dist the distance to go back, which must be positive but no greater than the buffer's size
 	 * @param len the length to copy, which must be non-negative and is allowed to exceed the distance
-	 * @param out the output stream to write to
+	 * @param out the output stream to write to (not {@code null})
 	 * @throws NullPointerException if the output stream is {@code null}
 	 * @throws IllegalArgumentException if the length is negative,
 	 * distance is not positive, or distance is greater than the buffer size

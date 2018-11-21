@@ -36,7 +36,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	/**
 	 * Constructs a bit input stream based on the specified byte input stream.
-	 * @param in the byte input stream
+	 * @param in the byte input stream (not {@code null})
 	 * @throws NullPointerException if the input stream is {@code null}
 	 */
 	public ByteBitInputStream(InputStream in) {
