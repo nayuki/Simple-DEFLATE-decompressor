@@ -109,7 +109,7 @@ final class CanonicalCode {
 		int numSymbolsAllocated = 0;
 		int nextCode = 0;
 		for (int codeLength = 1; codeLength <= MAX_CODE_LENGTH; codeLength++) {
-			nextCode *= 2;
+			nextCode <<= 1;
 			int startBit = 1 << codeLength;
 			for (int symbol = 0; symbol < codeLengths.length; symbol++) {
 				if (codeLengths[symbol] != codeLength)

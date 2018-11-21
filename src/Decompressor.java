@@ -61,8 +61,8 @@ public final class Decompressor {
 	// Constructor, which immediately performs decompression
 	private Decompressor(BitInputStream in, OutputStream out) throws IOException, DataFormatException {
 		// Initialize fields
-		input = in;
-		output = out;
+		input = Objects.requireNonNull(in);
+		output = Objects.requireNonNull(out);
 		dictionary = new CircularDictionary(32 * 1024);
 		
 		// Process the stream of blocks
@@ -123,10 +123,8 @@ public final class Decompressor {
 		codeLenCodeLen[18] = readInt(3);
 		codeLenCodeLen[ 0] = readInt(3);
 		for (int i = 0; i < numCodeLenCodes - 4; i++) {
-			if (i % 2 == 0)
-				codeLenCodeLen[8 + i / 2] = readInt(3);
-			else
-				codeLenCodeLen[7 - i / 2] = readInt(3);
+			int j = (i % 2 == 0) ? (8 + i / 2) : (7 - i / 2);
+			codeLenCodeLen[j] = readInt(3);
 		}
 		
 		// Create the code length code
@@ -304,7 +302,7 @@ public final class Decompressor {
 	
 	// Reads the given number of bits from the bit input stream as a single integer, packed in little endian.
 	private int readInt(int numBits) throws IOException {
-		if (numBits < 0 || numBits >= 32)
+		if (numBits < 0 || numBits > 31)
 			throw new IllegalArgumentException();
 		int result = 0;
 		for (int i = 0; i < numBits; i++)

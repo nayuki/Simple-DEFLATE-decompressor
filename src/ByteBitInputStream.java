@@ -40,8 +40,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	 * @throws NullPointerException if the input stream is {@code null}
 	 */
 	public ByteBitInputStream(InputStream in) {
-		Objects.requireNonNull(in);
-		input = in;
+		input = Objects.requireNonNull(in);
 		currentByte = 0;
 		numBitsRemaining = 0;
 	}
@@ -82,10 +81,9 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	public int readNoEof() throws IOException {
 		int result = read();
-		if (result != -1)
-			return result;
-		else
+		if (result == -1)
 			throw new EOFException();
+		return result;
 	}
 	
 	

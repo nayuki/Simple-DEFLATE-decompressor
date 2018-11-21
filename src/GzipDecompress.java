@@ -12,10 +12,11 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
@@ -48,7 +49,7 @@ public final class GzipDecompress {
 			return "Input file does not exist: " + inFile;
 		if (inFile.isDirectory())
 			return "Input file is a directory: " + inFile;
-		File outFile = new File(args[1]);
+		Path outFile = Paths.get(args[1]);
 		
 		try {
 			byte[] decomp;
@@ -141,9 +142,7 @@ public final class GzipDecompress {
 				return String.format("CRC-32 mismatch: expected=%08X, actual=%08X", crc, getCrc32(decomp));
 			
 			// Write decompressed data to output file
-			try (OutputStream out = new FileOutputStream(outFile)) {
-				out.write(decomp);
-			}
+			Files.write(outFile, decomp);
 			
 		} catch (IOException e) {
 			return "I/O exception: " + e.getMessage();
