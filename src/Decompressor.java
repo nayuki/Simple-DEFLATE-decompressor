@@ -227,11 +227,11 @@ public final class Decompressor {
 		
 		// Copy bytes
 		for (int i = 0; i < len; i++) {
-			int temp = input.readByte();
-			if (temp == -1)
+			int b = input.readByte();
+			if (b == -1)
 				throw new EOFException();
-			output.write(temp);
-			dictionary.append(temp);
+			output.write(b);
+			dictionary.append(b);
 		}
 	}
 	
