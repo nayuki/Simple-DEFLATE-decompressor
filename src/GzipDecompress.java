@@ -59,35 +59,35 @@ public final class GzipDecompress {
 				// Header
 				int flags;
 				{
-					byte[] b = new byte[10];
-					in.readFully(b);
-					if (b[0] != 0x1F || b[1] != (byte)0x8B)
+					if (in.readUnsignedShort() != 0x1F8B)
 						return "Invalid GZIP magic number";
-					if (b[2] != 8)
-						return "Unsupported compression method: " + (b[2] & 0xFF);
-					flags = b[3] & 0xFF;
+					int compMeth = in.readUnsignedByte();
+					if (compMeth != 8)
+						return "Unsupported compression method: " + compMeth;
+					flags = in.readUnsignedByte();
 					
 					// Reserved flags
 					if ((flags & 0xE0) != 0)
 						return "Reserved flags are set";
 					
 					// Modification time
-					int mtime = (b[4] & 0xFF) | (b[5] & 0xFF) << 8 | (b[6] & 0xFF) << 16 | b[7] << 24;
+					int mtime = readLittleEndianInt32(in);
 					if (mtime != 0)
 						System.out.println("Last modified: " + new Date(mtime * 1000L));
 					else
 						System.out.println("Last modified: N/A");
 					
 					// Extra flags
-					switch (b[8] & 0xFF) {
+					int extraFlags = in.readUnsignedByte();
+					switch (extraFlags) {
 						case 2:   System.out.println("Extra flags: Maximum compression");  break;
 						case 4:   System.out.println("Extra flags: Fastest compression");  break;
-						default:  System.out.println("Extra flags: Unknown (" + (b[8] & 0xFF) + ")");  break;
+						default:  System.out.println("Extra flags: Unknown (" + extraFlags + ")");  break;
 					}
 					
 					// Operating system
 					String os;
-					switch (b[9] & 0xFF) {
+					switch (in.readUnsignedByte()) {
 						case   0:  os = "FAT";             break;
 						case   1:  os = "Amiga";           break;
 						case   2:  os = "VMS";             break;
