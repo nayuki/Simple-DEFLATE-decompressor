@@ -137,37 +137,32 @@ public final class Decompressor {
 		
 		// Read the main code lengths and handle runs
 		int[] codeLens = new int[numLitLenCodes + numDistCodes];
-		int runVal = -1;
-		int runLen = 0;
-		for (int i = 0; i < codeLens.length; ) {
-			if (runLen > 0) {
-				if (runVal == -1)
-					throw new AssertionError("Impossible state");
-				codeLens[i] = runVal;
-				runLen--;
-				i++;
+		for (int codeLensIndex = 0; codeLensIndex < codeLens.length; ) {
+			int sym = codeLenCode.decodeNextSymbol(input);
+			if (0 <= sym && sym <= 15) {
+				codeLens[codeLensIndex] = sym;
+				codeLensIndex++;
 			} else {
-				int sym = codeLenCode.decodeNextSymbol(input);
-				if (0 <= sym && sym <= 15) {
-					codeLens[i] = sym;
-					runVal = sym;
-					i++;
-				} else if (sym == 16) {
-					if (runVal == -1)
+				int runLen;
+				int runVal = 0;
+				if (sym == 16) {
+					if (codeLensIndex == 0)
 						throw new DataFormatException("No code length value to copy");
 					runLen = readInt(2) + 3;
-				} else if (sym == 17) {
-					runVal = 0;
+					runVal = codeLens[codeLensIndex - 1];
+				} else if (sym == 17)
 					runLen = readInt(3) + 3;
-				} else if (sym == 18) {
-					runVal = 0;
+				else if (sym == 18)
 					runLen = readInt(7) + 11;
-				} else
+				else
 					throw new AssertionError("Symbol out of range");
+				int end = codeLensIndex + runLen;
+				if (end > codeLens.length)
+					throw new DataFormatException("Run exceeds number of codes");
+				Arrays.fill(codeLens, codeLensIndex, end, runVal);
+				codeLensIndex = end;
 			}
 		}
-		if (runLen > 0)
-			throw new DataFormatException("Run exceeds number of codes");
 		
 		// Create literal-length code tree
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
