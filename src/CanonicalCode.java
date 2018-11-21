@@ -173,6 +173,6 @@ final class CanonicalCode {
 	
 	
 	// The maximum Huffman code length allowed in the DEFLATE standard.
-	private static final int MAX_CODE_LENGTH = 16;
+	private static final int MAX_CODE_LENGTH = 15;
 	
 }
