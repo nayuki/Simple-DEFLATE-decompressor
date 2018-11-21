@@ -24,7 +24,7 @@ import java.util.zip.DataFormatException;
 /**
  * Decompression application for the gzip file format.
  * <p>Usage: java GzipDecompress InputFile.gz OutputFile</p>
- * <p>This decompresses a single gzip file into a single output file. The program also prints
+ * <p>This decompresses a single gzip input file into a single output file. The program also prints
  * some information to standard output, and error messages if the file is invalid/corrupt.</p>
  */
 public final class GzipDecompress {

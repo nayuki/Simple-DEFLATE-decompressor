@@ -25,8 +25,9 @@ public interface BitInputStream extends Closeable {
 	
 	
 	/**
-	 * Discards the remainder of the current byte (if any) and reads the next whole byte from the stream.
-	 * @return the next byte from the stream
+	 * Discards the remainder of the current byte (if any) and reads the next
+	 * whole byte from the stream. Returns -1 if the end of stream is reached.
+	 * @return the next byte from the stream, or -1 if the end of stream is reached
 	 */
 	public int readByte() throws IOException;
 	

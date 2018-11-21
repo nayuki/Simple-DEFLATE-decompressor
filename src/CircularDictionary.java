@@ -12,13 +12,14 @@ import java.util.Objects;
 
 
 /**
- * A finite circular buffer of bytes, useful as an implicit dictionary for Lempel-Ziv schemes.
+ * Stores a finite recent history of a byte stream. Useful as an implicit
+ * dictionary for Lempel-Ziv schemes. Mutable and not thread-safe.
  */
 final class CircularDictionary {
 	
 	/*---- Fields ----*/
 	
-	// Buffer of byte data.
+	// Circular buffer of byte data.
 	private byte[] data;
 	
 	// Index of next byte to write to, always in the range [0, data.length).
@@ -31,6 +32,7 @@ final class CircularDictionary {
 	/**
 	 * Constructs a circular dictionary of the specified size, initialized to zeros.
 	 * @param size the size, which must be positive
+	 * @throws IllegalArgumentException if size is zero or negative
 	 */
 	public CircularDictionary(int size) {
 		if (size < 1)
@@ -61,8 +63,8 @@ final class CircularDictionary {
 	 * the specified output stream and also back into this buffer itself.
 	 * <p>Note that if the length exceeds the distance, then some of the output
 	 * data will be a copy of data that was copied earlier in the process.</p>
-	 * @param dist the distance to go back, which must be positive but no greater than the buffer's size
-	 * @param len the length to copy, which must be non-negative and is allowed to exceed the distance
+	 * @param dist the distance to go back, in the range [1, size]
+	 * @param len the length to copy, which must be at least 0
 	 * @param out the output stream to write to (not {@code null})
 	 * @throws NullPointerException if the output stream is {@code null}
 	 * @throws IllegalArgumentException if the length is negative,
@@ -74,7 +76,6 @@ final class CircularDictionary {
 		if (len < 0 || dist < 1 || dist > data.length)
 			throw new IllegalArgumentException();
 		
-		// This calculation is correct for all possible values and does not overflow
 		int readIndex = (index - dist + data.length) % data.length;
 		if (readIndex < 0 || readIndex >= data.length)
 			throw new AssertionError();

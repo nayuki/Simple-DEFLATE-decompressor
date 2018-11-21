@@ -89,9 +89,8 @@ final class CanonicalCode {
 	 * </ul>
 	 * @param canonicalCodeLengths array of symbol code lengths (not {@code null})
 	 * @throws NullPointerException if the array is {@code null}
-	 * @throws IllegalArgumentException if the array length is less than 2,
-	 * any element is negative, any value exceeds MAX_CODE_LENGTH, or the collection
-	 * of code lengths would yield an under-full or over-full Huffman code tree
+	 * @throws IllegalArgumentException if any element is negative, any value exceeds MAX_CODE_LENGTH,
+	 * or the collection of code lengths would yield an under-full or over-full Huffman code tree
 	 */
 	public CanonicalCode(int[] codeLengths) {
 		// Check argument values
@@ -127,7 +126,7 @@ final class CanonicalCode {
 		if (nextCode != 1 << MAX_CODE_LENGTH)  // Under-full
 			throw new IllegalArgumentException("This canonical code does not represent a Huffman code tree");
 		
-		// Trim unused suffix in arrays
+		// Trim unused trailing elements
 		symbolCodeBits = Arrays.copyOf(symbolCodeBits, numSymbolsAllocated);
 		symbolValues   = Arrays.copyOf(symbolValues  , numSymbolsAllocated);
 	}
@@ -135,8 +134,8 @@ final class CanonicalCode {
 	
 	
 	/**
-	 * Decodes the next symbol from the specified bit input stream based
-	 * on this code tree. The returned symbol value is at least 0.
+	 * Decodes the next symbol from the specified bit input stream based on this
+	 * canonical code. The returned symbol value is in the range [0, codeLengths.length).
 	 * @param in the bit input stream to read from
 	 * @return the next decoded symbol
 	 * @throws IOException if an I/O exception occurred

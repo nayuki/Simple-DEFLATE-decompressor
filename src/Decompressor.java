@@ -20,9 +20,14 @@ import java.util.zip.DataFormatException;
  */
 public final class Decompressor {
 	
-	/*---- Public methods ----*/
+	/*---- Public functions ----*/
 	
-	// Reads from the given input stream, decompress the data, and returns a new byte array.
+	/**
+	 * Reads from the specified input stream, decompress the data, and returns a new byte array.
+	 * @param in the bit input stream to read from (not {@code null})
+	 * @throws NullPointerException if the input stream is {@code null}
+	 * @throws DataFormatException if the DEFLATE data is malformed
+	 */
 	public static byte[] decompress(BitInputStream in) throws IOException, DataFormatException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		decompress(in, out);
@@ -30,7 +35,13 @@ public final class Decompressor {
 	}
 	
 	
-	// Reads from the given input stream, decompress the data, and writes to the given output stream.
+	/**
+	 * Reads from the specified input stream, decompress the data, and writes to the specified output stream.
+	 * @param in the bit input stream to read from (not {@code null})
+	 * @param out the byte output stream to write to (not {@code null})
+	 * @throws NullPointerException if the input or output stream is {@code null}
+	 * @throws DataFormatException if the DEFLATE data is malformed
+	 */
 	public static void decompress(BitInputStream in, OutputStream out) throws IOException, DataFormatException {
 		new Decompressor(in, out);
 	}
@@ -38,8 +49,6 @@ public final class Decompressor {
 	
 	
 	/*---- Private implementation ----*/
-	
-	/* Fields */
 	
 	private BitInputStream input;
 	
@@ -79,7 +88,7 @@ public final class Decompressor {
 	}
 	
 	
-	/* Code trees for static Huffman codes (btype = 1) */
+	/*-- The constant code trees for static Huffman codes (btype = 1) --*/
 	
 	private static final CanonicalCode FIXED_LITERAL_LENGTH_CODE;
 	private static final CanonicalCode FIXED_DISTANCE_CODE;
@@ -98,7 +107,7 @@ public final class Decompressor {
 	}
 	
 	
-	/* Method for reading and decoding dynamic Huffman codes (btype = 2) */
+	/*-- Method for reading and decoding dynamic Huffman codes (btype = 2) --*/
 	
 	// Reads from the bit input stream, decodes the Huffman code
 	// specifications into code trees, and returns the trees.
@@ -204,9 +213,9 @@ public final class Decompressor {
 	}
 	
 	
-	/* Block decompression methods */
+	/*-- Block decompression methods --*/
 	
-	// Handles and copies an uncompressed block from the input bit stream.
+	// Handles and copies an uncompressed block from the bit input stream.
 	private void decompressUncompressedBlock() throws IOException, DataFormatException {
 		// Discard bits to align to byte boundary
 		while (input.getBitPosition() != 0)
@@ -229,7 +238,7 @@ public final class Decompressor {
 	}
 	
 	
-	// Decompresses a Huffman-coded block from the input bit stream based on the given Huffman codes.
+	// Decompresses a Huffman-coded block from the bit input stream based on the given Huffman codes.
 	private void decompressHuffmanBlock(CanonicalCode litLenCode, CanonicalCode distCode)
 			throws IOException, DataFormatException {
 		Objects.requireNonNull(litLenCode);
@@ -259,7 +268,7 @@ public final class Decompressor {
 	}
 	
 	
-	/* Symbol decoding methods */
+	/*-- Symbol decoding methods --*/
 	
 	// Returns the run length based on the given symbol and possibly reading more bits.
 	private int decodeRunLength(int sym) throws IOException, DataFormatException {
@@ -291,7 +300,7 @@ public final class Decompressor {
 	}
 	
 	
-	/* Utility method */
+	/*-- Utility method --*/
 	
 	// Reads the given number of bits from the bit input stream as a single integer, packed in little endian.
 	private int readInt(int numBits) throws IOException {
