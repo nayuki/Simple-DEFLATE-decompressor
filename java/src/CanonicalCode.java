@@ -65,12 +65,6 @@ final class CanonicalCode {
 	 * Constructs a canonical Huffman code from the specified array of symbol code lengths.
 	 * Each code length must be non-negative. Code length 0 means no code for the symbol.
 	 * The collection of code lengths must represent a proper full Huffman code tree.
-	 * <p>Examples of code lengths that result in under-full Huffman code trees:</p>
-	 * <ul>
-	 *   <li>[1]</li>
-	 *   <li>[3, 0, 3]</li>
-	 *   <li>[1, 2, 3]</li>
-	 * </ul>
 	 * <p>Examples of code lengths that result in correct full Huffman code trees:</p>
 	 * <ul>
 	 *   <li>[1, 1] (result: A=0, B=1)</li>

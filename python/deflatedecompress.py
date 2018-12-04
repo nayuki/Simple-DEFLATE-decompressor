@@ -48,10 +48,6 @@ class CanonicalCode(object):
 		"""Creates a canonical Huffman code from the given list of symbol code lengths.
 		Each code length must be non-negative. Code length 0 means no code for the symbol.
 		The collection of code lengths must represent a proper full Huffman code tree.
-		Examples of code lengths that result in under-full Huffman code trees:
-		- [1]
-		- [3, 0, 3]
-		- [1, 2, 3]
 		Examples of code lengths that result in correct full Huffman code trees:
 		- [1, 1] (result: A=0, B=1)
 		- [2, 2, 1, 0, 0, 0] (result: A=10, B=11, C=0)
@@ -335,7 +331,7 @@ class ByteHistory(object):
 	dictionary for Lempel-Ziv schemes. Mutable and not thread-safe."""
 	
 	def __init__(self, size):
-		"""Creates a circular dictionary of the given size, initialized to zeros."""
+		"""Creates a byte history of the given size, initialized to zeros."""
 		if size < 1:
 			raise ValueError("Size must be positive")
 		# Circular buffer of byte data.
@@ -345,7 +341,7 @@ class ByteHistory(object):
 	
 	
 	def append(self, b):
-		"""Appends the specified byte to this circular dictionary.
+		"""Appends the specified byte to this history.
 		This overwrites the byte value at 'size' positions ago."""
 		assert 0 <= self._index < len(self._data)
 		self._data[self._index] = b

@@ -30,7 +30,7 @@ final class ByteHistory {
 	/*---- Constructor ----*/
 	
 	/**
-	 * Constructs a circular dictionary of the specified size, initialized to zeros.
+	 * Constructs a byte history of the specified size, initialized to zeros.
 	 * @param size the size, which must be positive
 	 * @throws IllegalArgumentException if size is zero or negative
 	 */
@@ -46,7 +46,7 @@ final class ByteHistory {
 	/*---- Methods ----*/
 	
 	/**
-	 * Appends the specified byte to this circular dictionary.
+	 * Appends the specified byte to this history.
 	 * This overwrites the byte value at {@code size} positions ago.
 	 * @param b the byte value to append
 	 */
