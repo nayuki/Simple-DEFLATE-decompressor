@@ -15,7 +15,7 @@ import java.util.Objects;
  * Stores a finite recent history of a byte stream. Useful as an implicit
  * dictionary for Lempel-Ziv schemes. Mutable and not thread-safe.
  */
-final class CircularDictionary {
+final class ByteHistory {
 	
 	/*---- Fields ----*/
 	
@@ -34,7 +34,7 @@ final class CircularDictionary {
 	 * @param size the size, which must be positive
 	 * @throws IllegalArgumentException if size is zero or negative
 	 */
-	public CircularDictionary(int size) {
+	public ByteHistory(int size) {
 		if (size < 1)
 			throw new IllegalArgumentException("Size must be positive");
 		data = new byte[size];

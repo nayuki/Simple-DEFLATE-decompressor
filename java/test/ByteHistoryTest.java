@@ -13,10 +13,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public final class CircularDictionaryTest {
+public final class ByteHistoryTest {
 	
 	@Test public void testTiny() {
-		CircularDictionary d = new CircularDictionary(1);
+		ByteHistory d = new ByteHistory(1);
 		d.append(8);
 		checkCopy(d, 1, 8);
 		checkCopy(d, 1, 8, 8);
@@ -24,7 +24,7 @@ public final class CircularDictionaryTest {
 	
 	
 	@Test public void testSmall() {
-		CircularDictionary d = new CircularDictionary(5);
+		ByteHistory d = new ByteHistory(5);
 		d.append(2);
 		d.append(7);
 		d.append(1);
@@ -41,7 +41,7 @@ public final class CircularDictionaryTest {
 		for (int i = 0; i < 3000; i++) {
 			// Initialize randomly sized circular dictionary and a naive buffer
 			int size = rand.nextInt(300) + 1;
-			CircularDictionary d = new CircularDictionary(size);
+			ByteHistory d = new ByteHistory(size);
 			int maxCopy = size * 2;  // Arbitrary
 			byte[] buf = new byte[30000];
 			int index = 0;
@@ -81,7 +81,7 @@ public final class CircularDictionaryTest {
 	}
 	
 	
-	private static void checkCopy(CircularDictionary d, int dist, int... expectBytes) {
+	private static void checkCopy(ByteHistory d, int dist, int... expectBytes) {
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			d.copy(dist, expectBytes.length, out);

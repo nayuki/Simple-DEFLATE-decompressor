@@ -144,7 +144,7 @@ class Decompressor(object):
 		# Initialize fields
 		self._input = bitin
 		self._output = out
-		self._dictionary = CircularDictionary(32 * 1024)
+		self._dictionary = ByteHistory(32 * 1024)
 		
 		# Process the stream of blocks
 		isfinal = False
@@ -330,7 +330,7 @@ class Decompressor(object):
 
 
 
-class CircularDictionary(object):
+class ByteHistory(object):
 	
 	"""Stores a finite recent history of a byte stream. Useful as an implicit
 	dictionary for Lempel-Ziv schemes. Mutable and not thread-safe."""

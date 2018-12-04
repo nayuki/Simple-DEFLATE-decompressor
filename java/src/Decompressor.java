@@ -54,7 +54,7 @@ public final class Decompressor {
 	
 	private OutputStream output;
 	
-	private CircularDictionary dictionary;
+	private ByteHistory dictionary;
 	
 	
 	
@@ -63,7 +63,7 @@ public final class Decompressor {
 		// Initialize fields
 		input = Objects.requireNonNull(in);
 		output = Objects.requireNonNull(out);
-		dictionary = new CircularDictionary(32 * 1024);
+		dictionary = new ByteHistory(32 * 1024);
 		
 		// Process the stream of blocks
 		boolean isFinal = false;
