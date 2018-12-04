@@ -114,8 +114,8 @@ final class CanonicalCode {
 			for (int symbol = 0; symbol < codeLengths.length; symbol++) {
 				if (codeLengths[symbol] != codeLength)
 					continue;
-				if (nextCode >= startBit)  // Over-full
-					throw new IllegalArgumentException("This canonical code does not represent a Huffman code tree");
+				if (nextCode >= startBit)
+					throw new IllegalArgumentException("This canonical code produces an over-full Huffman code tree");
 				
 				symbolCodeBits[numSymbolsAllocated] = startBit | nextCode;
 				symbolValues  [numSymbolsAllocated] = symbol;
@@ -123,8 +123,8 @@ final class CanonicalCode {
 				nextCode++;
 			}
 		}
-		if (nextCode != 1 << MAX_CODE_LENGTH)  // Under-full
-			throw new IllegalArgumentException("This canonical code does not represent a Huffman code tree");
+		if (nextCode != 1 << MAX_CODE_LENGTH)
+			throw new IllegalArgumentException("This canonical code produces an under-full Huffman code tree");
 		
 		// Trim unused trailing elements
 		symbolCodeBits = Arrays.copyOf(symbolCodeBits, numSymbolsAllocated);

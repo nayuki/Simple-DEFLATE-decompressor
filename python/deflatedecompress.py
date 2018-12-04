@@ -87,12 +87,12 @@ class CanonicalCode(object):
 			for (symbol, cl) in enumerate(codelengths):
 				if cl != codelength:
 					continue
-				if nextcode >= startbit:  # Over-full
-					raise ValueError("This canonical code does not represent a Huffman code tree")
+				if nextcode >= startbit:
+					raise ValueError("This canonical code produces an over-full Huffman code tree")
 				self._code_bits_to_symbol[startbit | nextcode] = symbol
 				nextcode += 1
-		if nextcode != 1 << max(codelengths):  # Under-full
-			raise ValueError("This canonical code does not represent a Huffman code tree")
+		if nextcode != 1 << max(codelengths):
+			raise ValueError("This canonical code produces an under-full Huffman code tree")
 	
 	
 	def decode_next_symbol(self, inp):
