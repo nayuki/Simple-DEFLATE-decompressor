@@ -66,7 +66,7 @@ public final class Decompressor {
 		dictionary = new ByteHistory(32 * 1024);
 		
 		// Process the stream of blocks
-		boolean isFinal = false;
+		boolean isFinal;
 		do {
 			// Read the block header
 			isFinal = in.readNoEof() == 1;  // bfinal

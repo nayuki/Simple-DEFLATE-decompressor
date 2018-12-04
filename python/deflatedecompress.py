@@ -147,7 +147,6 @@ class Decompressor(object):
 		self._dictionary = ByteHistory(32 * 1024)
 		
 		# Process the stream of blocks
-		isfinal = False
 		while True:
 			# Read the block header
 			isfinal = bitin.read_no_eof() == 1  # bfinal
