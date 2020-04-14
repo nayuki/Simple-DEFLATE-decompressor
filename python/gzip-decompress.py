@@ -13,12 +13,12 @@ import deflatedecompress
 def main(argv):
 	# Handle command line arguments
 	if len(argv) != 3:
-		return "Usage: python {} InputFile.gz OutputFile".format(argv[0])
+		return f"Usage: python {argv[0]} InputFile.gz OutputFile"
 	infile = argv[1]
 	if not os.path.exists(infile):
-		return "Input file does not exist: " + infile
+		return f"Input file does not exist: {infile}"
 	if os.path.isdir(infile):
-		return "Input file is a directory: " + infile
+		return f"Input file is a directory: {infile}"
 	outfile = argv[2]
 	
 	try:
@@ -57,7 +57,7 @@ def main(argv):
 				return "Invalid GZIP magic number"
 			compmeth = read_byte()
 			if compmeth != 8:
-				return "Unsupported compression method: " + str(compmeth)
+				return f"Unsupported compression method: {str(compmeth)}"
 			flags = read_byte()
 			
 			# Reserved flags
@@ -68,7 +68,7 @@ def main(argv):
 			mtime = read_little_int32()
 			if mtime != 0:
 				dt = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=mtime)
-				print("Last modified: " + str(dt))
+				print(f"Last modified: {dt}")
 			else:
 				print("Last modified: N/A")
 			
@@ -79,7 +79,7 @@ def main(argv):
 			elif extraflags == 4:
 				print("Extra flags: Fastest compression")
 			else:
-				print("Extra flags: Unknown ({})".format(extraflags))
+				print(f"Extra flags: Unknown ({extraflags})")
 			
 			# Operating system
 			OPERATING_SYSTEMS = {
@@ -101,7 +101,7 @@ def main(argv):
 			}
 			osbyte = read_byte()
 			osstr = OPERATING_SYSTEMS.get(osbyte, "Really unknown")
-			print("Operating system: " + osstr)
+			print(f"Operating system: {osstr}")
 			
 			# Handle assorted flags
 			if flags & 0x01 != 0:
@@ -115,18 +115,18 @@ def main(argv):
 						raise EOFError()
 					count -= n
 			if flags & 0x08 != 0:
-				print("File name: " + read_null_terminated_string())
+				print(f"File name: {read_null_terminated_string()}")
 			if flags & 0x02 != 0:
-				print("Header CRC-16: {:04X}".format(read_little_int16()))
+				print(f"Header CRC-16: {read_little_int16():04X}")
 			if flags & 0x10 != 0:
-				print("Comment: " + read_null_terminated_string())
+				print(f"Comment: {read_null_terminated_string()}")
 			
 			# Decompress
 			try:
 				bitin = deflatedecompress.BitInputStream(inp)
 				decomp = deflatedecompress.Decompressor.decompress_to_bytes(bitin)
 			except ValueError as e:
-				return "Invalid or corrupt compressed data: " + str(e)
+				return f"Invalid or corrupt compressed data: {e}"
 			
 			# Footer
 			crc  = read_little_int32()
@@ -134,17 +134,17 @@ def main(argv):
 		
 		# Check decompressed data's length and CRC
 		if size != len(decomp):
-			return "Size mismatch: expected={}, actual={}".format(size, len(decomp.length))
+			return f"Size mismatch: expected={size}, actual={len(decomp.length)}"
 		actualcrc = zlib.crc32(decomp) & 0xFFFFFFFF
 		if crc != actualcrc:
-			return "CRC-32 mismatch: expected={:08X}, actual={:08X}".format(crc, actualcrc)
+			return f"CRC-32 mismatch: expected={crc:08X}, actual={actualcrc:08X}"
 		
 		# Write decompressed data to output file
 		with open(outfile, "wb") as out:
 			out.write(decomp)
 		
 	except IOError as e:
-		return "I/O exception: " + str(e)
+		return f"I/O exception: {e}"
 	return None  # Success, no error message
 
 	
