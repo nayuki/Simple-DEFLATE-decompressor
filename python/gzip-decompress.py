@@ -6,7 +6,7 @@
 # https://github.com/nayuki/Simple-DEFLATE-decompressor
 # 
 
-import datetime, os, sys, zlib
+import datetime, pathlib, sys, zlib
 import deflatedecompress
 
 
@@ -14,16 +14,16 @@ def main(argv):
 	# Handle command line arguments
 	if len(argv) != 3:
 		return f"Usage: python {argv[0]} InputFile.gz OutputFile"
-	infile = argv[1]
-	if not os.path.exists(infile):
+	infile = pathlib.Path(argv[1])
+	if not infile.exists():
 		return f"Input file does not exist: {infile}"
-	if os.path.isdir(infile):
+	if infile.is_dir():
 		return f"Input file is a directory: {infile}"
-	outfile = argv[2]
+	outfile = pathlib.Path(argv[2])
 	
 	try:
 		# Start reading
-		with open(infile, "rb") as inp:
+		with infile.open("rb") as inp:
 			
 			# Define helper read functions based on 'inp'
 			
@@ -140,7 +140,7 @@ def main(argv):
 			return f"CRC-32 mismatch: expected={crc:08X}, actual={actualcrc:08X}"
 		
 		# Write decompressed data to output file
-		with open(outfile, "wb") as out:
+		with outfile.open("wb") as out:
 			out.write(decomp)
 		
 	except IOError as e:
