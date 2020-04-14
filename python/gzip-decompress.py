@@ -42,13 +42,12 @@ def main(argv):
 				return temp | read_little_int16() << 16
 			
 			def read_null_terminated_string():
-				temp = b""
+				sb = bytearray()
 				while True:
 					b = read_byte()
 					if b == 0:
-						break
-					temp += bytes((b,))
-				return temp.decode("UTF-8")
+						return sb.decode("UTF-8")
+					sb.append(b)
 			
 			
 			# Header
