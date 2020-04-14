@@ -9,7 +9,7 @@
 import io
 
 
-class CanonicalCode(object):
+class CanonicalCode:
 	
 	"""A canonical Huffman code, where the code values for each symbol is derived
 	from a given sequence of code lengths. This data structure is immutable.
@@ -109,7 +109,7 @@ class CanonicalCode(object):
 
 
 
-class Decompressor(object):
+class Decompressor:
 	
 	# -- Public functions --
 	
@@ -320,7 +320,7 @@ class Decompressor(object):
 
 
 
-class ByteHistory(object):
+class ByteHistory:
 	
 	"""Stores a finite recent history of a byte stream. Useful as an implicit
 	dictionary for Lempel-Ziv schemes. Mutable and not thread-safe."""
@@ -360,7 +360,7 @@ class ByteHistory(object):
 
 
 
-class BitInputStream(object):
+class BitInputStream:
 	
 	"""A stream of bits that can be read. Because they come from an underlying byte stream, the
 	total number of bits is always a multiple of 8. Bits are packed in little endian within a byte.
