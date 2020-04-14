@@ -67,7 +67,7 @@ def main(argv):
 			# Modification time
 			mtime = read_little_int32()
 			if mtime != 0:
-				dt = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=mtime)
+				dt = datetime.datetime.fromtimestamp(mtime, datetime.timezone.utc)
 				print(f"Last modified: {dt}")
 			else:
 				print("Last modified: N/A")
