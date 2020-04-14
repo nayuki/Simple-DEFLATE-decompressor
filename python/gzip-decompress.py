@@ -8,7 +8,6 @@
 
 import datetime, os, sys, zlib
 import deflatedecompress
-python3 = sys.version_info.major >= 3
 
 
 def main(argv):
@@ -32,7 +31,7 @@ def main(argv):
 				b = inp.read(1)
 				if len(b) == 0:
 					raise EOFError()
-				return b[0] if python3 else ord(b)
+				return b[0]
 			
 			def read_little_int16():
 				temp = read_byte()
@@ -48,7 +47,7 @@ def main(argv):
 					b = read_byte()
 					if b == 0:
 						break
-					temp += bytes((b,)) if python3 else chr(b)
+					temp += bytes((b,))
 				return temp.decode("UTF-8")
 			
 			

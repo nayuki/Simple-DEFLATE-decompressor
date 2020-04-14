@@ -6,12 +6,7 @@
 # https://github.com/nayuki/Simple-DEFLATE-decompressor
 # 
 
-import sys
-python3 = sys.version_info.major >= 3
-if python3:
-	import io
-else:
-	import StringIO
+import io
 
 
 class CanonicalCode(object):
@@ -123,7 +118,7 @@ class Decompressor(object):
 	@staticmethod
 	def decompress_to_bytes(bitin):
 		"""Reads from the given input stream, decompress the data, and returns a new byte list."""
-		out = io.BytesIO() if python3 else StringIO.StringIO()
+		out = io.BytesIO()
 		Decompressor.decompress_to_stream(bitin, out)
 		return out.getvalue()
 	
@@ -255,7 +250,7 @@ class Decompressor(object):
 			b = self._input.read_byte()
 			if b == -1:
 				raise EOFError()
-			self._output.write(bytes((b,)) if python3 else chr(b))
+			self._output.write(bytes((b,)))
 			self._dictionary.append(b)
 	
 	
@@ -268,7 +263,7 @@ class Decompressor(object):
 				break
 			
 			if sym < 256:  # Literal byte
-				self._output.write(bytes((sym,)) if python3 else chr(sym))
+				self._output.write(bytes((sym,)))
 				self._dictionary.append(sym)
 			else:  # Length and distance for copying
 				run = self.decode_run_length(sym)
@@ -360,7 +355,7 @@ class ByteHistory(object):
 		for _ in range(count):
 			b = self._data[readindex]
 			readindex = (readindex + 1) % len(self._data)
-			out.write(bytes((b,)) if python3 else chr(b))
+			out.write(bytes((b,)))
 			self.append(b)
 
 
@@ -395,7 +390,7 @@ class BitInputStream(object):
 		b = self._input.read(1)
 		if len(b) == 0:
 			return -1
-		return b[0] if python3 else ord(b)
+		return b[0]
 	
 	
 	def read(self):
@@ -408,7 +403,7 @@ class BitInputStream(object):
 			if len(b) == 0:
 				self._current_byte = -1
 				return -1
-			self._current_byte = b[0] if python3 else ord(b)
+			self._current_byte = b[0]
 			self._num_bits_remaining = 8
 		assert self._num_bits_remaining > 0
 		self._num_bits_remaining -= 1
