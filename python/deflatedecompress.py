@@ -243,7 +243,7 @@ class Decompressor:
 		len  = self._read_int(16)
 		nlen = self._read_int(16)
 		if len ^ 0xFFFF != nlen:
-			raise valueError("Invalid length in uncompressed block")
+			raise ValueError("Invalid length in uncompressed block")
 		
 		# Copy bytes
 		for _ in range(len):

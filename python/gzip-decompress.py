@@ -110,7 +110,7 @@ def main(argv):
 				print("Flag: Extra")
 				count = read_little_int16()
 				while count > 0:  # Skip extra data
-					n = inp.read(count)
+					n = len(inp.read(count))
 					if n == 0:
 						raise EOFError()
 					count -= n
@@ -134,7 +134,7 @@ def main(argv):
 		
 		# Check decompressed data's length and CRC
 		if size != len(decomp):
-			return f"Size mismatch: expected={size}, actual={len(decomp.length)}"
+			return f"Size mismatch: expected={size}, actual={len(decomp)}"
 		actualcrc = zlib.crc32(decomp) & 0xFFFFFFFF
 		if crc != actualcrc:
 			return f"CRC-32 mismatch: expected={crc:08X}, actual={actualcrc:08X}"
