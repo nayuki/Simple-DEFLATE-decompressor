@@ -147,7 +147,7 @@ class Decompressor:
 			if type == 0:
 				self._decompress_uncompressed_block()
 			elif type == 1:
-				self._decompress_huffman_block(Decompressor.FIXED_LITERAL_LENGTH_CODE, Decompressor.FIXED_DISTANCE_CODE)
+				self._decompress_huffman_block(Decompressor._FIXED_LITERAL_LENGTH_CODE, Decompressor._FIXED_DISTANCE_CODE)
 			elif type == 2:
 				litlencode, distcode = self._decode_huffman_codes()
 				self._decompress_huffman_block(litlencode, distcode)
@@ -161,9 +161,9 @@ class Decompressor:
 	
 	# -- The constant code trees for static Huffman codes (btype = 1) --
 	
-	FIXED_LITERAL_LENGTH_CODE = CanonicalCode([8]*144 + [9]*112 + [7]*24 + [8]*8)
+	_FIXED_LITERAL_LENGTH_CODE = CanonicalCode([8]*144 + [9]*112 + [7]*24 + [8]*8)
 	
-	FIXED_DISTANCE_CODE = CanonicalCode([5] * 32)
+	_FIXED_DISTANCE_CODE = CanonicalCode([5] * 32)
 	
 	
 	# -- Method for reading and decoding dynamic Huffman codes (btype = 2) --
@@ -266,7 +266,7 @@ class Decompressor:
 				self._output.write(bytes((sym,)))
 				self._dictionary.append(sym)
 			else:  # Length and distance for copying
-				run = self.decode_run_length(sym)
+				run = self._decode_run_length(sym)
 				assert 3 <= run <= 258, "Invalid run length"
 				if distcode is None:
 					raise ValueError("Length symbol encountered with empty distance code")
@@ -279,7 +279,7 @@ class Decompressor:
 	# -- Symbol decoding methods --
 	
 	# Returns the run length based on the given symbol and possibly reading more bits.
-	def decode_run_length(self, sym):
+	def _decode_run_length(self, sym):
 		# Symbols outside the range cannot occur in the bit stream;
 		# they would indicate that the decompressor is buggy
 		assert 257 <= sym <= 287, "Invalid run length symbol: " + str(sym)
