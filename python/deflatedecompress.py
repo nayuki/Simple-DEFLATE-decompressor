@@ -76,10 +76,10 @@ class CanonicalCode:
 		
 		# Allocate code values to symbols. Symbols are processed in the order
 		# of shortest code length first, breaking ties by lowest symbol value.
-		nextcode = 0
+		nextcode: int = 0
 		for codelength in range(1, max(codelengths) + 1):
 			nextcode <<= 1
-			startbit = 1 << codelength
+			startbit: int = 1 << codelength
 			for (symbol, cl) in enumerate(codelengths):
 				if cl != codelength:
 					continue
@@ -94,13 +94,13 @@ class CanonicalCode:
 	def decode_next_symbol(self, inp: BitInputStream) -> int:
 		"""Decodes the next symbol from the given bit input stream based on this
 		canonical code. The returned symbol value is in the range [0, len(codelengths))."""
-		codebits = 1  # The start bit
+		codebits: int = 1  # The start bit
 		while True:
 			# Accumulate one bit at a time on the right side until a match is found
 			# in the code_bits_to_symbol dictionary. Because the Huffman code tree is
 			# full, this loop must terminate after at most max(codelengths) iterations.
 			codebits = codebits << 1 | inp.read_no_eof()
-			result = self._code_bits_to_symbol.get(codebits, -1)
+			result: int = self._code_bits_to_symbol.get(codebits, -1)
 			if result != -1:
 				return result
 	
@@ -150,8 +150,8 @@ class Decompressor:
 		# Process the stream of blocks
 		while True:
 			# Read the block header
-			isfinal = bitin.read_no_eof() == 1  # bfinal
-			type = self._read_int(2)  # btype
+			isfinal: bool = bitin.read_no_eof() == 1  # bfinal
+			type: int = self._read_int(2)  # btype
 			
 			# Decompress rest of block based on the type
 			if type == 0:
@@ -181,11 +181,11 @@ class Decompressor:
 	# Reads from the bit input stream, decodes the Huffman code
 	# specifications into code trees, and returns the trees.
 	def _decode_huffman_codes(self) -> Tuple[CanonicalCode,Optional[CanonicalCode]]:
-		numlitlencodes = self._read_int(5) + 257  # hlit + 257
-		numdistcodes = self._read_int(5) + 1      # hdist + 1
+		numlitlencodes: int = self._read_int(5) + 257  # hlit + 257
+		numdistcodes: int = self._read_int(5) + 1      # hdist + 1
 		
-		numcodelencodes = self._read_int(4) + 4   # hclen + 4
-		codelencodelen = [0] * 19  # This list is filled in a strange order
+		numcodelencodes: int = self._read_int(4) + 4   # hclen + 4
+		codelencodelen: List[int] = [0] * 19  # This list is filled in a strange order
 		codelencodelen[16] = self._read_int(3)
 		codelencodelen[17] = self._read_int(3)
 		codelencodelen[18] = self._read_int(3)
@@ -200,13 +200,13 @@ class Decompressor:
 		# Read the main code lengths and handle runs
 		codelens: List[int] = []
 		while len(codelens) < numlitlencodes + numdistcodes:
-			sym = codelencode.decode_next_symbol(self._input)
+			sym: int = codelencode.decode_next_symbol(self._input)
 			if 0 <= sym <= 15:
 				codelens.append(sym)
 			elif sym == 16:
 				if len(codelens) == 0:
 					raise ValueError("No code length value to copy")
-				runlen = self._read_int(2) + 3
+				runlen: int = self._read_int(2) + 3
 				codelens.extend(codelens[-1 : ] * runlen)
 			elif sym == 17:
 				runlen = self._read_int(3) + 3
@@ -223,13 +223,13 @@ class Decompressor:
 		litlencode = CanonicalCode(codelens[ : numlitlencodes])
 		
 		# Create distance code tree with some extra processing
-		distcodelen = codelens[numlitlencodes : ]
+		distcodelen: List[int] = codelens[numlitlencodes : ]
 		if len(distcodelen) == 1 and distcodelen[0] == 0:
-			distcode = None  # Empty distance code; the block shall be all literal symbols
+			distcode: Optional[CanonicalCode] = None  # Empty distance code; the block shall be all literal symbols
 		else:
 			# Get statistics for upcoming logic
-			onecount = sum(1 for x in distcodelen if x == 1)
-			otherpositivecount = sum(1 for x in distcodelen if x > 1)
+			onecount: int = sum(1 for x in distcodelen if x == 1)
+			otherpositivecount: int = sum(1 for x in distcodelen if x > 1)
 			
 			# Handle the case where only one distance code is defined
 			if onecount == 1 and otherpositivecount == 0:
@@ -250,14 +250,14 @@ class Decompressor:
 			self._input.read_no_eof()
 		
 		# Read length
-		len  = self._read_int(16)
-		nlen = self._read_int(16)
+		len : int = self._read_int(16)
+		nlen: int = self._read_int(16)
 		if len ^ 0xFFFF != nlen:
 			raise ValueError("Invalid length in uncompressed block")
 		
 		# Copy bytes
 		for _ in range(len):
-			b = self._input.read_byte()
+			b: int = self._input.read_byte()
 			if b == -1:
 				raise EOFError()
 			self._output.write(bytes((b,)))
@@ -268,7 +268,7 @@ class Decompressor:
 	def _decompress_huffman_block(self, litlencode: CanonicalCode, distcode: Optional[CanonicalCode]) -> None:
 		# litlencode cannot be None, but distcode is allowed to be None
 		while True:
-			sym = litlencode.decode_next_symbol(self._input)
+			sym: int = litlencode.decode_next_symbol(self._input)
 			if sym == 256:  # End of block
 				break
 			
@@ -276,12 +276,12 @@ class Decompressor:
 				self._output.write(bytes((sym,)))
 				self._dictionary.append(sym)
 			else:  # Length and distance for copying
-				run = self._decode_run_length(sym)
+				run: int = self._decode_run_length(sym)
 				assert 3 <= run <= 258, "Invalid run length"
 				if distcode is None:
 					raise ValueError("Length symbol encountered with empty distance code")
-				distsym = distcode.decode_next_symbol(self._input)
-				dist = self._decode_distance(distsym)
+				distsym: int = distcode.decode_next_symbol(self._input)
+				dist: int = self._decode_distance(distsym)
 				assert 1 <= dist <= 32768, "Invalid distance"
 				self._dictionary.copy(dist, run, self._output)
 	
@@ -297,7 +297,7 @@ class Decompressor:
 		if sym <= 264:
 			return sym - 254
 		elif sym <= 284:
-			numextrabits = (sym - 261) // 4
+			numextrabits: int = (sym - 261) // 4
 			return (((sym - 265) % 4 + 4) << numextrabits) + 3 + self._read_int(numextrabits)
 		elif sym == 285:
 			return 258
@@ -314,7 +314,7 @@ class Decompressor:
 		if sym <= 3:
 			return sym + 1
 		elif sym <= 29:
-			numextrabits = sym // 2 - 1
+			numextrabits: int = sym // 2 - 1
 			return ((sym % 2 + 2) << numextrabits) + 1 + self._read_int(numextrabits)
 		else:  # sym is 30 or 31
 			raise ValueError("Reserved distance symbol: " + str(sym))
@@ -367,9 +367,9 @@ class ByteHistory:
 		if count < 0 or not (1 <= dist <= len(self._data)):
 			raise ValueError()
 		
-		readindex = (self._index - dist) % len(self._data)
+		readindex: int = (self._index - dist) % len(self._data)
 		for _ in range(count):
-			b = self._data[readindex]
+			b: int = self._data[readindex]
 			readindex = (readindex + 1) % len(self._data)
 			out.write(bytes((b,)))
 			self.append(b)
@@ -411,7 +411,7 @@ class BitInputStream:
 		whole byte from the stream. Returns -1 if the end of stream is reached."""
 		self._current_byte = 0
 		self._num_bits_remaining = 0
-		b = self._input.read(1)
+		b: bytes = self._input.read(1)
 		if len(b) == 0:
 			return -1
 		return b[0]
@@ -423,7 +423,7 @@ class BitInputStream:
 		if self._current_byte == -1:
 			return -1
 		if self._num_bits_remaining == 0:
-			b = self._input.read(1)
+			b: bytes = self._input.read(1)
 			if len(b) == 0:
 				self._current_byte = -1
 				return -1
@@ -437,7 +437,7 @@ class BitInputStream:
 	def read_no_eof(self) -> int:
 		"""Reads a bit from this stream. Returns 0 or 1 if a bit is available, or raises an EOFError
 		if the end of stream is reached. The end of stream always occurs on a byte boundary."""
-		result = self.read()
+		result: int = self.read()
 		if result == -1:
 			raise EOFError()
 		return result

@@ -7,7 +7,7 @@
 # 
 
 import datetime, pathlib, sys, zlib
-from typing import List, Optional
+from typing import Dict, List, Optional
 import deflatedecompress
 
 
@@ -29,23 +29,23 @@ def main(argv: List[str]) -> Optional[str]:
 			# Define helper read functions based on 'inp'
 			
 			def read_byte() -> int:
-				b = inp.read(1)
+				b: bytes = inp.read(1)
 				if len(b) == 0:
 					raise EOFError()
 				return b[0]
 			
 			def read_little_int16() -> int:
-				temp = read_byte()
+				temp: int = read_byte()
 				return temp | read_byte() << 8
 			
 			def read_little_int32() -> int:
-				temp = read_little_int16()
+				temp: int = read_little_int16()
 				return temp | read_little_int16() << 16
 			
 			def read_null_terminated_string() -> str:
 				sb = bytearray()
 				while True:
-					b = read_byte()
+					b: int = read_byte()
 					if b == 0:
 						return sb.decode("UTF-8")
 					sb.append(b)
@@ -56,17 +56,17 @@ def main(argv: List[str]) -> Optional[str]:
 				return "Invalid GZIP magic number"
 			if read_byte() != 0x8B:
 				return "Invalid GZIP magic number"
-			compmeth = read_byte()
+			compmeth: int = read_byte()
 			if compmeth != 8:
 				return f"Unsupported compression method: {str(compmeth)}"
-			flags = read_byte()
+			flags: int = read_byte()
 			
 			# Reserved flags
 			if flags & 0xE0 != 0:
 				return "Reserved flags are set"
 			
 			# Modification time
-			mtime = read_little_int32()
+			mtime: int = read_little_int32()
 			if mtime != 0:
 				dt = datetime.datetime.fromtimestamp(mtime, datetime.timezone.utc)
 				print(f"Last modified: {dt}")
@@ -74,7 +74,7 @@ def main(argv: List[str]) -> Optional[str]:
 				print("Last modified: N/A")
 			
 			# Extra flags
-			extraflags = read_byte()
+			extraflags: int = read_byte()
 			if extraflags == 2:
 				print("Extra flags: Maximum compression")
 			elif extraflags == 4:
@@ -83,7 +83,7 @@ def main(argv: List[str]) -> Optional[str]:
 				print(f"Extra flags: Unknown ({extraflags})")
 			
 			# Operating system
-			OPERATING_SYSTEMS = {
+			OPERATING_SYSTEMS: Dict[int,str] = {
 				  0: "FAT",
 				  1: "Amiga",
 				  2: "VMS",
@@ -100,8 +100,8 @@ def main(argv: List[str]) -> Optional[str]:
 				 13: "Acorn RISCOS",
 				255: "Unknown",
 			}
-			osbyte = read_byte()
-			osstr = OPERATING_SYSTEMS.get(osbyte, "Really unknown")
+			osbyte: int = read_byte()
+			osstr: str = OPERATING_SYSTEMS.get(osbyte, "Really unknown")
 			print(f"Operating system: {osstr}")
 			
 			# Handle assorted flags
@@ -109,9 +109,9 @@ def main(argv: List[str]) -> Optional[str]:
 				print("Flag: Text")
 			if flags & 0x04 != 0:
 				print("Flag: Extra")
-				count = read_little_int16()
+				count: int = read_little_int16()
 				while count > 0:  # Skip extra data
-					n = len(inp.read(count))
+					n: int = len(inp.read(count))
 					if n == 0:
 						raise EOFError()
 					count -= n
@@ -125,13 +125,13 @@ def main(argv: List[str]) -> Optional[str]:
 			# Decompress
 			try:
 				bitin = deflatedecompress.BitInputStream(inp)
-				decomp = deflatedecompress.Decompressor.decompress_to_bytes(bitin)
+				decomp: bytes = deflatedecompress.Decompressor.decompress_to_bytes(bitin)
 			except ValueError as e:
 				return f"Invalid or corrupt compressed data: {e}"
 			
 			# Footer
-			crc  = read_little_int32()
-			size = read_little_int32()
+			crc : int = read_little_int32()
+			size: int = read_little_int32()
 		
 		# Check decompressed data's length and CRC
 		if size != len(decomp):
