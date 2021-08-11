@@ -7,10 +7,11 @@
 # 
 
 import datetime, pathlib, sys, zlib
+from typing import List, Optional
 import deflatedecompress
 
 
-def main(argv):
+def main(argv: List[str]) -> Optional[str]:
 	# Handle command line arguments
 	if len(argv) != 3:
 		return f"Usage: python {argv[0]} InputFile.gz OutputFile"
@@ -27,21 +28,21 @@ def main(argv):
 			
 			# Define helper read functions based on 'inp'
 			
-			def read_byte():
+			def read_byte() -> int:
 				b = inp.read(1)
 				if len(b) == 0:
 					raise EOFError()
 				return b[0]
 			
-			def read_little_int16():
+			def read_little_int16() -> int:
 				temp = read_byte()
 				return temp | read_byte() << 8
 			
-			def read_little_int32():
+			def read_little_int32() -> int:
 				temp = read_little_int16()
 				return temp | read_little_int16() << 16
 			
-			def read_null_terminated_string():
+			def read_null_terminated_string() -> str:
 				sb = bytearray()
 				while True:
 					b = read_byte()

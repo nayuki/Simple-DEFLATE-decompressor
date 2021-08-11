@@ -7,7 +7,7 @@
 # 
 
 import io
-from typing import BinaryIO, Dict, List
+from typing import BinaryIO, Dict, List, Optional, Sequence, Tuple
 
 
 class CanonicalCode:
@@ -53,7 +53,7 @@ class CanonicalCode:
 	_code_bits_to_symbol: Dict[int,int]
 	
 	
-	def __init__(self, codelengths):
+	def __init__(self, codelengths: Sequence[int]):
 		"""Creates a canonical Huffman code from the given list of symbol code lengths.
 		Each code length must be non-negative. Code length 0 means no code for the symbol.
 		The collection of code lengths must represent a proper full Huffman code tree.
@@ -91,7 +91,7 @@ class CanonicalCode:
 			raise ValueError("This canonical code produces an under-full Huffman code tree")
 	
 	
-	def decode_next_symbol(self, inp):
+	def decode_next_symbol(self, inp: BitInputStream) -> int:
 		"""Decodes the next symbol from the given bit input stream based on this
 		canonical code. The returned symbol value is in the range [0, len(codelengths))."""
 		codebits = 1  # The start bit
@@ -105,7 +105,7 @@ class CanonicalCode:
 				return result
 	
 	
-	def __str__(self):
+	def __str__(self) -> str:
 		"""Returns a string representation of this canonical code,
 		useful for debugging only, and the format is subject to change."""
 		return "\n".join(
@@ -121,7 +121,7 @@ class Decompressor:
 	"""Decompresses raw DEFLATE data (without zlib or gzip container) into bytes."""
 	
 	@staticmethod
-	def decompress_to_bytes(bitin):
+	def decompress_to_bytes(bitin: BitInputStream) -> bytes:
 		"""Reads from the given input stream, decompress the data, and returns a new byte list."""
 		out = io.BytesIO()
 		Decompressor.decompress_to_stream(bitin, out)
@@ -129,7 +129,7 @@ class Decompressor:
 	
 	
 	@staticmethod
-	def decompress_to_stream(bitin, out):
+	def decompress_to_stream(bitin: BitInputStream, out: BinaryIO) -> None:
 		"""Reads from the given input stream, decompress the data, and writes to the given output stream."""
 		Decompressor(bitin, out)
 	
@@ -141,7 +141,7 @@ class Decompressor:
 	_dictionary: ByteHistory
 	
 	
-	def __init__(self, bitin, out):
+	def __init__(self, bitin: BitInputStream, out: BinaryIO):
 		# Initialize fields
 		self._input = bitin
 		self._output = out
@@ -180,7 +180,7 @@ class Decompressor:
 	
 	# Reads from the bit input stream, decodes the Huffman code
 	# specifications into code trees, and returns the trees.
-	def _decode_huffman_codes(self):
+	def _decode_huffman_codes(self) -> Tuple[CanonicalCode,Optional[CanonicalCode]]:
 		numlitlencodes = self._read_int(5) + 257  # hlit + 257
 		numdistcodes = self._read_int(5) + 1      # hdist + 1
 		
@@ -198,7 +198,7 @@ class Decompressor:
 		codelencode = CanonicalCode(codelencodelen)
 		
 		# Read the main code lengths and handle runs
-		codelens = []
+		codelens: List[int] = []
 		while len(codelens) < numlitlencodes + numdistcodes:
 			sym = codelencode.decode_next_symbol(self._input)
 			if 0 <= sym <= 15:
@@ -244,7 +244,7 @@ class Decompressor:
 	# -- Block decompression methods --
 	
 	# Handles and copies an uncompressed block from the bit input stream.
-	def _decompress_uncompressed_block(self):
+	def _decompress_uncompressed_block(self) -> None:
 		# Discard bits to align to byte boundary
 		while self._input.get_bit_position() != 0:
 			self._input.read_no_eof()
@@ -265,7 +265,7 @@ class Decompressor:
 	
 	
 	# Decompresses a Huffman-coded block from the bit input stream based on the given Huffman codes.
-	def _decompress_huffman_block(self, litlencode, distcode):
+	def _decompress_huffman_block(self, litlencode: CanonicalCode, distcode: Optional[CanonicalCode]) -> None:
 		# litlencode cannot be None, but distcode is allowed to be None
 		while True:
 			sym = litlencode.decode_next_symbol(self._input)
@@ -289,7 +289,7 @@ class Decompressor:
 	# -- Symbol decoding methods --
 	
 	# Returns the run length based on the given symbol and possibly reading more bits.
-	def _decode_run_length(self, sym):
+	def _decode_run_length(self, sym: int) -> int:
 		# Symbols outside the range cannot occur in the bit stream;
 		# they would indicate that the decompressor is buggy
 		assert 257 <= sym <= 287, "Invalid run length symbol: " + str(sym)
@@ -306,7 +306,7 @@ class Decompressor:
 	
 	
 	# Returns the distance based on the given symbol and possibly reading more bits.
-	def _decode_distance(self, sym):
+	def _decode_distance(self, sym: int) -> int:
 		# Symbols outside the range cannot occur in the bit stream;
 		# they would indicate that the decompressor is buggy
 		assert 0 <= sym <= 31, "Invalid distance symbol: " + str(sym)
@@ -323,7 +323,7 @@ class Decompressor:
 	# -- Utility method --
 	
 	# Reads the given number of bits from the bit input stream as a single integer, packed in little endian.
-	def _read_int(self, numbits):
+	def _read_int(self, numbits: int) -> int:
 		if numbits < 0:
 			raise ValueError()
 		return sum(self._input.read_no_eof() << i for i in range(numbits))
@@ -343,7 +343,7 @@ class ByteHistory:
 	_index: int
 	
 	
-	def __init__(self, size):
+	def __init__(self, size: int):
 		"""Creates a byte history of the given size, initialized to zeros."""
 		if size < 1:
 			raise ValueError("Size must be positive")
@@ -351,7 +351,7 @@ class ByteHistory:
 		self._index = 0
 	
 	
-	def append(self, b):
+	def append(self, b: int) -> None:
 		"""Appends the specified byte to this history.
 		This overwrites the byte value at 'size' positions ago."""
 		assert 0 <= self._index < len(self._data)
@@ -359,7 +359,7 @@ class ByteHistory:
 		self._index = (self._index + 1) % len(self._data)
 	
 	
-	def copy(self, dist, count, out):
+	def copy(self, dist: int, count: int, out: BinaryIO) -> None:
 		"""Copies 'count' bytes starting at 'dist' bytes ago to the
 		given output stream and also back into this buffer itself.
 		Note that if the count exceeds the distance, then some of the output
@@ -393,20 +393,20 @@ class BitInputStream:
 	_num_bits_remaining: int
 	
 	
-	def __init__(self, inp):
+	def __init__(self, inp: BinaryIO):
 		"""Constructs a bit input stream based on the given byte input stream."""
 		self._input = inp
 		self._current_byte = 0
 		self._num_bits_remaining = 0
 	
 	
-	def get_bit_position(self):
+	def get_bit_position(self) -> int:
 		"""Returns the current bit position, which ascends from 0 to 7 as bits are read."""
 		assert 0 <= self._num_bits_remaining <= 7
 		return -self._num_bits_remaining % 8
 	
 	
-	def read_byte(self):
+	def read_byte(self) -> int:
 		"""Discards the remainder of the current byte (if any) and reads the next
 		whole byte from the stream. Returns -1 if the end of stream is reached."""
 		self._current_byte = 0
@@ -417,7 +417,7 @@ class BitInputStream:
 		return b[0]
 	
 	
-	def read(self):
+	def read(self) -> int:
 		"""Reads a bit from this stream. Returns 0 or 1 if a bit is available, or -1 if
 		the end of stream is reached. The end of stream always occurs on a byte boundary."""
 		if self._current_byte == -1:
@@ -434,7 +434,7 @@ class BitInputStream:
 		return (self._current_byte >> (7 - self._num_bits_remaining)) & 1
 	
 	
-	def read_no_eof(self):
+	def read_no_eof(self) -> int:
 		"""Reads a bit from this stream. Returns 0 or 1 if a bit is available, or raises an EOFError
 		if the end of stream is reached. The end of stream always occurs on a byte boundary."""
 		result = self.read()
@@ -443,7 +443,7 @@ class BitInputStream:
 		return result
 	
 	
-	def close(self):
+	def close(self) -> None:
 		"""Closes this stream and the underlying input stream."""
 		self._input.close()
 		self._current_byte = -1
