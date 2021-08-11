@@ -7,6 +7,7 @@
 # 
 
 import io
+from typing import BinaryIO, Dict, List
 
 
 class CanonicalCode:
@@ -39,6 +40,19 @@ class CanonicalCode:
 	         / \
 	        C   E"""
 	
+	
+	# This dictionary maps Huffman codes to symbol values.
+	# Each key is the Huffman code padded with a 1 bit at the
+	# beginning to disambiguate codes of different lengths
+	# (e.g. otherwise we can't distinguish 0b01 from 0b0001).
+	# For the example of codelengths=[1,0,3,2,3], we would have:
+	#     0b1_0 -> 0
+	#    0b1_10 -> 3
+	#   0b1_110 -> 2
+	#   0b1_111 -> 4
+	_code_bits_to_symbol: Dict[int,int]
+	
+	
 	def __init__(self, codelengths):
 		"""Creates a canonical Huffman code from the given list of symbol code lengths.
 		Each code length must be non-negative. Code length 0 means no code for the symbol.
@@ -58,15 +72,6 @@ class CanonicalCode:
 		if any(x < 0 for x in codelengths):
 			raise ValueError("Negative code length")
 		
-		# This dictionary maps Huffman codes to symbol values.
-		# Each key is the Huffman code padded with a 1 bit at the
-		# beginning to disambiguate codes of different lengths
-		# (e.g. otherwise we can't distinguish 0b01 from 0b0001).
-		# For the example of codelengths=[1,0,3,2,3], we would have:
-		#     0b1_0 -> 0
-		#    0b1_10 -> 3
-		#   0b1_110 -> 2
-		#   0b1_111 -> 4
 		self._code_bits_to_symbol = {}
 		
 		# Allocate code values to symbols. Symbols are processed in the order
@@ -130,6 +135,11 @@ class Decompressor:
 	
 	
 	# -- Private implementation --
+	
+	_input: BitInputStream
+	_output: BinaryIO
+	_dictionary: ByteHistory
+	
 	
 	def __init__(self, bitin, out):
 		# Initialize fields
@@ -325,13 +335,19 @@ class ByteHistory:
 	"""Stores a finite recent history of a byte stream. Useful as an implicit
 	dictionary for Lempel-Ziv schemes. Mutable and not thread-safe."""
 	
+	
+	# Circular buffer of byte data.
+	_data: List[int]
+	
+	# Index of next byte to write to, always in the range [0, len(data)).
+	_index: int
+	
+	
 	def __init__(self, size):
 		"""Creates a byte history of the given size, initialized to zeros."""
 		if size < 1:
 			raise ValueError("Size must be positive")
-		# Circular buffer of byte data.
 		self._data = [0] * size
-		# Index of next byte to write to, always in the range [0, len(data)).
 		self._index = 0
 	
 	
@@ -366,13 +382,21 @@ class BitInputStream:
 	total number of bits is always a multiple of 8. Bits are packed in little endian within a byte.
 	For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1]."""
 	
+	
+	# The underlying byte stream to read from.
+	_input: BinaryIO
+	
+	# Either in the range [0x00, 0xFF] if bits are available, or -1 if end of stream is reached.
+	_current_byte: int
+	
+	# Number of remaining bits in the current byte, always between 0 and 7 (inclusive).
+	_num_bits_remaining: int
+	
+	
 	def __init__(self, inp):
 		"""Constructs a bit input stream based on the given byte input stream."""
-		# The underlying byte stream to read from.
 		self._input = inp
-		# Either in the range [0x00, 0xFF] if bits are available, or -1 if end of stream is reached.
 		self._current_byte = 0
-		# Number of remaining bits in the current byte, always between 0 and 7 (inclusive).
 		self._num_bits_remaining = 0
 	
 	
