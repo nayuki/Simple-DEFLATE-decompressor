@@ -292,7 +292,7 @@ class Decompressor:
 	def _decode_run_length(self, sym: int) -> int:
 		# Symbols outside the range cannot occur in the bit stream;
 		# they would indicate that the decompressor is buggy
-		assert 257 <= sym <= 287, "Invalid run length symbol: " + str(sym)
+		assert 257 <= sym <= 287, f"Invalid run length symbol: {sym}"
 		
 		if sym <= 264:
 			return sym - 254
@@ -302,14 +302,14 @@ class Decompressor:
 		elif sym == 285:
 			return 258
 		else:  # sym is 286 or 287
-			raise ValueError("Reserved length symbol: " + str(sym))
+			raise ValueError(f"Reserved length symbol: {sym}")
 	
 	
 	# Returns the distance based on the given symbol and possibly reading more bits.
 	def _decode_distance(self, sym: int) -> int:
 		# Symbols outside the range cannot occur in the bit stream;
 		# they would indicate that the decompressor is buggy
-		assert 0 <= sym <= 31, "Invalid distance symbol: " + str(sym)
+		assert 0 <= sym <= 31, f"Invalid distance symbol: {sym}"
 		
 		if sym <= 3:
 			return sym + 1
@@ -317,7 +317,7 @@ class Decompressor:
 			numextrabits: int = sym // 2 - 1
 			return ((sym % 2 + 2) << numextrabits) + 1 + self._read_int(numextrabits)
 		else:  # sym is 30 or 31
-			raise ValueError("Reserved distance symbol: " + str(sym))
+			raise ValueError(f"Reserved distance symbol: {sym}")
 	
 	
 	# -- Utility method --
