@@ -141,7 +141,7 @@ final class CanonicalCode {
 			// Accumulate one bit at a time on the right side until a match is
 			// found in the symbolCodeBits array. Because the Huffman code tree is
 			// full, this loop must terminate after at most MAX_CODE_LENGTH iterations.
-			codeBits = codeBits << 1 | in.readNoEof();
+			codeBits = codeBits << 1 | in.readBit();
 			int index = Arrays.binarySearch(symbolCodeBits, codeBits);
 			if (index >= 0)
 				return symbolValues[index];

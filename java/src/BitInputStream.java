@@ -40,7 +40,7 @@ public interface BitInputStream extends Closeable {
 	 * @throws IOException if an I/O exception occurred
 	 * @throws EOFException if the end of stream is reached
 	 */
-	public int readNoEof() throws IOException;
+	public int readBit() throws IOException;
 	
 	
 	/**

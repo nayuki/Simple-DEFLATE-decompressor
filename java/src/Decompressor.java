@@ -69,7 +69,7 @@ public final class Decompressor {
 		boolean isFinal;
 		do {
 			// Read the block header
-			isFinal = in.readNoEof() == 1;  // bfinal
+			isFinal = in.readBit() == 1;  // bfinal
 			int type = readInt(2);  // btype
 			
 			// Decompress rest of block based on the type
@@ -212,7 +212,7 @@ public final class Decompressor {
 	private void decompressUncompressedBlock() throws IOException, DataFormatException {
 		// Discard bits to align to byte boundary
 		while (input.getBitPosition() != 0)
-			input.readNoEof();
+			input.readBit();
 		
 		// Read length
 		int len  = readInt(16);
@@ -301,7 +301,7 @@ public final class Decompressor {
 			throw new IllegalArgumentException();
 		int result = 0;
 		for (int i = 0; i < numBits; i++)
-			result |= input.readNoEof() << i;
+			result |= input.readBit() << i;
 		return result;
 	}
 	

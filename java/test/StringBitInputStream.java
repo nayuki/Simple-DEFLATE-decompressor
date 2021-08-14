@@ -55,7 +55,7 @@ final class StringBitInputStream implements BitInputStream {
 	}
 	
 	
-	public int readNoEof() throws IOException {
+	public int readBit() throws IOException {
 		int result = readBitMaybe();
 		if (result != -1)
 			return result;
