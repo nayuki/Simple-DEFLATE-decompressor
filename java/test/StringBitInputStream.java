@@ -64,6 +64,16 @@ final class StringBitInputStream implements BitInputStream {
 	}
 	
 	
+	public int readUint(int numBits) throws IOException {
+		if (numBits < 0 || numBits > 31)
+			throw new IllegalArgumentException();
+		int result = 0;
+		for (int i = 0; i < numBits; i++)
+			result |= readBit() << i;
+		return result;
+	}
+	
+	
 	public void close() {
 		index = data.length();
 	}

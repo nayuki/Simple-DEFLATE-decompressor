@@ -70,7 +70,7 @@ public final class Decompressor {
 		do {
 			// Read the block header
 			isFinal = in.readBit() == 1;  // bfinal
-			int type = readInt(2);  // btype
+			int type = input.readUint(2);  // btype
 			
 			// Decompress rest of block based on the type
 			if (type == 0)
@@ -112,19 +112,19 @@ public final class Decompressor {
 	// Reads from the bit input stream, decodes the Huffman code
 	// specifications into code trees, and returns the trees.
 	private CanonicalCode[] decodeHuffmanCodes() throws IOException, DataFormatException {
-		int numLitLenCodes = readInt(5) + 257;  // hlit + 257
-		int numDistCodes = readInt(5) + 1;      // hdist + 1
+		int numLitLenCodes = input.readUint(5) + 257;  // hlit + 257
+		int numDistCodes = input.readUint(5) + 1;      // hdist + 1
 		
 		// Read the code length code lengths
-		int numCodeLenCodes = readInt(4) + 4;   // hclen + 4
+		int numCodeLenCodes = input.readUint(4) + 4;   // hclen + 4
 		int[] codeLenCodeLen = new int[19];  // This array is filled in a strange order
-		codeLenCodeLen[16] = readInt(3);
-		codeLenCodeLen[17] = readInt(3);
-		codeLenCodeLen[18] = readInt(3);
-		codeLenCodeLen[ 0] = readInt(3);
+		codeLenCodeLen[16] = input.readUint(3);
+		codeLenCodeLen[17] = input.readUint(3);
+		codeLenCodeLen[18] = input.readUint(3);
+		codeLenCodeLen[ 0] = input.readUint(3);
 		for (int i = 0; i < numCodeLenCodes - 4; i++) {
 			int j = (i % 2 == 0) ? (8 + i / 2) : (7 - i / 2);
-			codeLenCodeLen[j] = readInt(3);
+			codeLenCodeLen[j] = input.readUint(3);
 		}
 		
 		// Create the code length code
@@ -148,12 +148,12 @@ public final class Decompressor {
 				if (sym == 16) {
 					if (codeLensIndex == 0)
 						throw new DataFormatException("No code length value to copy");
-					runLen = readInt(2) + 3;
+					runLen = input.readUint(2) + 3;
 					runVal = codeLens[codeLensIndex - 1];
 				} else if (sym == 17)
-					runLen = readInt(3) + 3;
+					runLen = input.readUint(3) + 3;
 				else if (sym == 18)
-					runLen = readInt(7) + 11;
+					runLen = input.readUint(7) + 11;
 				else
 					throw new AssertionError("Symbol out of range");
 				int end = codeLensIndex + runLen;
@@ -215,14 +215,14 @@ public final class Decompressor {
 			input.readBit();
 		
 		// Read length
-		int len  = readInt(16);
-		int nlen = readInt(16);
+		int len  = input.readUint(16);
+		int nlen = input.readUint(16);
 		if ((len ^ 0xFFFF) != nlen)
 			throw new DataFormatException("Invalid length in uncompressed block");
 		
 		// Copy bytes
 		for (int i = 0; i < len; i++) {
-			int b = readInt(8);  // Byte is aligned
+			int b = input.readUint(8);  // Byte is aligned
 			if (b == -1)
 				throw new EOFException();
 			output.write(b);
@@ -271,7 +271,7 @@ public final class Decompressor {
 			return sym - 254;
 		else if (sym <= 284) {
 			int numExtraBits = (sym - 261) / 4;
-			return (((sym - 265) % 4 + 4) << numExtraBits) + 3 + readInt(numExtraBits);
+			return (((sym - 265) % 4 + 4) << numExtraBits) + 3 + input.readUint(numExtraBits);
 		} else if (sym == 285)
 			return 258;
 		else  // sym is 286 or 287
@@ -287,22 +287,9 @@ public final class Decompressor {
 			return sym + 1;
 		else if (sym <= 29) {
 			int numExtraBits = sym / 2 - 1;
-			return ((sym % 2 + 2) << numExtraBits) + 1 + readInt(numExtraBits);
+			return ((sym % 2 + 2) << numExtraBits) + 1 + input.readUint(numExtraBits);
 		} else  // sym is 30 or 31
 			throw new DataFormatException("Reserved distance symbol: " + sym);
-	}
-	
-	
-	/*-- Utility method --*/
-	
-	// Reads the given number of bits from the bit input stream as a single integer, packed in little endian.
-	private int readInt(int numBits) throws IOException {
-		if (numBits < 0 || numBits > 31)
-			throw new IllegalArgumentException();
-		int result = 0;
-		for (int i = 0; i < numBits; i++)
-			result |= input.readBit() << i;
-		return result;
 	}
 	
 }

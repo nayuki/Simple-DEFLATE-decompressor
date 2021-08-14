@@ -151,7 +151,7 @@ class Decompressor:
 		while True:
 			# Read the block header
 			isfinal: bool = bitin.read_bit() == 1  # bfinal
-			type: int = self._read_int(2)  # btype
+			type: int = self._input.read_uint(2)  # btype
 			
 			# Decompress rest of block based on the type
 			if type == 0:
@@ -181,18 +181,18 @@ class Decompressor:
 	# Reads from the bit input stream, decodes the Huffman code
 	# specifications into code trees, and returns the trees.
 	def _decode_huffman_codes(self) -> Tuple[CanonicalCode,Optional[CanonicalCode]]:
-		numlitlencodes: int = self._read_int(5) + 257  # hlit + 257
-		numdistcodes: int = self._read_int(5) + 1      # hdist + 1
+		numlitlencodes: int = self._input.read_uint(5) + 257  # hlit + 257
+		numdistcodes: int = self._input.read_uint(5) + 1      # hdist + 1
 		
-		numcodelencodes: int = self._read_int(4) + 4   # hclen + 4
+		numcodelencodes: int = self._input.read_uint(4) + 4   # hclen + 4
 		codelencodelen: List[int] = [0] * 19  # This list is filled in a strange order
-		codelencodelen[16] = self._read_int(3)
-		codelencodelen[17] = self._read_int(3)
-		codelencodelen[18] = self._read_int(3)
-		codelencodelen[ 0] = self._read_int(3)
+		codelencodelen[16] = self._input.read_uint(3)
+		codelencodelen[17] = self._input.read_uint(3)
+		codelencodelen[18] = self._input.read_uint(3)
+		codelencodelen[ 0] = self._input.read_uint(3)
 		for i in range(numcodelencodes - 4):
 			j = (8 + i // 2) if (i % 2 == 0) else (7 - i // 2)
-			codelencodelen[j] = self._read_int(3)
+			codelencodelen[j] = self._input.read_uint(3)
 		
 		# Create the code length code
 		codelencode = CanonicalCode(codelencodelen)
@@ -206,13 +206,13 @@ class Decompressor:
 			elif sym == 16:
 				if len(codelens) == 0:
 					raise ValueError("No code length value to copy")
-				runlen: int = self._read_int(2) + 3
+				runlen: int = self._input.read_uint(2) + 3
 				codelens.extend(codelens[-1 : ] * runlen)
 			elif sym == 17:
-				runlen = self._read_int(3) + 3
+				runlen = self._input.read_uint(3) + 3
 				codelens.extend([0] * runlen)
 			elif sym == 18:
-				runlen = self._read_int(7) + 11
+				runlen = self._input.read_uint(7) + 11
 				codelens.extend([0] * runlen)
 			else:
 				assert False, "Symbol out of range"
@@ -250,14 +250,14 @@ class Decompressor:
 			self._input.read_bit()
 		
 		# Read length
-		len : int = self._read_int(16)
-		nlen: int = self._read_int(16)
+		len : int = self._input.read_uint(16)
+		nlen: int = self._input.read_uint(16)
 		if len ^ 0xFFFF != nlen:
 			raise ValueError("Invalid length in uncompressed block")
 		
 		# Copy bytes
 		for _ in range(len):
-			b: int = self._read_int(8)  # Byte is aligned
+			b: int = self._input.read_uint(8)  # Byte is aligned
 			if b == -1:
 				raise EOFError()
 			self._output.write(bytes((b,)))
@@ -298,7 +298,7 @@ class Decompressor:
 			return sym - 254
 		elif sym <= 284:
 			numextrabits: int = (sym - 261) // 4
-			return (((sym - 265) % 4 + 4) << numextrabits) + 3 + self._read_int(numextrabits)
+			return (((sym - 265) % 4 + 4) << numextrabits) + 3 + self._input.read_uint(numextrabits)
 		elif sym == 285:
 			return 258
 		else:  # sym is 286 or 287
@@ -315,18 +315,9 @@ class Decompressor:
 			return sym + 1
 		elif sym <= 29:
 			numextrabits: int = sym // 2 - 1
-			return ((sym % 2 + 2) << numextrabits) + 1 + self._read_int(numextrabits)
+			return ((sym % 2 + 2) << numextrabits) + 1 + self._input.read_uint(numextrabits)
 		else:  # sym is 30 or 31
 			raise ValueError(f"Reserved distance symbol: {sym}")
-	
-	
-	# -- Utility method --
-	
-	# Reads the given number of bits from the bit input stream as a single integer, packed in little endian.
-	def _read_int(self, numbits: int) -> int:
-		if numbits < 0:
-			raise ValueError()
-		return sum(self._input.read_bit() << i for i in range(numbits))
 
 
 
@@ -430,6 +421,13 @@ class BitInputStream:
 		if result == -1:
 			raise EOFError()
 		return result
+	
+	
+	def read_uint(self, numbits: int) -> int:
+		"""Reads the given number of bits from this stream, packing them in little endian as an unsigned integer."""
+		if numbits < 0:
+			raise ValueError()
+		return sum(self.read_bit() << i for i in range(numbits))
 	
 	
 	def close(self) -> None:
