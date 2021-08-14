@@ -56,7 +56,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	}
 	
 	
-	public int read() throws IOException {
+	public int readBitMaybe() throws IOException {
 		if (currentByte == -1)
 			return -1;
 		if (numBitsRemaining == 0) {
@@ -73,7 +73,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	
 	public int readNoEof() throws IOException {
-		int result = read();
+		int result = readBitMaybe();
 		if (result == -1)
 			throw new EOFException();
 		return result;

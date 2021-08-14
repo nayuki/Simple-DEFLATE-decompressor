@@ -30,7 +30,7 @@ public interface BitInputStream extends Closeable {
 	 * @return the next bit of 0 or 1, or -1 for the end of stream
 	 * @throws IOException if an I/O exception occurred
 	 */
-	public int read() throws IOException;
+	public int readBitMaybe() throws IOException;
 	
 	
 	/**

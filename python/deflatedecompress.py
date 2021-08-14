@@ -406,7 +406,7 @@ class BitInputStream:
 		return -self._num_bits_remaining % 8
 	
 	
-	def read(self) -> int:
+	def read_bit_maybe(self) -> int:
 		"""Reads a bit from this stream. Returns 0 or 1 if a bit is available, or -1 if
 		the end of stream is reached. The end of stream always occurs on a byte boundary."""
 		if self._current_byte == -1:
@@ -426,7 +426,7 @@ class BitInputStream:
 	def read_no_eof(self) -> int:
 		"""Reads a bit from this stream. Returns 0 or 1 if a bit is available, or raises an EOFError
 		if the end of stream is reached. The end of stream always occurs on a byte boundary."""
-		result: int = self.read()
+		result: int = self.read_bit_maybe()
 		if result == -1:
 			raise EOFError()
 		return result

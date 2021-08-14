@@ -44,7 +44,7 @@ final class StringBitInputStream implements BitInputStream {
 	}
 	
 	
-	public int read() {
+	public int readBitMaybe() {
 		if (index >= data.length())
 			return -1;
 		else {
@@ -56,7 +56,7 @@ final class StringBitInputStream implements BitInputStream {
 	
 	
 	public int readNoEof() throws IOException {
-		int result = read();
+		int result = readBitMaybe();
 		if (result != -1)
 			return result;
 		else
