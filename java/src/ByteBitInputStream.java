@@ -6,7 +6,6 @@
  * https://github.com/nayuki/Simple-DEFLATE-decompressor
  */
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -69,24 +68,6 @@ public final class ByteBitInputStream implements BitInputStream {
 			throw new AssertionError();
 		numBitsRemaining--;
 		return (currentByte >>> (7 - numBitsRemaining)) & 1;
-	}
-	
-	
-	public int readBit() throws IOException {
-		int result = readBitMaybe();
-		if (result == -1)
-			throw new EOFException();
-		return result;
-	}
-	
-	
-	public int readUint(int numBits) throws IOException {
-		if (numBits < 0 || numBits > 31)
-			throw new IllegalArgumentException();
-		int result = 0;
-		for (int i = 0; i < numBits; i++)
-			result |= readBit() << i;
-		return result;
 	}
 	
 	

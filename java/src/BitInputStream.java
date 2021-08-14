@@ -40,7 +40,12 @@ public interface BitInputStream extends Closeable {
 	 * @throws IOException if an I/O exception occurred
 	 * @throws EOFException if the end of stream is reached
 	 */
-	public int readBit() throws IOException;
+	public default int readBit() throws IOException {
+		int result = readBitMaybe();
+		if (result == -1)
+			throw new EOFException();
+		return result;
+	}
 	
 	
 	/**
@@ -51,7 +56,14 @@ public interface BitInputStream extends Closeable {
 	 * @throws IOException if an I/O exception occurred
 	 * @throws EOFException if the end of stream is reached
 	 */
-	public int readUint(int numBits) throws IOException;
+	public default int readUint(int numBits) throws IOException {
+		if (numBits < 0 || numBits > 31)
+			throw new IllegalArgumentException();
+		int result = 0;
+		for (int i = 0; i < numBits; i++)
+			result |= readBit() << i;
+		return result;
+	}
 	
 	
 	/**
