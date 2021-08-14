@@ -44,18 +44,6 @@ final class StringBitInputStream implements BitInputStream {
 	}
 	
 	
-	public int readByte() throws IOException {
-		index = (index + 7) / 8 * 8;
-		if (data.length() - index < 8)
-			return -1;
-		
-		int result = 0;
-		for (int i = 0; i < 8; i++)
-			result |= readNoEof() << i;
-		return result;
-	}
-	
-	
 	public int read() {
 		if (index >= data.length())
 			return -1;

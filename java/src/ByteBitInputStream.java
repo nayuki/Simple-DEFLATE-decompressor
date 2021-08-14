@@ -56,13 +56,6 @@ public final class ByteBitInputStream implements BitInputStream {
 	}
 	
 	
-	public int readByte() throws IOException {
-		currentByte = 0;
-		numBitsRemaining = 0;
-		return input.read();
-	}
-	
-	
 	public int read() throws IOException {
 		if (currentByte == -1)
 			return -1;

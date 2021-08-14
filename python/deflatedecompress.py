@@ -257,7 +257,7 @@ class Decompressor:
 		
 		# Copy bytes
 		for _ in range(len):
-			b: int = self._input.read_byte()
+			b: int = self._read_int(8)  # Byte is aligned
 			if b == -1:
 				raise EOFError()
 			self._output.write(bytes((b,)))
@@ -404,17 +404,6 @@ class BitInputStream:
 		"""Returns the current bit position, which ascends from 0 to 7 as bits are read."""
 		assert 0 <= self._num_bits_remaining <= 7
 		return -self._num_bits_remaining % 8
-	
-	
-	def read_byte(self) -> int:
-		"""Discards the remainder of the current byte (if any) and reads the next
-		whole byte from the stream. Returns -1 if the end of stream is reached."""
-		self._current_byte = 0
-		self._num_bits_remaining = 0
-		b: bytes = self._input.read(1)
-		if len(b) == 0:
-			return -1
-		return b[0]
 	
 	
 	def read(self) -> int:

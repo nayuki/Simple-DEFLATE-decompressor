@@ -222,7 +222,7 @@ public final class Decompressor {
 		
 		// Copy bytes
 		for (int i = 0; i < len; i++) {
-			int b = input.readByte();
+			int b = readInt(8);  // Byte is aligned
 			if (b == -1)
 				throw new EOFException();
 			output.write(b);
