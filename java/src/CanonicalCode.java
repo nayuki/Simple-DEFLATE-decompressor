@@ -154,7 +154,7 @@ final class CanonicalCode {
 	 * useful for debugging only, and the format is subject to change.
 	 * @return a string representation of this canonical code
 	 */
-	public String toString() {
+	@Override public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < symbolCodeBits.length; i++) {
 			sb.append(String.format("Code %s: Symbol %d%n",

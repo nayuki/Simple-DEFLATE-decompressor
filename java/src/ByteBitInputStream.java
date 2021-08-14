@@ -48,14 +48,14 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	/*---- Methods ----*/
 	
-	public int getBitPosition() {
+	@Override public int getBitPosition() {
 		if (numBitsRemaining < 0 || numBitsRemaining > 7)
 			throw new AssertionError();
 		return (8 - numBitsRemaining) % 8;
 	}
 	
 	
-	public int readBitMaybe() throws IOException {
+	@Override public int readBitMaybe() throws IOException {
 		if (currentByte == -1)
 			return -1;
 		if (numBitsRemaining == 0) {
@@ -71,7 +71,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	}
 	
 	
-	public void close() throws IOException {
+	@Override public void close() throws IOException {
 		input.close();
 		currentByte = -1;
 		numBitsRemaining = 0;

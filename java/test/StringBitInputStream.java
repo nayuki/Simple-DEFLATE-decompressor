@@ -36,12 +36,12 @@ final class StringBitInputStream implements BitInputStream {
 	
 	/*---- Methods ----*/
 	
-	public int getBitPosition() {
+	@Override public int getBitPosition() {
 		return index % 8;
 	}
 	
 	
-	public int readBitMaybe() {
+	@Override public int readBitMaybe() {
 		if (index >= data.length())
 			return -1;
 		else {
@@ -52,7 +52,7 @@ final class StringBitInputStream implements BitInputStream {
 	}
 	
 	
-	public void close() {
+	@Override public void close() {
 		index = data.length();
 	}
 	

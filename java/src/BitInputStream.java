@@ -70,6 +70,6 @@ public interface BitInputStream extends Closeable {
 	 * Closes this stream and the underlying input stream.
 	 * @throws IOException if an I/O exception occurred
 	 */
-	public void close() throws IOException;
+	@Override public void close() throws IOException;
 	
 }
