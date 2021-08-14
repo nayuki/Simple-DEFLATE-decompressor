@@ -99,7 +99,7 @@ class CanonicalCode:
 			# Accumulate one bit at a time on the right side until a match is found
 			# in the code_bits_to_symbol dictionary. Because the Huffman code tree is
 			# full, this loop must terminate after at most max(codelengths) iterations.
-			codebits = codebits << 1 | inp.read_bit()
+			codebits = codebits << 1 | inp.read_uint(1)
 			result: int = self._code_bits_to_symbol.get(codebits, -1)
 			if result != -1:
 				return result
@@ -150,7 +150,7 @@ class Decompressor:
 		# Process the stream of blocks
 		while True:
 			# Read the block header
-			isfinal: bool = bitin.read_bit() == 1  # bfinal
+			isfinal: bool = bitin.read_uint(1) == 1  # bfinal
 			type: int = self._input.read_uint(2)  # btype
 			
 			# Decompress rest of block based on the type
@@ -247,7 +247,7 @@ class Decompressor:
 	def _decompress_uncompressed_block(self) -> None:
 		# Discard bits to align to byte boundary
 		while self._input.get_bit_position() != 0:
-			self._input.read_bit()
+			self._input.read_uint(1)
 		
 		# Read length
 		len : int = self._input.read_uint(16)
@@ -414,20 +414,17 @@ class BitInputStream:
 		return (self._current_byte >> (7 - self._num_bits_remaining)) & 1
 	
 	
-	def read_bit(self) -> int:
-		"""Reads a bit from this stream. Returns 0 or 1 if a bit is available, or raises an EOFError
-		if the end of stream is reached. The end of stream always occurs on a byte boundary."""
-		result: int = self.read_bit_maybe()
-		if result == -1:
-			raise EOFError()
-		return result
-	
-	
 	def read_uint(self, numbits: int) -> int:
 		"""Reads the given number of bits from this stream, packing them in little endian as an unsigned integer."""
 		if numbits < 0:
 			raise ValueError()
-		return sum(self.read_bit() << i for i in range(numbits))
+		result: int = 0
+		for i in range(numbits):
+			bit: int = self.read_bit_maybe()
+			if bit == -1:
+				raise EOFError()
+			result |= bit << i
+		return result
 	
 	
 	def close(self) -> None:

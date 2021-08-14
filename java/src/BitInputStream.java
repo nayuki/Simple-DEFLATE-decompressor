@@ -34,21 +34,6 @@ public interface BitInputStream extends Closeable {
 	
 	
 	/**
-	 * Reads a bit from this stream. Returns 0 or 1 if a bit is available, or throws an {@code EOFException}
-	 * if the end of stream is reached. The end of stream always occurs on a byte boundary.
-	 * @return the next bit of 0 or 1
-	 * @throws IOException if an I/O exception occurred
-	 * @throws EOFException if the end of stream is reached
-	 */
-	public default int readBit() throws IOException {
-		int result = readBitMaybe();
-		if (result == -1)
-			throw new EOFException();
-		return result;
-	}
-	
-	
-	/**
 	 * Reads the specified number of bits from this stream, packing them in little endian as an unsigned integer.
 	 * @param numBits the number of bits to read, in the range [0, 31]
 	 * @return a number in the range [0, 2<sup>numBits</sup>)
@@ -60,8 +45,12 @@ public interface BitInputStream extends Closeable {
 		if (numBits < 0 || numBits > 31)
 			throw new IllegalArgumentException();
 		int result = 0;
-		for (int i = 0; i < numBits; i++)
-			result |= readBit() << i;
+		for (int i = 0; i < numBits; i++) {
+			int bit = readBitMaybe();
+			if (bit == -1)
+				throw new EOFException();
+			result |= bit << i;
+		}
 		return result;
 	}
 	

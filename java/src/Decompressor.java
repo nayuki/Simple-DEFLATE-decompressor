@@ -69,7 +69,7 @@ public final class Decompressor {
 		boolean isFinal;
 		do {
 			// Read the block header
-			isFinal = in.readBit() == 1;  // bfinal
+			isFinal = in.readUint(1) == 1;  // bfinal
 			int type = input.readUint(2);  // btype
 			
 			// Decompress rest of block based on the type
@@ -212,7 +212,7 @@ public final class Decompressor {
 	private void decompressUncompressedBlock() throws IOException, DataFormatException {
 		// Discard bits to align to byte boundary
 		while (input.getBitPosition() != 0)
-			input.readBit();
+			input.readUint(1);
 		
 		// Read length
 		int len  = input.readUint(16);
