@@ -150,7 +150,7 @@ class Decompressor:
 		# Process the stream of blocks
 		while True:
 			# Read the block header
-			isfinal: bool = bitin.read_uint(1) == 1  # bfinal
+			isfinal: bool = bitin.read_uint(1) != 0  # bfinal
 			type: int = self._input.read_uint(2)  # btype
 			
 			# Decompress rest of block based on the type

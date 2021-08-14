@@ -69,7 +69,7 @@ public final class Decompressor {
 		boolean isFinal;
 		do {
 			// Read the block header
-			isFinal = in.readUint(1) == 1;  // bfinal
+			isFinal = in.readUint(1) != 0;  // bfinal
 			int type = input.readUint(2);  // btype
 			
 			// Decompress rest of block based on the type
