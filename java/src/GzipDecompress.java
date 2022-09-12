@@ -86,25 +86,24 @@ public final class GzipDecompress {
 					}
 					
 					// Operating system
-					String os;
-					switch (in.readUnsignedByte()) {
-						case   0:  os = "FAT";             break;
-						case   1:  os = "Amiga";           break;
-						case   2:  os = "VMS";             break;
-						case   3:  os = "Unix";            break;
-						case   4:  os = "VM/CMS";          break;
-						case   5:  os = "Atari TOS";       break;
-						case   6:  os = "HPFS";            break;
-						case   7:  os = "Macintosh";       break;
-						case   8:  os = "Z-System";        break;
-						case   9:  os = "CP/M";            break;
-						case  10:  os = "TOPS-20";         break;
-						case  11:  os = "NTFS";            break;
-						case  12:  os = "QDOS";            break;
-						case  13:  os = "Acorn RISCOS";    break;
-						case 255:  os = "Unknown";         break;
-						default :  os = "Really unknown";  break;
-					}
+					String os = switch (in.readUnsignedByte()) {
+						case   0 -> "FAT";
+						case   1 -> "Amiga";
+						case   2 -> "VMS";
+						case   3 -> "Unix";
+						case   4 -> "VM/CMS";
+						case   5 -> "Atari TOS";
+						case   6 -> "HPFS";
+						case   7 -> "Macintosh";
+						case   8 -> "Z-System";
+						case   9 -> "CP/M";
+						case  10 -> "TOPS-20";
+						case  11 -> "NTFS";
+						case  12 -> "QDOS";
+						case  13 -> "Acorn RISCOS";
+						case 255 -> "Unknown";
+						default  -> "Really unknown";
+					};
 					System.out.println("Operating system: " + os);
 				}
 				
