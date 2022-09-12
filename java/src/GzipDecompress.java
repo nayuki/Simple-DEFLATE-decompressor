@@ -79,11 +79,11 @@ public final class GzipDecompress {
 					
 					// Extra flags
 					int extraFlags = in.readUnsignedByte();
-					switch (extraFlags) {
-						case 2:   System.out.println("Extra flags: Maximum compression");  break;
-						case 4:   System.out.println("Extra flags: Fastest compression");  break;
-						default:  System.out.println("Extra flags: Unknown (" + extraFlags + ")");  break;
-					}
+					System.out.println("Extra flags: " + switch (extraFlags) {
+						case 2  -> "Maximum compression";
+						case 4  -> "Fastest compression";
+						default -> "Unknown (" + extraFlags + ")";
+					});
 					
 					// Operating system
 					String os = switch (in.readUnsignedByte()) {
