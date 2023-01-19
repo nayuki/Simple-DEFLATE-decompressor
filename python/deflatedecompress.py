@@ -1,9 +1,9 @@
 # 
-# Simple DEFLATE decompressor
-# Copyright (c) Project Nayuki
+# Simple DEFLATE decompressor (Python)
 # 
+# Copyright (c) Project Nayuki
+# MIT License. See readme file.
 # https://www.nayuki.io/page/simple-deflate-decompressor
-# https://github.com/nayuki/Simple-DEFLATE-decompressor
 # 
 
 import io
