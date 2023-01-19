@@ -50,7 +50,7 @@ public final class ByteBitInputStream implements BitInputStream {
 	
 	@Override public int getBitPosition() {
 		if (numBitsRemaining < 0 || numBitsRemaining > 7)
-			throw new AssertionError();
+			throw new AssertionError("Unreachable state");
 		return (8 - numBitsRemaining) % 8;
 	}
 	
@@ -65,7 +65,7 @@ public final class ByteBitInputStream implements BitInputStream {
 			numBitsRemaining = 8;
 		}
 		if (numBitsRemaining <= 0)
-			throw new AssertionError();
+			throw new AssertionError("Unreachable state");
 		numBitsRemaining--;
 		return (currentByte >>> (7 - numBitsRemaining)) & 1;
 	}

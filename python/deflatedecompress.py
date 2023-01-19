@@ -259,7 +259,7 @@ class Decompressor:
 		for _ in range(len):
 			b: int = self._input.read_uint(8)  # Byte is aligned
 			if b == -1:
-				raise EOFError()
+				raise EOFError("Unexpected end of stream")
 			self._output.write(bytes((b,)))
 			self._dictionary.append(b)
 	
@@ -345,7 +345,7 @@ class ByteHistory:
 	def append(self, b: int) -> None:
 		"""Appends the specified byte to this history.
 		This overwrites the byte value at 'size' positions ago."""
-		assert 0 <= self._index < len(self._data)
+		assert 0 <= self._index < len(self._data), "Unreachable state"
 		self._data[self._index] = b
 		self._index = (self._index + 1) % len(self._data)
 	
@@ -356,7 +356,7 @@ class ByteHistory:
 		Note that if the count exceeds the distance, then some of the output
 		data will be a copy of data that was copied earlier in the process."""
 		if count < 0 or not (1 <= dist <= len(self._data)):
-			raise ValueError()
+			raise ValueError("Invalid count or distance")
 		
 		readindex: int = (self._index - dist) % len(self._data)
 		for _ in range(count):
@@ -393,7 +393,7 @@ class BitInputStream:
 	
 	def get_bit_position(self) -> int:
 		"""Returns the current bit position, which ascends from 0 to 7 as bits are read."""
-		assert 0 <= self._num_bits_remaining <= 7
+		assert 0 <= self._num_bits_remaining <= 7, "Unreachable state"
 		return -self._num_bits_remaining % 8
 	
 	
@@ -409,7 +409,7 @@ class BitInputStream:
 				return -1
 			self._current_byte = b[0]
 			self._num_bits_remaining = 8
-		assert self._num_bits_remaining > 0
+		assert self._num_bits_remaining > 0, "Unreachable state"
 		self._num_bits_remaining -= 1
 		return (self._current_byte >> (7 - self._num_bits_remaining)) & 1
 	
@@ -417,12 +417,12 @@ class BitInputStream:
 	def read_uint(self, numbits: int) -> int:
 		"""Reads the given number of bits from this stream, packing them in little endian as an unsigned integer."""
 		if numbits < 0:
-			raise ValueError()
+			raise ValueError("Number of bits out of range")
 		result: int = 0
 		for i in range(numbits):
 			bit: int = self.read_bit_maybe()
 			if bit == -1:
-				raise EOFError()
+				raise EOFError("Unexpected end of stream")
 			result |= bit << i
 		return result
 	

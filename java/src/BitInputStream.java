@@ -43,12 +43,12 @@ public interface BitInputStream extends Closeable {
 	 */
 	public default int readUint(int numBits) throws IOException {
 		if (numBits < 0 || numBits > 31)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Number of bits out of range");
 		int result = 0;
 		for (int i = 0; i < numBits; i++) {
 			int bit = readBitMaybe();
 			if (bit == -1)
-				throw new EOFException();
+				throw new EOFException("Unexpected end of stream");
 			result |= bit << i;
 		}
 		return result;

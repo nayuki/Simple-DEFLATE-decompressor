@@ -224,7 +224,7 @@ public final class Decompressor {
 		for (int i = 0; i < len; i++) {
 			int b = input.readUint(8);  // Byte is aligned
 			if (b == -1)
-				throw new EOFException();
+				throw new EOFException("Unexpected end of stream");
 			output.write(b);
 			dictionary.append(b);
 		}

@@ -74,7 +74,7 @@ final class ByteHistory {
 	public void copy(int dist, int len, OutputStream out) throws IOException {
 		Objects.requireNonNull(out);
 		if (len < 0 || dist < 1 || dist > data.length)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Invalid length or distance");
 		
 		int readIndex = (index - dist + data.length) % data.length;
 		if (readIndex < 0 || readIndex >= data.length)
