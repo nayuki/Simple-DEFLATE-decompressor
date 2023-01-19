@@ -132,7 +132,7 @@ final class CanonicalCode {
 	 * canonical code. The returned symbol value is in the range [0, codeLengths.length).
 	 * @param in the bit input stream to read from
 	 * @return the next decoded symbol
-	 * @throws IOException if an I/O exception occurred
+	 * @throws IOException if an I/O exception occurs
 	 */
 	public int decodeNextSymbol(BitInputStream in) throws IOException {
 		Objects.requireNonNull(in);
