@@ -51,8 +51,7 @@ final class ByteHistory {
 	 * @param b the byte value to append
 	 */
 	public void append(int b) {
-		if (index < 0 || index >= data.length)
-			throw new AssertionError();
+		assert 0 <= index && index < data.length : "Unreachable state";
 		data[index] = (byte)b;
 		index = (index + 1) % data.length;
 	}
@@ -77,8 +76,7 @@ final class ByteHistory {
 			throw new IllegalArgumentException("Invalid length or distance");
 		
 		int readIndex = (index - dist + data.length) % data.length;
-		if (readIndex < 0 || readIndex >= data.length)
-			throw new AssertionError();
+		assert 0 <= readIndex && readIndex < data.length : "Unreachable state";
 		
 		for (int i = 0; i < len; i++) {
 			byte b = data[readIndex];

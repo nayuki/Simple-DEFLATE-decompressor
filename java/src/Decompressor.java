@@ -247,14 +247,12 @@ public final class Decompressor {
 				dictionary.append(sym);
 			} else {  // Length and distance for copying
 				int run = decodeRunLength(sym);
-				if (run < 3 || run > 258)
-					throw new AssertionError("Invalid run length");
+				assert 3 <= run && run <= 258 : "Invalid run length";
 				if (distCode == null)
 					throw new DataFormatException("Length symbol encountered with empty distance code");
 				int distSym = distCode.decodeNextSymbol(input);
 				int dist = decodeDistance(distSym);
-				if (dist < 1 || dist > 32768)
-					throw new AssertionError("Invalid distance");
+				assert 1 <= dist && dist <= 32768 : "Invalid distance";
 				dictionary.copy(dist, run, output);
 			}
 		}
@@ -265,9 +263,11 @@ public final class Decompressor {
 	
 	// Returns the run length based on the given symbol and possibly reading more bits.
 	private int decodeRunLength(int sym) throws IOException, DataFormatException {
-		if (sym < 257 || sym > 287)  // Cannot occur in the bit stream; indicates the decompressor is buggy
-			throw new AssertionError("Invalid run length symbol: " + sym);
-		else if (sym <= 264)
+		// Symbols outside the range cannot occur in the bit stream;
+		// they would indicate that the decompressor is buggy
+		assert 257 <= sym && sym <= 287 : "Invalid run length symbol: " + sym;
+		
+		if (sym <= 264)
 			return sym - 254;
 		else if (sym <= 284) {
 			int numExtraBits = (sym - 261) / 4;
@@ -281,8 +281,10 @@ public final class Decompressor {
 	
 	// Returns the distance based on the given symbol and possibly reading more bits.
 	private int decodeDistance(int sym) throws IOException, DataFormatException {
-		if (sym < 0 || sym > 31)  // Cannot occur in the bit stream; indicates the decompressor is buggy
-			throw new AssertionError("Invalid distance symbol: " + sym);
+		// Symbols outside the range cannot occur in the bit stream;
+		// they would indicate that the decompressor is buggy
+		assert 0 <= sym && sym <= 31 : "Invalid distance symbol: " + sym;
+		
 		if (sym <= 3)
 			return sym + 1;
 		else if (sym <= 29) {
