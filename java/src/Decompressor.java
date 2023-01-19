@@ -69,7 +69,7 @@ public final class Decompressor {
 		boolean isFinal;
 		do {
 			// Read the block header
-			isFinal = in.readUint(1) != 0;  // bfinal
+			isFinal = input.readUint(1) != 0;  // bfinal
 			int type = input.readUint(2);  // btype
 			
 			// Decompress rest of block based on the type
@@ -215,7 +215,7 @@ public final class Decompressor {
 			input.readUint(1);
 		
 		// Read length
-		int len  = input.readUint(16);
+		int  len = input.readUint(16);
 		int nlen = input.readUint(16);
 		if ((len ^ 0xFFFF) != nlen)
 			throw new DataFormatException("Invalid length in uncompressed block");
