@@ -54,7 +54,7 @@ class CanonicalCode:
 	
 	
 	def __init__(self, codelengths: Sequence[int]):
-		"""Creates a canonical Huffman code from the given list of symbol code lengths.
+		"""Constructs a canonical Huffman code from the given list of symbol code lengths.
 		Each code length must be non-negative. Code length 0 means no code for the symbol.
 		The collection of code lengths must represent a proper full Huffman code tree.
 		Examples of code lengths that result in correct full Huffman code trees:
@@ -142,6 +142,8 @@ class Decompressor:
 	
 	
 	def __init__(self, bitin: BitInputStream, out: BinaryIO):
+		"""Constructor, which immediately performs decompression"""
+		
 		# Initialize fields
 		self._input = bitin
 		self._output = out
@@ -335,7 +337,7 @@ class ByteHistory:
 	
 	
 	def __init__(self, size: int):
-		"""Creates a byte history of the given size, initialized to zeros."""
+		"""Constructs a byte history of the given size, initialized to zeros."""
 		if size < 1:
 			raise ValueError("Size must be positive")
 		self._data = [0] * size
@@ -343,15 +345,15 @@ class ByteHistory:
 	
 	
 	def append(self, b: int) -> None:
-		"""Appends the specified byte to this history.
-		This overwrites the byte value at 'size' positions ago."""
+		"""Appends the given byte to this history.
+		This overwrites the byte value at `size` positions ago."""
 		assert 0 <= self._index < len(self._data), "Unreachable state"
 		self._data[self._index] = b
 		self._index = (self._index + 1) % len(self._data)
 	
 	
 	def copy(self, dist: int, count: int, out: BinaryIO) -> None:
-		"""Copies 'count' bytes starting at 'dist' bytes ago to the
+		"""Copies `count` bytes starting at `dist` bytes ago to the
 		given output stream and also back into this buffer itself.
 		Note that if the count exceeds the distance, then some of the output
 		data will be a copy of data that was copied earlier in the process."""
