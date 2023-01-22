@@ -136,13 +136,12 @@ def main(argv: List[str]) -> Optional[str]:
 		# Check decompressed data's length and CRC
 		if size != len(decomp) % 2**32:
 			return f"Size mismatch: expected={size}, actual={len(decomp)}"
-		actualcrc = zlib.crc32(decomp) & 0xFFFFFFFF
+		actualcrc = zlib.crc32(decomp) & 0xFFFF_FFFF
 		if crc != actualcrc:
 			return f"CRC-32 mismatch: expected={crc:08X}, actual={actualcrc:08X}"
 		
 		# Write decompressed data to output file
-		with outfile.open("wb") as out:
-			out.write(decomp)
+		outfile.write_bytes(decomp)
 		
 	except IOError as e:
 		return f"I/O exception: {e}"
