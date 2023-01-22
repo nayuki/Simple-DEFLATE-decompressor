@@ -10,6 +10,74 @@ import io
 from typing import BinaryIO, Dict, List, Optional, Sequence, Tuple
 
 
+class BitInputStream:
+	
+	"""A stream of bits that can be read. Because they come from an underlying byte stream, the
+	total number of bits is always a multiple of 8. Bits are packed in little endian within a byte.
+	For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1]."""
+	
+	
+	# The underlying byte stream to read from.
+	_input: BinaryIO
+	
+	# Either in the range [0x00, 0xFF] if bits are available, or -1 if end of stream is reached.
+	_current_byte: int
+	
+	# Number of remaining bits in the current byte, always between 0 and 7 (inclusive).
+	_num_bits_remaining: int
+	
+	
+	def __init__(self, inp: BinaryIO):
+		"""Constructs a bit input stream based on the given byte input stream."""
+		self._input = inp
+		self._current_byte = 0
+		self._num_bits_remaining = 0
+	
+	
+	def get_bit_position(self) -> int:
+		"""Returns the current bit position, which ascends from 0 to 7 as bits are read."""
+		assert 0 <= self._num_bits_remaining <= 7, "Unreachable state"
+		return -self._num_bits_remaining % 8
+	
+	
+	def read_bit_maybe(self) -> int:
+		"""Reads a bit from this stream. Returns 0 or 1 if a bit is available, or -1 if
+		the end of stream is reached. The end of stream always occurs on a byte boundary."""
+		if self._current_byte == -1:
+			return -1
+		if self._num_bits_remaining == 0:
+			b: bytes = self._input.read(1)
+			if len(b) == 0:
+				self._current_byte = -1
+				return -1
+			self._current_byte = b[0]
+			self._num_bits_remaining = 8
+		assert self._num_bits_remaining > 0, "Unreachable state"
+		self._num_bits_remaining -= 1
+		return (self._current_byte >> (7 - self._num_bits_remaining)) & 1
+	
+	
+	def read_uint(self, numbits: int) -> int:
+		"""Reads the given number of bits from this stream, packing them in little endian as an unsigned integer."""
+		if numbits < 0:
+			raise ValueError("Number of bits out of range")
+		result: int = 0
+		for i in range(numbits):
+			bit: int = self.read_bit_maybe()
+			if bit == -1:
+				raise EOFError("Unexpected end of stream")
+			result |= bit << i
+		return result
+	
+	
+	def close(self) -> None:
+		"""Closes this stream and the underlying input stream."""
+		self._input.close()
+		self._current_byte = -1
+		self._num_bits_remaining = 0
+
+
+
 class CanonicalCode:
 	
 	"""A canonical Huffman code, where the code values for each symbol is derived
@@ -111,6 +179,52 @@ class CanonicalCode:
 		return "\n".join(
 			"Code {}: Symbol {}".format(bin(codebits)[3 : ], symbol)
 			for (codebits, symbol) in sorted(self._code_bits_to_symbol.items())) + "\n"
+
+
+
+class ByteHistory:
+	
+	"""Stores a finite recent history of a byte stream. Useful as an implicit
+	dictionary for Lempel-Ziv schemes. Mutable and not thread-safe."""
+	
+	
+	# Circular buffer of byte data.
+	_data: List[int]
+	
+	# Index of next byte to write to, always in the range [0, len(data)).
+	_index: int
+	
+	
+	def __init__(self, size: int):
+		"""Constructs a byte history of the given size, initialized to zeros."""
+		if size < 1:
+			raise ValueError("Size must be positive")
+		self._data = [0] * size
+		self._index = 0
+	
+	
+	def append(self, b: int) -> None:
+		"""Appends the given byte to this history.
+		This overwrites the byte value at `size` positions ago."""
+		assert 0 <= self._index < len(self._data), "Unreachable state"
+		self._data[self._index] = b
+		self._index = (self._index + 1) % len(self._data)
+	
+	
+	def copy(self, dist: int, count: int, out: BinaryIO) -> None:
+		"""Copies `count` bytes starting at `dist` bytes ago to the
+		given output stream and also back into this buffer itself.
+		Note that if the count exceeds the distance, then some of the output
+		data will be a copy of data that was copied earlier in the process."""
+		if count < 0 or not (1 <= dist <= len(self._data)):
+			raise ValueError("Invalid count or distance")
+		
+		readindex: int = (self._index - dist) % len(self._data)
+		for _ in range(count):
+			b: int = self._data[readindex]
+			readindex = (readindex + 1) % len(self._data)
+			out.write(bytes((b,)))
+			self.append(b)
 
 
 
@@ -320,117 +434,3 @@ class Decompressor:
 			return ((sym % 2 + 2) << numextrabits) + 1 + self._input.read_uint(numextrabits)
 		else:  # sym is 30 or 31
 			raise ValueError(f"Reserved distance symbol: {sym}")
-
-
-
-class ByteHistory:
-	
-	"""Stores a finite recent history of a byte stream. Useful as an implicit
-	dictionary for Lempel-Ziv schemes. Mutable and not thread-safe."""
-	
-	
-	# Circular buffer of byte data.
-	_data: List[int]
-	
-	# Index of next byte to write to, always in the range [0, len(data)).
-	_index: int
-	
-	
-	def __init__(self, size: int):
-		"""Constructs a byte history of the given size, initialized to zeros."""
-		if size < 1:
-			raise ValueError("Size must be positive")
-		self._data = [0] * size
-		self._index = 0
-	
-	
-	def append(self, b: int) -> None:
-		"""Appends the given byte to this history.
-		This overwrites the byte value at `size` positions ago."""
-		assert 0 <= self._index < len(self._data), "Unreachable state"
-		self._data[self._index] = b
-		self._index = (self._index + 1) % len(self._data)
-	
-	
-	def copy(self, dist: int, count: int, out: BinaryIO) -> None:
-		"""Copies `count` bytes starting at `dist` bytes ago to the
-		given output stream and also back into this buffer itself.
-		Note that if the count exceeds the distance, then some of the output
-		data will be a copy of data that was copied earlier in the process."""
-		if count < 0 or not (1 <= dist <= len(self._data)):
-			raise ValueError("Invalid count or distance")
-		
-		readindex: int = (self._index - dist) % len(self._data)
-		for _ in range(count):
-			b: int = self._data[readindex]
-			readindex = (readindex + 1) % len(self._data)
-			out.write(bytes((b,)))
-			self.append(b)
-
-
-
-class BitInputStream:
-	
-	"""A stream of bits that can be read. Because they come from an underlying byte stream, the
-	total number of bits is always a multiple of 8. Bits are packed in little endian within a byte.
-	For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1]."""
-	
-	
-	# The underlying byte stream to read from.
-	_input: BinaryIO
-	
-	# Either in the range [0x00, 0xFF] if bits are available, or -1 if end of stream is reached.
-	_current_byte: int
-	
-	# Number of remaining bits in the current byte, always between 0 and 7 (inclusive).
-	_num_bits_remaining: int
-	
-	
-	def __init__(self, inp: BinaryIO):
-		"""Constructs a bit input stream based on the given byte input stream."""
-		self._input = inp
-		self._current_byte = 0
-		self._num_bits_remaining = 0
-	
-	
-	def get_bit_position(self) -> int:
-		"""Returns the current bit position, which ascends from 0 to 7 as bits are read."""
-		assert 0 <= self._num_bits_remaining <= 7, "Unreachable state"
-		return -self._num_bits_remaining % 8
-	
-	
-	def read_bit_maybe(self) -> int:
-		"""Reads a bit from this stream. Returns 0 or 1 if a bit is available, or -1 if
-		the end of stream is reached. The end of stream always occurs on a byte boundary."""
-		if self._current_byte == -1:
-			return -1
-		if self._num_bits_remaining == 0:
-			b: bytes = self._input.read(1)
-			if len(b) == 0:
-				self._current_byte = -1
-				return -1
-			self._current_byte = b[0]
-			self._num_bits_remaining = 8
-		assert self._num_bits_remaining > 0, "Unreachable state"
-		self._num_bits_remaining -= 1
-		return (self._current_byte >> (7 - self._num_bits_remaining)) & 1
-	
-	
-	def read_uint(self, numbits: int) -> int:
-		"""Reads the given number of bits from this stream, packing them in little endian as an unsigned integer."""
-		if numbits < 0:
-			raise ValueError("Number of bits out of range")
-		result: int = 0
-		for i in range(numbits):
-			bit: int = self.read_bit_maybe()
-			if bit == -1:
-				raise EOFError("Unexpected end of stream")
-			result |= bit << i
-		return result
-	
-	
-	def close(self) -> None:
-		"""Closes this stream and the underlying input stream."""
-		self._input.close()
-		self._current_byte = -1
-		self._num_bits_remaining = 0
