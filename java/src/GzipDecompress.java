@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.time.Instant;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 
@@ -73,7 +73,7 @@ public final class GzipDecompress {
 					// Modification time
 					int mtime = readLittleEndianInt32(in);
 					if (mtime != 0)
-						System.out.println("Last modified: " + new Date(mtime * 1000L));
+						System.out.println("Last modified: " + Instant.EPOCH.plusSeconds(mtime));
 					else
 						System.out.println("Last modified: N/A");
 					
