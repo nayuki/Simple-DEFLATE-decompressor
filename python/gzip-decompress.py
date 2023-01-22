@@ -134,7 +134,7 @@ def main(argv: List[str]) -> Optional[str]:
 			size: int = read_little_int32()
 		
 		# Check decompressed data's length and CRC
-		if size != len(decomp):
+		if size != len(decomp) % 2**32:
 			return f"Size mismatch: expected={size}, actual={len(decomp)}"
 		actualcrc = zlib.crc32(decomp) & 0xFFFFFFFF
 		if crc != actualcrc:
