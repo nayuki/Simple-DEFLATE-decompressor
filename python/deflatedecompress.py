@@ -17,6 +17,8 @@ class BitInputStream:
 	For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1]."""
 	
 	
+	# ---- Fields ----
+	
 	# The underlying byte stream to read from.
 	_input: BinaryIO
 	
@@ -27,12 +29,16 @@ class BitInputStream:
 	_num_bits_remaining: int
 	
 	
+	# ---- Constructor ----
+	
 	def __init__(self, inp: BinaryIO):
 		"""Constructs a bit input stream based on the given byte input stream."""
 		self._input = inp
 		self._current_byte = 0
 		self._num_bits_remaining = 0
 	
+	
+	# ---- Methods ----
 	
 	def get_bit_position(self) -> int:
 		"""Returns the current bit position, which ascends from 0 to 7 as bits are read."""
@@ -109,6 +115,8 @@ class CanonicalCode:
 	        C   E"""
 	
 	
+	# ---- Field ----
+	
 	# This dictionary maps Huffman codes to symbol values.
 	# Each key is the Huffman code padded with a 1 bit at the
 	# beginning to disambiguate codes of different lengths
@@ -120,6 +128,8 @@ class CanonicalCode:
 	#   0b1_111 -> 4
 	_code_bits_to_symbol: Dict[int,int]
 	
+	
+	# ---- Constructor ----
 	
 	def __init__(self, codelengths: Sequence[int]):
 		"""Constructs a canonical Huffman code from the given list of symbol code lengths.
@@ -159,6 +169,8 @@ class CanonicalCode:
 			raise ValueError("This canonical code produces an under-full Huffman code tree")
 	
 	
+	# ---- Methods ----
+	
 	def decode_next_symbol(self, inp: BitInputStream) -> int:
 		"""Decodes the next symbol from the given bit input stream based on this
 		canonical code. The returned symbol value is in the range [0, len(codelengths))."""
@@ -188,12 +200,16 @@ class ByteHistory:
 	dictionary for Lempel-Ziv schemes. Mutable and not thread-safe."""
 	
 	
+	# ---- Fields ----
+	
 	# Circular buffer of byte data.
 	_data: List[int]
 	
 	# Index of next byte to write to, always in the range [0, len(data)).
 	_index: int
 	
+	
+	# ---- Constructor ----
 	
 	def __init__(self, size: int):
 		"""Constructs a byte history of the given size, initialized to zeros."""
@@ -202,6 +218,8 @@ class ByteHistory:
 		self._data = [0] * size
 		self._index = 0
 	
+	
+	# ---- Methods ----
 	
 	def append(self, b: int) -> None:
 		"""Appends the given byte to this history.
@@ -230,7 +248,7 @@ class ByteHistory:
 
 class Decompressor:
 	
-	# -- Public functions --
+	# ---- Public functions ----
 	
 	"""Decompresses raw DEFLATE data (without zlib or gzip container) into bytes."""
 	
@@ -248,12 +266,16 @@ class Decompressor:
 		Decompressor(bitin, out)
 	
 	
-	# -- Private implementation --
+	# ---- Private implementation ----
+	
+	# -- Fields --
 	
 	_input: BitInputStream
 	_output: BinaryIO
 	_dictionary: ByteHistory
 	
+	
+	# -- Constructor --
 	
 	def __init__(self, bitin: BitInputStream, out: BinaryIO):
 		"""Constructor, which immediately performs decompression"""
@@ -285,14 +307,14 @@ class Decompressor:
 				break
 	
 	
-	# -- The constant code trees for static Huffman codes (btype = 1) --
+	# -- Constants: The code trees for static Huffman codes (btype = 1) --
 	
 	_FIXED_LITERAL_LENGTH_CODE = CanonicalCode([8]*144 + [9]*112 + [7]*24 + [8]*8)
 	
 	_FIXED_DISTANCE_CODE = CanonicalCode([5] * 32)
 	
 	
-	# -- Method for reading and decoding dynamic Huffman codes (btype = 2) --
+	# -- Method: Reading and decoding dynamic Huffman codes (btype = 2) --
 	
 	# Reads from the bit input stream, decodes the Huffman code
 	# specifications into code trees, and returns the trees.
@@ -357,7 +379,7 @@ class Decompressor:
 		return (litlencode, distcode)
 	
 	
-	# -- Block decompression methods --
+	# -- Methods: Block decompression --
 	
 	# Handles and copies an uncompressed block from the bit input stream.
 	def _decompress_uncompressed_block(self) -> None:
@@ -402,7 +424,7 @@ class Decompressor:
 				self._dictionary.copy(dist, run, self._output)
 	
 	
-	# -- Symbol decoding methods --
+	# -- Methods: Symbol decoding --
 	
 	# Returns the run length based on the given symbol and possibly reading more bits.
 	def _decode_run_length(self, sym: int) -> int:

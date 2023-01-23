@@ -41,6 +41,8 @@ import java.util.Objects;
  */
 final class CanonicalCode {
 	
+	/*---- Fields ----*/
+	
 	/* 
 	 * These arrays store the Huffman codes and values necessary for decoding.
 	 * symbolCodeBits contains Huffman codes, each padded with a 1 bit at the
@@ -60,6 +62,8 @@ final class CanonicalCode {
 	private int[] symbolValues;
 	
 	
+	
+	/*---- Constructor ----*/
 	
 	/**
 	 * Constructs a canonical Huffman code from the specified array of symbol code lengths.
@@ -127,6 +131,8 @@ final class CanonicalCode {
 	
 	
 	
+	/*---- Methods ----*/
+	
 	/**
 	 * Decodes the next symbol from the specified bit input stream based on this
 	 * canonical code. The returned symbol value is in the range [0, codeLengths.length).
@@ -165,6 +171,8 @@ final class CanonicalCode {
 	}
 	
 	
+	
+	/*---- Constant ----*/
 	
 	// The maximum Huffman code length allowed in the DEFLATE standard.
 	private static final int MAX_CODE_LENGTH = 15;

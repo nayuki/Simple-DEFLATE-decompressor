@@ -50,6 +50,8 @@ public final class Decompressor {
 	
 	/*---- Private implementation ----*/
 	
+	/*-- Fields --*/
+	
 	private BitInputStream input;
 	
 	private OutputStream output;
@@ -57,6 +59,8 @@ public final class Decompressor {
 	private ByteHistory dictionary;
 	
 	
+	
+	/*-- Constructor --*/
 	
 	// Constructor, which immediately performs decompression
 	private Decompressor(BitInputStream in, OutputStream out) throws IOException, DataFormatException {
@@ -88,7 +92,7 @@ public final class Decompressor {
 	}
 	
 	
-	/*-- The constant code trees for static Huffman codes (btype = 1) --*/
+	/*-- Constants: The code trees for static Huffman codes (btype = 1) --*/
 	
 	private static final CanonicalCode FIXED_LITERAL_LENGTH_CODE;
 	private static final CanonicalCode FIXED_DISTANCE_CODE;
@@ -107,7 +111,7 @@ public final class Decompressor {
 	}
 	
 	
-	/*-- Method for reading and decoding dynamic Huffman codes (btype = 2) --*/
+	/*-- Method: Reading and decoding dynamic Huffman codes (btype = 2) --*/
 	
 	// Reads from the bit input stream, decodes the Huffman code
 	// specifications into code trees, and returns the trees.
@@ -206,7 +210,7 @@ public final class Decompressor {
 	}
 	
 	
-	/*-- Block decompression methods --*/
+	/*-- Methods: Block decompression --*/
 	
 	// Handles and copies an uncompressed block from the bit input stream.
 	private void decompressUncompressedBlock() throws IOException, DataFormatException {
@@ -259,7 +263,7 @@ public final class Decompressor {
 	}
 	
 	
-	/*-- Symbol decoding methods --*/
+	/*-- Methods: Symbol decoding --*/
 	
 	// Returns the run length based on the given symbol and possibly reading more bits.
 	private int decodeRunLength(int sym) throws IOException, DataFormatException {
