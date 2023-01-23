@@ -205,7 +205,7 @@ class ByteHistory:
 	# Circular buffer of byte data.
 	_data: List[int]
 	
-	# Index of next byte to write to, always in the range [0, len(data)).
+	# Index of next byte to write to, always in the range [0, len(_data)).
 	_index: int
 	
 	

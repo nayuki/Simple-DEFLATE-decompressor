@@ -46,7 +46,7 @@ public final class ByteHistoryTest {
 			byte[] buf = new byte[30000];
 			int index = 0;
 			
-			// Fill the first 'size' elements of both structures
+			// Fill the first `size` elements of both structures
 			for (int j = 0; j < size; j++) {
 				byte b = (byte)rand.nextInt(256);
 				buf[index] = b;

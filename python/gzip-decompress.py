@@ -26,7 +26,7 @@ def main(argv: List[str]) -> Optional[str]:
 		# Start reading
 		with infile.open("rb") as inp:
 			
-			# Define helper read functions based on 'inp'
+			# Define helper read functions based on `inp`
 			
 			def read_byte() -> int:
 				b: bytes = inp.read(1)
