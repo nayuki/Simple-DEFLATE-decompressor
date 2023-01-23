@@ -25,6 +25,9 @@ final class ByteHistory {
 	// Index of next byte to write to, always in the range [0, data.length).
 	private int index;
 	
+	// Number of bytes written, saturating at data.length.
+	private int length;
+	
 	
 	
 	/*---- Constructor ----*/
@@ -39,6 +42,7 @@ final class ByteHistory {
 			throw new IllegalArgumentException("Size must be positive");
 		data = new byte[size];
 		index = 0;
+		length = 0;
 	}
 	
 	
@@ -54,6 +58,8 @@ final class ByteHistory {
 		assert 0 <= index && index < data.length : "Unreachable state";
 		data[index] = (byte)b;
 		index = (index + 1) % data.length;
+		if (length < data.length)
+			length++;
 	}
 	
 	
@@ -72,7 +78,7 @@ final class ByteHistory {
 	 */
 	public void copy(int dist, int len, OutputStream out) throws IOException {
 		Objects.requireNonNull(out);
-		if (len < 0 || dist < 1 || dist > data.length)
+		if (len < 0 || dist < 1 || dist > length)
 			throw new IllegalArgumentException("Invalid length or distance");
 		
 		int readIndex = (index - dist + data.length) % data.length;

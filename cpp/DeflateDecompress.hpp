@@ -151,6 +151,9 @@ class ByteHistory final {
 	// Index of next byte to write to, always in the range [0, data.size()).
 	private: std::size_t index;
 	
+	// Number of bytes written, saturating at data.size().
+	private: std::size_t length;
+	
 	
 	/*---- Constructor ----*/
 	
