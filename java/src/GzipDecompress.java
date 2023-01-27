@@ -116,8 +116,7 @@ public final class GzipDecompress {
 					System.out.println("Flag: Text");
 				if (flags.get(2)) {
 					System.out.println("Flag: Extra");
-					int len = readLittleEndianUint16(in);
-					in.readFully(new byte[len]);  // Skip extra data
+					in.skipNBytes(readLittleEndianUint16(in));
 				}
 				if (flags.get(3))
 					System.out.println("File name: " + readNullTerminatedString(in));
