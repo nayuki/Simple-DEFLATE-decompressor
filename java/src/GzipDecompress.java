@@ -86,7 +86,8 @@ public final class GzipDecompress {
 					});
 					
 					// Operating system
-					String os = switch (in.readUnsignedByte()) {
+					int operatingSystem = in.readUnsignedByte();
+					String os = switch (operatingSystem) {
 						case   0 -> "FAT";
 						case   1 -> "Amiga";
 						case   2 -> "VMS";
@@ -102,7 +103,7 @@ public final class GzipDecompress {
 						case  12 -> "QDOS";
 						case  13 -> "Acorn RISCOS";
 						case 255 -> "Unknown";
-						default  -> "Really unknown";
+						default  -> "Really unknown (" + operatingSystem + ")";
 					};
 					System.out.println("Operating system: " + os);
 				}
