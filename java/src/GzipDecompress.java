@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.BitSet;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 
@@ -57,17 +58,19 @@ public final class GzipDecompress {
 			// Start reading
 			try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(inFile), 16 * 1024))) {
 				// Header
-				int flags;
+				BitSet flags;
 				{
 					if (in.readUnsignedShort() != 0x1F8B)
 						return "Invalid GZIP magic number";
 					int compMeth = in.readUnsignedByte();
 					if (compMeth != 8)
 						return "Unsupported compression method: " + compMeth;
-					flags = in.readUnsignedByte();
+					var flagByte = new byte[1];
+					in.readFully(flagByte);
+					flags = BitSet.valueOf(flagByte);
 					
 					// Reserved flags
-					if ((flags & 0xE0) != 0)
+					if (flags.get(5) || flags.get(6) || flags.get(7))
 						return "Reserved flags are set";
 					
 					// Modification time
@@ -109,18 +112,18 @@ public final class GzipDecompress {
 				}
 				
 				// Handle assorted flags
-				if ((flags & 0x01) != 0)
+				if (flags.get(0))
 					System.out.println("Flag: Text");
-				if ((flags & 0x04) != 0) {
+				if (flags.get(2)) {
 					System.out.println("Flag: Extra");
 					int len = readLittleEndianUint16(in);
 					in.readFully(new byte[len]);  // Skip extra data
 				}
-				if ((flags & 0x08) != 0)
+				if (flags.get(3))
 					System.out.println("File name: " + readNullTerminatedString(in));
-				if ((flags & 0x02) != 0)
+				if (flags.get(1))
 					System.out.printf("Header CRC-16: %04X%n", readLittleEndianUint16(in));
-				if ((flags & 0x10) != 0)
+				if (flags.get(4))
 					System.out.println("Comment: " + readNullTerminatedString(in));
 				
 				// Decompress
