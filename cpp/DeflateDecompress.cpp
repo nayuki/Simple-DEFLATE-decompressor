@@ -102,10 +102,10 @@ CanonicalCode::CanonicalCode(const vector<int> &codeLengths) {
 int CanonicalCode::decodeNextSymbol(BitInputStream &in) const {
 	long codeBits = 1;  // The start bit
 	while (true) {
-		// Accumulate one bit at a time on the right side until a match is
-		// found in the symbolCodeBits array. Because the Huffman code tree is
-		// full, this loop must terminate after at most MAX_CODE_LENGTH iterations.
-		codeBits = codeBits << 1 | in.readUint(1);
+		// Accumulate one bit at a time on the right side until a match is found
+		// in the symbolCodeBits array. Because the Huffman code tree is full,
+		// this loop must terminate after at most MAX_CODE_LENGTH iterations.
+		codeBits = (codeBits << 1) | in.readUint(1);
 		auto it = codeBitsToSymbol.find(codeBits);
 		if (it != codeBitsToSymbol.end())
 			return it->second;

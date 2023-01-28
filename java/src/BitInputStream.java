@@ -34,7 +34,8 @@ public interface BitInputStream extends Closeable {
 	
 	
 	/**
-	 * Reads the specified number of bits from this stream, packing them in little endian as an unsigned integer.
+	 * Reads the specified number of bits from this stream,
+	 * packing them in little endian as an unsigned integer.
 	 * @param numBits the number of bits to read, in the range [0, 31]
 	 * @return a number in the range [0, 2<sup>numBits</sup>)
 	 * @throws IllegalArgumentException if the number of bits is out of range

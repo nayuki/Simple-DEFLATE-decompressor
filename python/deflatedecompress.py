@@ -12,9 +12,9 @@ from typing import BinaryIO, Dict, List, Optional, Sequence, Tuple
 
 class BitInputStream:
 	
-	"""A stream of bits that can be read. Because they come from an underlying byte stream, the
-	total number of bits is always a multiple of 8. Bits are packed in little endian within a byte.
-	For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1]."""
+	"""A stream of bits that can be read. Because they come from an underlying byte stream,
+	the total number of bits is always a multiple of 8. Bits are packed in little endian within
+	a byte. For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1]."""
 	
 	
 	# ---- Fields ----
@@ -64,7 +64,8 @@ class BitInputStream:
 	
 	
 	def read_uint(self, numbits: int) -> int:
-		"""Reads the given number of bits from this stream, packing them in little endian as an unsigned integer."""
+		"""Reads the given number of bits from this stream,
+		packing them in little endian as an unsigned integer."""
 		if numbits < 0:
 			raise ValueError("Number of bits out of range")
 		result: int = 0
@@ -86,9 +87,9 @@ class BitInputStream:
 
 class CanonicalCode:
 	
-	"""A canonical Huffman code, where the code values for each symbol is derived
-	from a given sequence of code lengths. This data structure is immutable.
-	This could be transformed into an explicit Huffman code tree.
+	"""A canonical Huffman code, where the code values for each symbol is
+	derived from a given sequence of code lengths. This data structure is
+	immutable. This could be transformed into an explicit Huffman code tree.
 	
 	Example:
 	  Code lengths (canonical code):
@@ -117,11 +118,10 @@ class CanonicalCode:
 	
 	# ---- Field ----
 	
-	# This dictionary maps Huffman codes to symbol values.
-	# Each key is the Huffman code padded with a 1 bit at the
-	# beginning to disambiguate codes of different lengths
-	# (e.g. otherwise we can't distinguish 0b01 from 0b0001).
-	# For the example of codelengths=[1,0,3,2,3], we would have:
+	# This dictionary maps Huffman codes to symbol values. Each key is the
+	# Huffman code padded with a 1 bit at the beginning to disambiguate codes
+	# of different lengths (e.g. otherwise we can't distinguish b01 from
+	# 0b0001). For the example of codelengths=[1,0,3,2,3], we would have:
 	#     0b1_0 -> 0
 	#    0b1_10 -> 3
 	#   0b1_110 -> 2
@@ -267,7 +267,8 @@ class Decompressor:
 	
 	@staticmethod
 	def decompress_to_stream(bitin: BitInputStream, out: BinaryIO) -> None:
-		"""Reads from the given input stream, decompresses the data, and writes to the given output stream."""
+		"""Reads from the given input stream, decompresses
+		the data, and writes to the given output stream."""
 		Decompressor(bitin, out)
 	
 	

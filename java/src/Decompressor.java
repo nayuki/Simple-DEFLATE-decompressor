@@ -36,7 +36,8 @@ public final class Decompressor {
 	
 	
 	/**
-	 * Reads from the specified input stream, decompresses the data, and writes to the specified output stream.
+	 * Reads from the specified input stream, decompresses
+	 * the data, and writes to the specified output stream.
 	 * @param in the bit input stream to read from (not {@code null})
 	 * @param out the byte output stream to write to (not {@code null})
 	 * @throws NullPointerException if the input or output stream is {@code null}

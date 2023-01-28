@@ -52,7 +52,8 @@ class BitInputStream {
 	public: int readBitMaybe();
 	
 	
-	// Reads the given number of bits from this stream, packing them in little endian as an unsigned integer.
+	// Reads the given number of bits from this stream,
+	// packing them in little endian as an unsigned integer.
 	public: int readUint(int numBits);
 	
 };
@@ -60,9 +61,9 @@ class BitInputStream {
 
 
 /* 
- * A canonical Huffman code, where the code values for each symbol is derived
- * from a given sequence of code lengths. This data structure is immutable.
- * This could be transformed into an explicit Huffman code tree.
+ * A canonical Huffman code, where the code values for each symbol is
+ * derived from a given sequence of code lengths. This data structure is
+ * immutable. This could be transformed into an explicit Huffman code tree.
  * 
  * Example:
  *   Code lengths (canonical code):
@@ -92,11 +93,10 @@ class CanonicalCode final {
 	
 	/*---- Field ----*/
 	
-	// This dictionary maps Huffman codes to symbol values.
-	// Each key is the Huffman code padded with a 1 bit at the
-	// beginning to disambiguate codes of different lengths
-	// (e.g. otherwise we can't distinguish 0b01 from 0b0001).
-	// For the example of codelengths=[1,0,3,2,3], we would have:
+	// This dictionary maps Huffman codes to symbol values. Each key is the
+	// Huffman code padded with a 1 bit at the beginning to disambiguate codes
+	// of different lengths (e.g. otherwise we can't distinguish 0b01 from
+	// 0b0001). For the example of codeLengths=[1,0,3,2,3], we would have:
 	//     0b1_0 -> 0
 	//    0b1_10 -> 3
 	//   0b1_110 -> 2

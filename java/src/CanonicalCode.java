@@ -12,9 +12,9 @@ import java.util.Objects;
 
 
 /**
- * A canonical Huffman code, where the code values for each symbol is derived
- * from a given sequence of code lengths. This data structure is immutable.
- * This could be transformed into an explicit Huffman code tree.
+ * A canonical Huffman code, where the code values for each symbol is
+ * derived from a given sequence of code lengths. This data structure is
+ * immutable. This could be transformed into an explicit Huffman code tree.
  * <p>Example:</p>
  * <pre>  Code lengths (canonical code):
  *    Symbol A: 1
@@ -144,9 +144,9 @@ final class CanonicalCode {
 		Objects.requireNonNull(in);
 		int codeBits = 1;  // The start bit
 		while (true) {
-			// Accumulate one bit at a time on the right side until a match is
-			// found in the symbolCodeBits array. Because the Huffman code tree is
-			// full, this loop must terminate after at most MAX_CODE_LENGTH iterations.
+			// Accumulate one bit at a time on the right side until a match is found
+			// in the symbolCodeBits array. Because the Huffman code tree is full,
+			// this loop must terminate after at most MAX_CODE_LENGTH iterations.
 			codeBits = codeBits << 1 | in.readUint(1);
 			int index = Arrays.binarySearch(symbolCodeBits, codeBits);
 			if (index >= 0)
