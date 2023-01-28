@@ -235,7 +235,8 @@ class Decompressor final {
 	private: void decompressUncompressedBlock();
 	
 	// Decompresses a Huffman-coded block from the bit input stream based on the given Huffman codes.
-	private: void decompressHuffmanBlock(const CanonicalCode &litLenCode, const std::optional<CanonicalCode> &distCode);
+	private: void decompressHuffmanBlock(
+		const CanonicalCode &litLenCode, const std::optional<CanonicalCode> &distCode);
 	
 	
 	/*-- Methods: Symbol decoding --*/

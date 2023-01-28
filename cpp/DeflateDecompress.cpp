@@ -294,7 +294,8 @@ std::pair<CanonicalCode,std::optional<CanonicalCode>> Decompressor::decodeHuffma
 		distCode = std::optional<CanonicalCode>(distCodeLen);
 	}
 	
-	return std::pair<CanonicalCode,std::optional<CanonicalCode>>(std::move(litLenCode), std::move(distCode));
+	return std::pair<CanonicalCode,std::optional<CanonicalCode>>(
+		std::move(litLenCode), std::move(distCode));
 }
 
 
@@ -320,7 +321,9 @@ void Decompressor::decompressUncompressedBlock() {
 }
 
 
-void Decompressor::decompressHuffmanBlock(const CanonicalCode &litLenCode, const std::optional<CanonicalCode> &distCode) {
+void Decompressor::decompressHuffmanBlock(
+		const CanonicalCode &litLenCode, const std::optional<CanonicalCode> &distCode) {
+	
 	while (true) {
 		int sym = litLenCode.decodeNextSymbol(input);
 		if (sym == 256)  // End of block
