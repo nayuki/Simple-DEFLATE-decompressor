@@ -260,18 +260,18 @@ class Decompressor:
 	# ---- Public functions ----
 	
 	@staticmethod
-	def decompress_to_bytes(bitin: BitInputStream) -> bytes:
+	def decompress_to_bytes(inp: BitInputStream) -> bytes:
 		"""Reads from the given input stream, decompresses the data, and returns a new byte list."""
 		out = io.BytesIO()
-		Decompressor.decompress_to_stream(bitin, out)
+		Decompressor.decompress_to_stream(inp, out)
 		return out.getvalue()
 	
 	
 	@staticmethod
-	def decompress_to_stream(bitin: BitInputStream, out: BinaryIO) -> None:
+	def decompress_to_stream(inp: BitInputStream, out: BinaryIO) -> None:
 		"""Reads from the given input stream, decompresses
 		the data, and writes to the given output stream."""
-		Decompressor(bitin, out)
+		Decompressor(inp, out)
 	
 	
 	# ---- Private implementation ----
@@ -285,18 +285,18 @@ class Decompressor:
 	
 	# -- Constructor --
 	
-	def __init__(self, bitin: BitInputStream, out: BinaryIO):
+	def __init__(self, inp: BitInputStream, out: BinaryIO):
 		"""Constructor, which immediately performs decompression"""
 		
 		# Initialize fields
-		self._input = bitin
+		self._input = inp
 		self._output = out
 		self._dictionary = ByteHistory(32 * 1024)
 		
 		# Process the stream of blocks
 		while True:
 			# Read the block header
-			isfinal: bool = bitin.read_uint(1) != 0  # bfinal
+			isfinal: bool = self._input.read_uint(1) != 0  # bfinal
 			type: int = self._input.read_uint(2)  # btype
 			
 			# Decompress rest of block based on the type
