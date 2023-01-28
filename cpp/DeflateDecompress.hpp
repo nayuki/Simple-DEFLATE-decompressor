@@ -45,6 +45,7 @@ class BitInputStream {
 	
 	/*---- Methods ----*/
 	
+	// Returns the current bit position, which ascends from 0 to 7 as bits are read.
 	public: int getBitPosition() const;
 	
 	
@@ -141,7 +142,7 @@ class CanonicalCode final {
 
 /* 
  * Stores a finite recent history of a byte stream. Useful as an implicit
- * dictionary for Lempel-Ziv schemes. Mutable and not thread-safe.
+ * dictionary for Lempel-Ziv schemes.
  */
 class ByteHistory final {
 	

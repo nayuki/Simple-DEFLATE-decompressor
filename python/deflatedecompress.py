@@ -197,7 +197,7 @@ class CanonicalCode:
 class ByteHistory:
 	
 	"""Stores a finite recent history of a byte stream. Useful as an implicit
-	dictionary for Lempel-Ziv schemes. Mutable and not thread-safe."""
+	dictionary for Lempel-Ziv schemes."""
 	
 	
 	# ---- Fields ----
@@ -254,9 +254,10 @@ class ByteHistory:
 
 class Decompressor:
 	
-	# ---- Public functions ----
-	
 	"""Decompresses raw DEFLATE data (without zlib or gzip container) into bytes."""
+	
+	
+	# ---- Public functions ----
 	
 	@staticmethod
 	def decompress_to_bytes(bitin: BitInputStream) -> bytes:
