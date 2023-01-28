@@ -145,21 +145,21 @@ static string submain(int argc, char *argv[]) {
 				int operatingSystem = in1.readUint8();
 				string os;
 				switch (operatingSystem) {
-					case   0:  os = "FAT";             break;
-					case   1:  os = "Amiga";           break;
-					case   2:  os = "VMS";             break;
-					case   3:  os = "Unix";            break;
-					case   4:  os = "VM/CMS";          break;
-					case   5:  os = "Atari TOS";       break;
-					case   6:  os = "HPFS";            break;
-					case   7:  os = "Macintosh";       break;
-					case   8:  os = "Z-System";        break;
-					case   9:  os = "CP/M";            break;
-					case  10:  os = "TOPS-20";         break;
-					case  11:  os = "NTFS";            break;
-					case  12:  os = "QDOS";            break;
-					case  13:  os = "Acorn RISCOS";    break;
-					case 255:  os = "Unknown";         break;
+					case   0:  os = "FAT";           break;
+					case   1:  os = "Amiga";         break;
+					case   2:  os = "VMS";           break;
+					case   3:  os = "Unix";          break;
+					case   4:  os = "VM/CMS";        break;
+					case   5:  os = "Atari TOS";     break;
+					case   6:  os = "HPFS";          break;
+					case   7:  os = "Macintosh";     break;
+					case   8:  os = "Z-System";      break;
+					case   9:  os = "CP/M";          break;
+					case  10:  os = "TOPS-20";       break;
+					case  11:  os = "NTFS";          break;
+					case  12:  os = "QDOS";          break;
+					case  13:  os = "Acorn RISCOS";  break;
+					case 255:  os = "Unknown";       break;
 					default :  os = string("Really unknown (") + std::to_string(operatingSystem) + ")";  break;
 				}
 				std::cout << "Operating system: " << os << std::endl;
