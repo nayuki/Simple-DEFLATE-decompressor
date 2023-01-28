@@ -169,8 +169,8 @@ static string submain(int argc, char *argv[]) {
 				std::cout << "Flag: Text" << std::endl;
 			if ((flags & 0x04) != 0) {
 				std::cout << "Flag: Extra" << std::endl;
-				uint16_t len = in1.readLittleEndianUint16();
-				for (uint16_t i = 0; i < len; i++)  // Skip extra data
+				long len = in1.readLittleEndianUint16();
+				for (long i = 0; i < len; i++)  // Skip extra data
 					in1.readUint8();
 			}
 			if ((flags & 0x08) != 0)
