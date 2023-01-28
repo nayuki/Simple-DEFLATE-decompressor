@@ -8,7 +8,6 @@
 
 #include <cassert>
 #include <climits>
-#include <istream>
 #include <sstream>
 #include <stdexcept>
 #include <string>

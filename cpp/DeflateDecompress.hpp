@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <istream>
 #include <optional>
 #include <ostream>
 #include <unordered_map>
