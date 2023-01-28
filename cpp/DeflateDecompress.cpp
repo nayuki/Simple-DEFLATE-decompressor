@@ -16,6 +16,9 @@
 using std::uint8_t;
 using std::size_t;
 using std::vector;
+using std::domain_error;
+using std::logic_error;
+using std::runtime_error;
 
 
 /*---- BitInputStream class ----*/
@@ -28,7 +31,7 @@ BitInputStream::BitInputStream(std::istream &in) :
 
 int BitInputStream::getBitPosition() const {
 	if (numBitsRemaining < 0 || numBitsRemaining > 7)
-		throw std::logic_error("Unreachable state");
+		throw logic_error("Unreachable state");
 	return (8 - numBitsRemaining) % 8;
 }
 
@@ -41,11 +44,11 @@ int BitInputStream::readBitMaybe() {
 		if (currentByte == std::char_traits<char>::eof())
 			return -1;
 		if (currentByte < 0 || currentByte > 255)
-			throw std::logic_error("Unreachable state");
+			throw logic_error("Unreachable state");
 		numBitsRemaining = 8;
 	}
 	if (numBitsRemaining <= 0)
-		throw std::logic_error("Unreachable state");
+		throw logic_error("Unreachable state");
 	numBitsRemaining--;
 	return (currentByte >> (7 - numBitsRemaining)) & 1;
 }
@@ -53,12 +56,12 @@ int BitInputStream::readBitMaybe() {
 
 int BitInputStream::readUint(int numBits) {
 	if (numBits < 0 || numBits > 15)
-		throw std::domain_error("Number of bits out of range");
+		throw domain_error("Number of bits out of range");
 	int result = 0;
 	for (int i = 0; i < numBits; i++) {
 		int bit = readBitMaybe();
 		if (bit == -1)
-			throw std::runtime_error("Unexpected end of stream");
+			throw runtime_error("Unexpected end of stream");
 		result |= bit << i;
 	}
 	return result;
@@ -71,12 +74,12 @@ int BitInputStream::readUint(int numBits) {
 CanonicalCode::CanonicalCode(const vector<int> &codeLengths) {
 	// Check argument values
 	if (codeLengths.size() > INT_MAX)
-		throw std::domain_error("Too many symbols");
+		throw domain_error("Too many symbols");
 	for (int x : codeLengths) {
 		if (x < 0)
-			throw std::domain_error("Negative code length");
+			throw domain_error("Negative code length");
 		if (x > MAX_CODE_LENGTH)
-			throw std::domain_error("Maximum code length exceeded");
+			throw domain_error("Maximum code length exceeded");
 	}
 	
 	// Allocate code values to symbols. Symbols are processed in the order
@@ -89,13 +92,13 @@ CanonicalCode::CanonicalCode(const vector<int> &codeLengths) {
 			if (codeLengths[symbol] != codeLength)
 				continue;
 			if (nextCode >= startBit)
-				throw std::domain_error("This canonical code produces an over-full Huffman code tree");
+				throw domain_error("This canonical code produces an over-full Huffman code tree");
 			codeBitsToSymbol[startBit | nextCode] = symbol;
 			nextCode++;
 		}
 	}
 	if (nextCode != 1L << MAX_CODE_LENGTH)
-		throw std::domain_error("This canonical code produces an under-full Huffman code tree");
+		throw domain_error("This canonical code produces an under-full Huffman code tree");
 }
 
 
@@ -121,7 +124,7 @@ ByteHistory::ByteHistory(size_t size) :
 		index(0),
 		length(0) {
 	if (size < 1)
-		throw std::domain_error("Size must be positive");
+		throw domain_error("Size must be positive");
 }
 
 
@@ -136,7 +139,7 @@ void ByteHistory::append(uint8_t b) {
 
 void ByteHistory::copy(long dist, int len, std::ostream &out) {
 	if (len < 0 || dist < 1 || static_cast<unsigned long>(dist) > length)
-		throw std::domain_error("Invalid length or distance");
+		throw domain_error("Invalid length or distance");
 	
 	size_t readIndex = (0U + data.size() - dist + index) % data.size();
 	for (int i = 0; i < len; i++) {
@@ -192,9 +195,9 @@ Decompressor::Decompressor(BitInputStream &in, std::ostream &out) :
 			std::pair<CanonicalCode,std::optional<CanonicalCode>> litLenAndDist = decodeHuffmanCodes();
 			decompressHuffmanBlock(litLenAndDist.first, litLenAndDist.second);
 		} else if (type == 3)
-			throw std::domain_error("Reserved block type");
+			throw domain_error("Reserved block type");
 		else
-			throw std::logic_error("Impossible value");
+			throw logic_error("Impossible value");
 	} while (!isFinal);
 }
 
@@ -249,7 +252,7 @@ std::pair<CanonicalCode,std::optional<CanonicalCode>> Decompressor::decodeHuffma
 			int runVal = 0;
 			if (sym == 16) {
 				if (codeLens.empty())
-					throw std::domain_error("No code length value to copy");
+					throw domain_error("No code length value to copy");
 				runLen = input.readUint(2) + 3;
 				runVal = codeLens.back();
 			} else if (sym == 17)
@@ -257,13 +260,13 @@ std::pair<CanonicalCode,std::optional<CanonicalCode>> Decompressor::decodeHuffma
 			else if (sym == 18)
 				runLen = input.readUint(7) + 11;
 			else
-				throw std::logic_error("Symbol out of range");
+				throw logic_error("Symbol out of range");
 			for (int i = 0; i < runLen; i++)
 				codeLens.push_back(runVal);
 		}
 	}
 	if (codeLens.size() > static_cast<unsigned int>(numLitLenCodes + numDistCodes))
-		throw std::domain_error("Run exceeds number of codes");
+		throw domain_error("Run exceeds number of codes");
 	
 	// Create literal-length code tree
 	CanonicalCode litLenCode(vector(codeLens.begin(), codeLens.begin() + numLitLenCodes));
@@ -308,13 +311,13 @@ void Decompressor::decompressUncompressedBlock() {
 	long  len = static_cast<long>(input.readUint(8)) << 8;   len |= input.readUint(8);
 	long nlen = static_cast<long>(input.readUint(8)) << 8;  nlen |= input.readUint(8);
 	if ((len ^ 0xFFFF) != nlen)
-		throw std::domain_error("Invalid length in uncompressed block");
+		throw domain_error("Invalid length in uncompressed block");
 	
 	// Copy bytes
 	for (long i = 0; i < len; i++) {
 		int b = input.readUint(8);  // Byte is aligned
 		if (b == -1)
-			throw std::runtime_error("Unexpected end of stream");
+			throw runtime_error("Unexpected end of stream");
 		output.put(static_cast<char>(b));
 		dictionary.append(b);
 	}
@@ -336,13 +339,13 @@ void Decompressor::decompressHuffmanBlock(
 		} else {  // Length and distance for copying
 			int run = decodeRunLength(sym);
 			if (run < 3 || run > 258)
-				throw std::logic_error("Invalid run length");
+				throw logic_error("Invalid run length");
 			if (!distCode.has_value())
-				throw std::domain_error("Length symbol encountered with empty distance code");
+				throw domain_error("Length symbol encountered with empty distance code");
 			int distSym = distCode->decodeNextSymbol(input);
 			long dist = decodeDistance(distSym);
 			if (dist < 1 || dist > 32768)
-				throw std::logic_error("Invalid distance");
+				throw logic_error("Invalid distance");
 			dictionary.copy(dist, run, output);
 		}
 	}
@@ -362,7 +365,7 @@ int Decompressor::decodeRunLength(int sym) {
 	} else if (sym == 285)
 		return 258;
 	else  // sym is 286 or 287
-		throw std::domain_error("Reserved length symbol");
+		throw domain_error("Reserved length symbol");
 }
 
 
@@ -377,5 +380,5 @@ long Decompressor::decodeDistance(int sym) {
 		int numExtraBits = sym / 2 - 1;
 		return ((sym % 2 + 2L) << numExtraBits) + 1 + input.readUint(numExtraBits);
 	} else  // sym is 30 or 31
-		throw std::domain_error("Reserved distance symbol");
+		throw domain_error("Reserved distance symbol");
 }
