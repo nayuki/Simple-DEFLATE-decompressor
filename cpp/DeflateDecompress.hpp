@@ -32,7 +32,7 @@ class BitInputStream {
 	// Either in the range [0x00, 0xFF] if bits are available, or EOF if end of stream is reached.
 	private: int currentByte;
 	
-	// Number of remaining bits in the current byte, always between 0 and 7 (inclusive).
+	// Number of remaining bits in the current byte, in the range [0, 8).
 	private: int numBitsRemaining;
 	
 	
