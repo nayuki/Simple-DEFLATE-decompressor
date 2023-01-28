@@ -185,7 +185,7 @@ static string submain(int argc, char *argv[]) {
 				BitInputStream in2(in0);
 				decomp = Decompressor::decompress(in2);
 			} catch (std::exception &e) {
-				return std::string("Invalid or corrupt compressed data: ") + e.what();
+				return string("Invalid or corrupt compressed data: ") + e.what();
 			}
 			
 			// Footer
@@ -208,7 +208,7 @@ static string submain(int argc, char *argv[]) {
 		return "";
 		
 	} catch (std::exception &e) {
-		return std::string("I/O exception: ") + e.what();
+		return string("I/O exception: ") + e.what();
 	}
 }
 

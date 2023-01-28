@@ -225,7 +225,7 @@ std::pair<CanonicalCode,std::optional<CanonicalCode>> Decompressor::decodeHuffma
 	
 	// Read the code length code lengths
 	int numCodeLenCodes = input.readUint(4) + 4;   // hclen + 4
-	std::vector<int> codeLenCodeLen(19, 0);  // This array is filled in a strange order
+	vector<int> codeLenCodeLen(19, 0);  // This array is filled in a strange order
 	codeLenCodeLen[16] = input.readUint(3);
 	codeLenCodeLen[17] = input.readUint(3);
 	codeLenCodeLen[18] = input.readUint(3);
@@ -239,7 +239,7 @@ std::pair<CanonicalCode,std::optional<CanonicalCode>> Decompressor::decodeHuffma
 	CanonicalCode codeLenCode(codeLenCodeLen);
 	
 	// Read the main code lengths and handle runs
-	std::vector<int> codeLens;
+	vector<int> codeLens;
 	while (codeLens.size() < static_cast<unsigned int>(numLitLenCodes + numDistCodes)) {
 		int sym = codeLenCode.decodeNextSymbol(input);
 		if (0 <= sym && sym <= 15)
