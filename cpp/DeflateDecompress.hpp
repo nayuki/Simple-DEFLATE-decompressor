@@ -18,9 +18,10 @@
 #include <vector>
 
 
-/**
- * A stream of bits that can be read. Bits are packed in little endian within a byte.
- * For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1].
+/* 
+ * A stream of bits that can be read. Because they come from an underlying byte stream, the
+ * total number of bits is always a multiple of 8. Bits are packed in little endian within
+ * a byte. For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1].
  */
 class BitInputStream {
 	
@@ -138,7 +139,7 @@ class CanonicalCode final {
 
 
 
-/**
+/* 
  * Stores a finite recent history of a byte stream. Useful as an implicit
  * dictionary for Lempel-Ziv schemes. Mutable and not thread-safe.
  */
@@ -164,7 +165,7 @@ class ByteHistory final {
 	
 	/*---- Methods ----*/
 	
-	// Appends the specified byte to this history.
+	// Appends the given byte to this history.
 	// This overwrites the byte value at `size` positions ago.
 	public: void append(std::uint8_t b);
 	
@@ -179,22 +180,18 @@ class ByteHistory final {
 
 
 
-/**
+/* 
  * Decompresses raw DEFLATE data (without zlib or gzip container) into bytes.
  */
 class Decompressor final {
 	
 	/*---- Public functions ----*/
 	
-	/**
-	 * Reads from the given input stream, decompresses the data, and returns a new byte array.
-	 */
+	// Reads from the given input stream, decompresses the data, and returns a new byte array.
 	public: static std::vector<std::uint8_t> decompress(BitInputStream &in);
 	
 	
-	/**
-	 * Reads from the given input stream, decompresses the data, and writes to the given output stream.
-	 */
+	// Reads from the given input stream, decompresses the data, and writes to the given output stream.
 	public: static void decompress(BitInputStream &in, std::ostream &out);
 	
 	
