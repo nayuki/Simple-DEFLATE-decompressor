@@ -119,32 +119,31 @@ int CanonicalCode::decodeNextSymbol(BitInputStream &in) const {
 
 /*---- ByteHistory class ----*/
 
-ByteHistory::ByteHistory(size_t size) :
-		data(size),
-		index(0),
-		length(0) {
-	if (size < 1)
+ByteHistory::ByteHistory(size_t sz) :
+		size(sz),
+		index(0) {
+	if (sz < 1)
 		throw domain_error("Size must be positive");
 }
 
 
 void ByteHistory::append(uint8_t b) {
+	if (data.size() < size)
+		data.push_back(0);  // Dummy value
 	assert(index < data.size());
 	data[index] = b;
-	index = (index + 1U) % data.size();
-	if (length < data.size())
-		length++;
+	index = (index + 1U) % size;
 }
 
 
 void ByteHistory::copy(long dist, int len, std::ostream &out) {
-	if (len < 0 || dist < 1 || static_cast<unsigned long>(dist) > length)
+	if (len < 0 || dist < 1 || static_cast<unsigned long>(dist) > data.size())
 		throw domain_error("Invalid length or distance");
 	
-	size_t readIndex = (0U + data.size() - dist + index) % data.size();
+	size_t readIndex = (0U + size - dist + index) % size;
 	for (int i = 0; i < len; i++) {
 		uint8_t b = data[readIndex];
-		readIndex = (readIndex + 1U) % data.size();
+		readIndex = (readIndex + 1U) % size;
 		out.put(static_cast<char>(b));
 		append(b);
 	}

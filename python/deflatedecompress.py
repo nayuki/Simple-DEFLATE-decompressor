@@ -202,14 +202,14 @@ class ByteHistory:
 	
 	# ---- Fields ----
 	
+	# Maximum number of bytes stored in this history.
+	_size: int
+	
 	# Circular buffer of byte data.
-	_data: List[int]
+	_data: bytearray
 	
 	# Index of next byte to write to, always in the range [0, len(_data)).
 	_index: int
-	
-	# Number of bytes written, saturating at len(_data).
-	_length: int
 	
 	
 	# ---- Constructor ----
@@ -218,9 +218,9 @@ class ByteHistory:
 		"""Constructs a byte history of the given size."""
 		if size < 1:
 			raise ValueError("Size must be positive")
-		self._data = [0] * size
+		self._size = size
+		self._data = bytearray()
 		self._index = 0
-		self._length = 0
 	
 	
 	# ---- Methods ----
@@ -228,10 +228,11 @@ class ByteHistory:
 	def append(self, b: int) -> None:
 		"""Appends the given byte to this history.
 		This overwrites the byte value at `size` positions ago."""
+		if len(self._data) < self._size:
+			self._data.append(0)  # Dummy value
 		assert 0 <= self._index < len(self._data), "Unreachable state"
 		self._data[self._index] = b
-		self._index = (self._index + 1) % len(self._data)
-		self._length = min(self._length + 1, len(self._data))
+		self._index = (self._index + 1) % self._size
 	
 	
 	def copy(self, dist: int, count: int, out: BinaryIO) -> None:
@@ -239,13 +240,13 @@ class ByteHistory:
 		given output stream and also back into this buffer itself.
 		Note that if the count exceeds the distance, then some of the output
 		data will be a copy of data that was copied earlier in the process."""
-		if count < 0 or not (1 <= dist <= self._length):
+		if count < 0 or not (1 <= dist <= len(self._data)):
 			raise ValueError("Invalid count or distance")
 		
-		readindex: int = (self._index - dist) % len(self._data)
+		readindex: int = (self._index - dist) % self._size
 		for _ in range(count):
 			b: int = self._data[readindex]
-			readindex = (readindex + 1) % len(self._data)
+			readindex = (readindex + 1) % self._size
 			out.write(bytes((b,)))
 			self.append(b)
 

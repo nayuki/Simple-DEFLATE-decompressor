@@ -147,14 +147,14 @@ class ByteHistory final {
 	
 	/*---- Fields ----*/
 	
+	// Maximum number of bytes stored in this history.
+	private: std::size_t size;
+	
 	// Circular buffer of byte data.
 	private: std::vector<std::uint8_t> data;
 	
 	// Index of next byte to write to, always in the range [0, data.size()).
 	private: std::size_t index;
-	
-	// Number of bytes written, saturating at data.size().
-	private: std::size_t length;
 	
 	
 	/*---- Constructor ----*/
