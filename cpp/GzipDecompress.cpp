@@ -142,8 +142,9 @@ static string submain(int argc, char *argv[]) {
 				std::cout << std::endl;
 				
 				// Operating system
-				const char *os;
-				switch (in1.readUint8()) {
+				int operatingSystem = in1.readUint8();
+				string os;
+				switch (operatingSystem) {
 					case   0:  os = "FAT";             break;
 					case   1:  os = "Amiga";           break;
 					case   2:  os = "VMS";             break;
@@ -159,7 +160,7 @@ static string submain(int argc, char *argv[]) {
 					case  12:  os = "QDOS";            break;
 					case  13:  os = "Acorn RISCOS";    break;
 					case 255:  os = "Unknown";         break;
-					default :  os = "Really unknown";  break;
+					default :  os = string("Really unknown (") + std::to_string(operatingSystem) + ")";  break;
 				}
 				std::cout << "Operating system: " << os << std::endl;
 			}

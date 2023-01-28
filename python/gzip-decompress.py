@@ -101,7 +101,7 @@ def main(argv: List[str]) -> Optional[str]:
 				255: "Unknown",
 			}
 			osbyte: int = read_byte()
-			osstr: str = OPERATING_SYSTEMS.get(osbyte, "Really unknown")
+			osstr: str = OPERATING_SYSTEMS.get(osbyte, f"Really unknown ({osbyte})")
 			print(f"Operating system: {osstr}")
 			
 			# Handle assorted flags
