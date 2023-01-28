@@ -403,8 +403,6 @@ class Decompressor:
 		# Copy bytes
 		for _ in range(len):
 			b: int = self._input.read_uint(8)  # Byte is aligned
-			if b == -1:
-				raise EOFError("Unexpected end of stream")
 			self._output.write(bytes((b,)))
 			self._dictionary.append(b)
 	

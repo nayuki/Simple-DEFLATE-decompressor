@@ -315,8 +315,6 @@ void Decompressor::decompressUncompressedBlock() {
 	// Copy bytes
 	for (long i = 0; i < len; i++) {
 		int b = input.readUint(8);  // Byte is aligned
-		if (b == -1)
-			throw runtime_error("Unexpected end of stream");
 		output.put(static_cast<char>(b));
 		dictionary.append(b);
 	}

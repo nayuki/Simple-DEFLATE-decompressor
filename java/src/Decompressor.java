@@ -7,7 +7,6 @@
  */
 
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -228,8 +227,6 @@ public final class Decompressor {
 		// Copy bytes
 		for (int i = 0; i < len; i++) {
 			int b = input.readUint(8);  // Byte is aligned
-			if (b == -1)
-				throw new EOFException("Unexpected end of stream");
 			output.write(b);
 			dictionary.append(b);
 		}
