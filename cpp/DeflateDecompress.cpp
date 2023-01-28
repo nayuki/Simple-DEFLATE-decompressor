@@ -44,7 +44,7 @@ int BitInputStream::readBitMaybe() {
 		if (currentByte == std::char_traits<char>::eof())
 			return -1;
 		if (currentByte < 0 || currentByte > 255)
-			throw logic_error("Unreachable state");
+			throw logic_error("Unreachable value");
 		numBitsRemaining = 8;
 	}
 	if (numBitsRemaining <= 0)
@@ -197,7 +197,7 @@ Decompressor::Decompressor(BitInputStream &in, std::ostream &out) :
 		} else if (type == 3)
 			throw domain_error("Reserved block type");
 		else
-			throw logic_error("Impossible value");
+			throw logic_error("Unreachable value");
 	} while (!isFinal);
 }
 

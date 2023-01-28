@@ -308,7 +308,7 @@ class Decompressor:
 			elif type == 3:
 				raise ValueError("Reserved block type")
 			else:
-				assert False, "Impossible value"
+				assert False, "Unreachable value"
 			if isfinal:
 				break
 	

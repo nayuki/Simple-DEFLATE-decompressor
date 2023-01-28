@@ -88,7 +88,7 @@ public final class Decompressor {
 			} else if (type == 3)
 				throw new DataFormatException("Reserved block type");
 			else
-				throw new AssertionError("Impossible value");
+				throw new AssertionError("Unreachable value");
 		} while (!isFinal);
 	}
 	
