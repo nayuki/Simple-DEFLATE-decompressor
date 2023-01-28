@@ -215,7 +215,7 @@ class ByteHistory:
 	# ---- Constructor ----
 	
 	def __init__(self, size: int):
-		"""Constructs a byte history of the given size, initialized to zeros."""
+		"""Constructs a byte history of the given size."""
 		if size < 1:
 			raise ValueError("Size must be positive")
 		self._data = [0] * size

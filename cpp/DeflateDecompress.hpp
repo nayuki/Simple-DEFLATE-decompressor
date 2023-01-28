@@ -159,7 +159,7 @@ class ByteHistory final {
 	
 	/*---- Constructor ----*/
 	
-	// Constructs a byte history of the given size, initialized to zeros.
+	// Constructs a byte history of the given size.
 	public: explicit ByteHistory(std::size_t size);
 	
 	

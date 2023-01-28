@@ -33,7 +33,7 @@ final class ByteHistory {
 	/*---- Constructor ----*/
 	
 	/**
-	 * Constructs a byte history of the specified size, initialized to zeros.
+	 * Constructs a byte history of the specified size.
 	 * @param size the size, which must be positive
 	 * @throws IllegalArgumentException if size is zero or negative
 	 */
