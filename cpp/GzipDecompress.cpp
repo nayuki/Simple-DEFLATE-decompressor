@@ -6,6 +6,7 @@
  * https://www.nayuki.io/page/simple-deflate-decompressor
  */
 
+#include <bitset>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
@@ -111,7 +112,7 @@ static string submain(int argc, char *argv[]) {
 			DataInput in1(in0);
 			
 			// Header
-			int flags;
+			std::bitset<8> flags;
 			{
 				if (in1.readLittleEndianUint16() != 0x8B1F)
 					return "Invalid GZIP magic number";
@@ -121,7 +122,7 @@ static string submain(int argc, char *argv[]) {
 				flags = in1.readUint8();
 				
 				// Reserved flags
-				if ((flags & 0xE0) != 0)
+				if (flags[5] || flags[6] || flags[7])
 					return "Reserved flags are set";
 				
 				// Modification time
@@ -166,19 +167,19 @@ static string submain(int argc, char *argv[]) {
 			}
 			
 			// Handle assorted flags
-			if ((flags & 0x01) != 0)
+			if (flags[0])
 				std::cout << "Flag: Text" << std::endl;
-			if ((flags & 0x04) != 0) {
+			if (flags[2]) {
 				std::cout << "Flag: Extra" << std::endl;
 				long len = in1.readLittleEndianUint16();
 				for (long i = 0; i < len; i++)  // Skip extra data
 					in1.readUint8();
 			}
-			if ((flags & 0x08) != 0)
+			if (flags[3])
 				std::cout << "File name: " + in1.readNullTerminatedString() << std::endl;
-			if ((flags & 0x02) != 0)
+			if (flags[1])
 				std::cout << "Header CRC-16: " << toHex(in1.readLittleEndianUint16(), 4) << std::endl;
-			if ((flags & 0x10) != 0)
+			if (flags[4])
 				std::cout << "Comment: " + in1.readNullTerminatedString() << std::endl;
 			
 			// Decompress
