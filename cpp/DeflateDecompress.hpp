@@ -187,13 +187,13 @@ class Decompressor final {
 	/*---- Public functions ----*/
 	
 	/**
-	 * Reads from the given input stream, decompress the data, and returns a new byte array.
+	 * Reads from the given input stream, decompresses the data, and returns a new byte array.
 	 */
 	public: static std::vector<std::uint8_t> decompress(BitInputStream &in);
 	
 	
 	/**
-	 * Reads from the given input stream, decompress the data, and writes to the given output stream.
+	 * Reads from the given input stream, decompresses the data, and writes to the given output stream.
 	 */
 	public: static void decompress(BitInputStream &in, std::ostream &out);
 	

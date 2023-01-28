@@ -259,7 +259,7 @@ class Decompressor:
 	
 	@staticmethod
 	def decompress_to_bytes(bitin: BitInputStream) -> bytes:
-		"""Reads from the given input stream, decompress the data, and returns a new byte list."""
+		"""Reads from the given input stream, decompresses the data, and returns a new byte list."""
 		out = io.BytesIO()
 		Decompressor.decompress_to_stream(bitin, out)
 		return out.getvalue()
@@ -267,7 +267,7 @@ class Decompressor:
 	
 	@staticmethod
 	def decompress_to_stream(bitin: BitInputStream, out: BinaryIO) -> None:
-		"""Reads from the given input stream, decompress the data, and writes to the given output stream."""
+		"""Reads from the given input stream, decompresses the data, and writes to the given output stream."""
 		Decompressor(bitin, out)
 	
 	

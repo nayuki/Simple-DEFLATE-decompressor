@@ -23,7 +23,7 @@ public final class Decompressor {
 	/*---- Public functions ----*/
 	
 	/**
-	 * Reads from the specified input stream, decompress the data, and returns a new byte array.
+	 * Reads from the specified input stream, decompresses the data, and returns a new byte array.
 	 * @param in the bit input stream to read from (not {@code null})
 	 * @throws NullPointerException if the input stream is {@code null}
 	 * @throws DataFormatException if the DEFLATE data is malformed
@@ -36,7 +36,7 @@ public final class Decompressor {
 	
 	
 	/**
-	 * Reads from the specified input stream, decompress the data, and writes to the specified output stream.
+	 * Reads from the specified input stream, decompresses the data, and writes to the specified output stream.
 	 * @param in the bit input stream to read from (not {@code null})
 	 * @param out the byte output stream to write to (not {@code null})
 	 * @throws NullPointerException if the input or output stream is {@code null}
