@@ -366,7 +366,8 @@ class Decompressor:
 			raise ValueError("Run exceeds number of codes")
 		
 		# Create literal-length code tree
-		litlencode = CanonicalCode(codelens[ : numlitlencodes])
+		litlencodelen: List[int] = codelens[ : numlitlencodes]
+		litlencode = CanonicalCode(litlencodelen)
 		
 		# Create distance code tree with some extra processing
 		distcodelen: List[int] = codelens[numlitlencodes : ]

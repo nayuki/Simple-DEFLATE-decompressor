@@ -225,7 +225,8 @@ namespace deflate {
 				throw new Error("Run exceeds number of codes");
 			
 			// Create literal-length code tree
-			const litLenCode = new CanonicalCode(codeLens.slice(0, numLitLenCodes));
+			const litLenCodeLen: Array<int> = codeLens.slice(0, numLitLenCodes);
+			const litLenCode = new CanonicalCode(litLenCodeLen);
 			
 			// Create distance code tree with some extra processing
 			let distCodeLen: Array<int> = codeLens.slice(numLitLenCodes);

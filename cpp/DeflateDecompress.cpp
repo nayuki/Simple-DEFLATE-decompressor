@@ -268,7 +268,8 @@ std::pair<CanonicalCode,std::optional<CanonicalCode>> Decompressor::decodeHuffma
 		throw domain_error("Run exceeds number of codes");
 	
 	// Create literal-length code tree
-	CanonicalCode litLenCode(vector(codeLens.begin(), codeLens.begin() + numLitLenCodes));
+	vector<int> litLenCodeLen(codeLens.begin(), codeLens.begin() + numLitLenCodes);
+	CanonicalCode litLenCode(litLenCodeLen);
 	
 	// Create distance code tree with some extra processing
 	vector<int> distCodeLen(codeLens.begin() + numLitLenCodes, codeLens.end());
