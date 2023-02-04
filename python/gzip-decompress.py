@@ -117,10 +117,10 @@ def main(argv: List[str]) -> Optional[str]:
 					count -= n
 			if flags & 0x08 != 0:
 				print(f"File name: {read_null_terminated_string()}")
-			if flags & 0x02 != 0:
-				print(f"Header CRC-16: {read_little_int16():04X}")
 			if flags & 0x10 != 0:
 				print(f"Comment: {read_null_terminated_string()}")
+			if flags & 0x02 != 0:
+				print(f"Header CRC-16: {read_little_int16():04X}")
 			
 			# Decompress
 			try:

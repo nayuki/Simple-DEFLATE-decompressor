@@ -177,10 +177,10 @@ static string submain(int argc, char *argv[]) {
 			}
 			if (flags[3])
 				std::cout << "File name: " + in1.readNullTerminatedString() << std::endl;
-			if (flags[1])
-				std::cout << "Header CRC-16: " << toHex(in1.readLittleEndianUint16(), 4) << std::endl;
 			if (flags[4])
 				std::cout << "Comment: " + in1.readNullTerminatedString() << std::endl;
+			if (flags[1])
+				std::cout << "Header CRC-16: " << toHex(in1.readLittleEndianUint16(), 4) << std::endl;
 			
 			// Decompress
 			try {

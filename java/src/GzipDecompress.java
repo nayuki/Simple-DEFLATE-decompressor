@@ -120,10 +120,10 @@ public final class GzipDecompress {
 				}
 				if (flags.get(3))
 					System.out.println("File name: " + readNullTerminatedString(in));
-				if (flags.get(1))
-					System.out.printf("Header CRC-16: %04X%n", readLittleEndianUint16(in));
 				if (flags.get(4))
 					System.out.println("Comment: " + readNullTerminatedString(in));
+				if (flags.get(1))
+					System.out.printf("Header CRC-16: %04X%n", readLittleEndianUint16(in));
 				
 				// Decompress
 				try {
