@@ -170,6 +170,8 @@ public final class Decompressor {
 		
 		// Create literal-length code tree
 		int[] litLenCodeLen = Arrays.copyOf(codeLens, numLitLenCodes);
+		if (litLenCodeLen[256] == 0)
+			throw new DataFormatException("End-of-block symbol has zero code length");
 		CanonicalCode litLenCode;
 		try {
 			litLenCode = new CanonicalCode(litLenCodeLen);

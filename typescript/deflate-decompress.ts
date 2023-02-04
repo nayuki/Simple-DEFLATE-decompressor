@@ -226,6 +226,8 @@ namespace deflate {
 			
 			// Create literal-length code tree
 			const litLenCodeLen: Array<int> = codeLens.slice(0, numLitLenCodes);
+			if (litLenCodeLen[256] == 0)
+				throw new Error("End-of-block symbol has zero code length");
 			const litLenCode = new CanonicalCode(litLenCodeLen);
 			
 			// Create distance code tree with some extra processing

@@ -367,6 +367,8 @@ class Decompressor:
 		
 		# Create literal-length code tree
 		litlencodelen: List[int] = codelens[ : numlitlencodes]
+		if litlencodelen[256] == 0:
+			raise ValueError("End-of-block symbol has zero code length")
 		litlencode = CanonicalCode(litlencodelen)
 		
 		# Create distance code tree with some extra processing

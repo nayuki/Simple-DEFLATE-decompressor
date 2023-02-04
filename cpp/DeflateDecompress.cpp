@@ -269,6 +269,8 @@ std::pair<CanonicalCode,std::optional<CanonicalCode>> Decompressor::decodeHuffma
 	
 	// Create literal-length code tree
 	vector<int> litLenCodeLen(codeLens.begin(), codeLens.begin() + numLitLenCodes);
+	if (litLenCodeLen[256] == 0)
+		throw domain_error("End-of-block symbol has zero code length");
 	CanonicalCode litLenCode(litLenCodeLen);
 	
 	// Create distance code tree with some extra processing
