@@ -310,8 +310,8 @@ void Decompressor::decompressUncompressedBlock() {
 		input.readUint(1);
 	
 	// Read length
-	long  len = static_cast<long>(input.readUint(8)) << 8;   len |= input.readUint(8);
-	long nlen = static_cast<long>(input.readUint(8)) << 8;  nlen |= input.readUint(8);
+	long  len = input.readUint(8);   len |= static_cast<long>(input.readUint(8)) << 8;
+	long nlen = input.readUint(8);  nlen |= static_cast<long>(input.readUint(8)) << 8;
 	if ((len ^ 0xFFFF) != nlen)
 		throw domain_error("Invalid length in uncompressed block");
 	
